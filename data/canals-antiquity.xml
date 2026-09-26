@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The antiquity-age Canal's tech unlock. Loaded only while that age is in use (the node exists only in its age). -->
+<Database>
+    <ProgressionTreeNodeUnlocks>
+        <Row ProgressionTreeNodeType="NODE_TECH_AQ_ENGINEERING" TargetKind="KIND_CONSTRUCTIBLE" TargetType="BUILDING_CANAL_ANTIQUITY" UnlockDepth="1"/>
+    </ProgressionTreeNodeUnlocks>
+</Database>

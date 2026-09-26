@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Workshop / identity emblem for the Canals mod. Matches the Tower-mods family look (dark ground, gold frame,
+     parchment art, serif wordmark). Motif: one land hex between two seas with a straight channel cut through it,
+     a ship mid-passage. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#243042"/>
+      <stop offset="100%" stop-color="#121821"/>
+    </linearGradient>
+    <linearGradient id="parchment" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f7eed1"/>
+      <stop offset="100%" stop-color="#e7d4a3"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2f5d7a"/>
+      <stop offset="100%" stop-color="#1b3a50"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e7d4a3" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#e7d4a3" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="hexclip">
+      <polygon points="812,430 662,689.8 362,689.8 212,430 362,170.2 662,170.2"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <!-- Gold frame to echo the in-game parchment/gold palette -->
+  <rect x="26" y="26" width="972" height="972" rx="30" fill="none" stroke="#c9a24c" stroke-width="4" opacity="0.5"/>
+
+  <!-- Light over the tile -->
+  <circle cx="512" cy="430" r="340" fill="url(#glow)"/>
+
+  <!-- The two seas either side of the isthmus: wave courses fading out from the hex -->
+  <g fill="none" stroke="#c9a24c" stroke-width="4" stroke-linecap="round" opacity="0.55">
+    <path d="M78,392 q22,-16 44,0 t44,0 t44,0"/>
+    <path d="M60,440 q22,-16 44,0 t44,0 t44,0 t44,0"/>
+    <path d="M84,488 q22,-16 44,0 t44,0 t44,0"/>
+    <path d="M770,392 q22,-16 44,0 t44,0 t44,0"/>
+    <path d="M744,440 q22,-16 44,0 t44,0 t44,0 t44,0"/>
+    <path d="M764,488 q22,-16 44,0 t44,0 t44,0"/>
+  </g>
+
+  <!-- The tile: one land hex -->
+  <polygon points="812,430 662,689.8 362,689.8 212,430 362,170.2 662,170.2"
+           fill="url(#parchment)" stroke="#c9a24c" stroke-width="6" stroke-linejoin="round"/>
+
+  <!-- The channel, cut straight through from shore to shore -->
+  <g clip-path="url(#hexclip)">
+    <rect x="200" y="380" width="624" height="100" fill="url(#water)"/>
+    <g fill="none" stroke="#e7d4a3" stroke-width="3" stroke-linecap="round" opacity="0.5">
+      <path d="M236,412 q16,-10 32,0 t32,0 t32,0"/>
+      <path d="M660,414 q16,-10 32,0 t32,0 t32,0"/>
+      <path d="M250,452 q16,-10 32,0 t32,0"/>
+      <path d="M690,452 q16,-10 32,0 t32,0"/>
+    </g>
+  </g>
+  <!-- Banks: the quay walls along both sides of the cut -->
+  <g fill="none" stroke="#c9a24c" stroke-width="6" stroke-linecap="round">
+    <line x1="241" y1="380" x2="783" y2="380"/>
+    <line x1="241" y1="480" x2="783" y2="480"/>
+  </g>
+  <!-- Stone courses on the banks -->
+  <g fill="none" stroke="#c9a24c" stroke-width="3" opacity="0.6">
+    <path d="M290,368 v12 M350,368 v12 M410,368 v12 M470,368 v12 M560,368 v12 M620,368 v12 M680,368 v12 M740,368 v12"/>
+    <path d="M290,480 v12 M350,480 v12 M410,480 v12 M470,480 v12 M560,480 v12 M620,480 v12 M680,480 v12 M740,480 v12"/>
+  </g>
+
+  <!-- The ship, mid-passage -->
+  <g fill="url(#parchment)" stroke="#c9a24c" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Hull -->
+    <path d="M436,438 L588,438 L566,470 L458,470 Z"/>
+    <!-- Mast -->
+    <line x1="512" y1="438" x2="512" y2="318"/>
+    <!-- Sail -->
+    <path d="M518,324 Q580,372 518,430 Z"/>
+    <!-- Pennant -->
+    <path d="M512,318 L540,328 L512,338 Z" fill="#c9a24c"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="512" y="838" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="110"
+        font-weight="bold" fill="#e7d4a3" letter-spacing="6">CANALS</text>
+  <!-- Tagline -->
+  <text x="512" y="902" text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif" font-size="38"
+        fill="#c9a24c" opacity="0.92">Cut a ship channel through land</text>
+</svg>

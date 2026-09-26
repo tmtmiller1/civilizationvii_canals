@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Canals - a Civilization VII mod.
+  Three Canal buildings (Antiquity, Exploration, Modern), built through the ordinary production screen on a land
+  tile that separates two bodies of water. When one completes, the tile becomes a Coast tile with a quay on it and
+  ships sail through. Data: the buildings and their tech unlocks. Script: the placement rule, the completion
+  handler, persistence and rollback.
+  AffectsSavedGames=0: the data adds types only (no base rows change), so a save loads with the mod on or off.
+-->
+<Mod id="tower-canals" version="1" xmlns="ModInfo">
+    <Properties>
+        <Name>LOC_CANALS_MOD_NAME</Name>
+        <Description>LOC_CANALS_MOD_DESCRIPTION</Description>
+        <Authors>Tower</Authors>
+        <Package>Canals</Package>
+        <PackageSortIndex>100</PackageSortIndex>
+        <Version>1.0.0</Version>
+        <AffectsSavedGames>0</AffectsSavedGames>
+    </Properties>
+    <Dependencies>
+        <Mod id="base-standard" title="LOC_MODULE_BASE_STANDARD_NAME"/>
+    </Dependencies>
+    <ActionCriteria>
+        <Criteria id="always"><AlwaysMet></AlwaysMet></Criteria>
+        <Criteria id="antiquity-age-current"><AgeInUse>AGE_ANTIQUITY</AgeInUse></Criteria>
+        <Criteria id="exploration-age-current"><AgeInUse>AGE_EXPLORATION</AgeInUse></Criteria>
+        <Criteria id="modern-age-current"><AgeInUse>AGE_MODERN</AgeInUse></Criteria>
+    </ActionCriteria>
+    <ActionGroups>
+        <ActionGroup id="canals-shell" scope="shell" criteria="always">
+            <Actions>
+                <UpdateText><Item>text/en_us/CanalsText.xml</Item></UpdateText>
+            </Actions>
+        </ActionGroup>
+        <ActionGroup id="canals-game" scope="game" criteria="always">
+            <Properties><LoadOrder>150</LoadOrder></Properties>
+            <Actions>
+                <UpdateDatabase><Item>data/canals.xml</Item></UpdateDatabase>
+                <UpdateText><Item>text/en_us/CanalsText.xml</Item></UpdateText>
+                <UIScripts><Item>ui/canals.js</Item></UIScripts>
+            </Actions>
+        </ActionGroup>
+        <!-- Tech unlocks live in per-age groups: a node of another age is not in that age's database. -->
+        <ActionGroup id="canals-antiquity" scope="game" criteria="antiquity-age-current">
+            <Properties><LoadOrder>151</LoadOrder></Properties>
+            <Actions><UpdateDatabase><Item>data/canals-antiquity.xml</Item></UpdateDatabase></Actions>
+        </ActionGroup>
+        <ActionGroup id="canals-exploration" scope="game" criteria="exploration-age-current">
+            <Properties><LoadOrder>151</LoadOrder></Properties>
+            <Actions><UpdateDatabase><Item>data/canals-exploration.xml</Item></UpdateDatabase></Actions>
+        </ActionGroup>
+        <ActionGroup id="canals-modern" scope="game" criteria="modern-age-current">
+            <Properties><LoadOrder>151</LoadOrder></Properties>
+            <Actions><UpdateDatabase><Item>data/canals-modern.xml</Item></UpdateDatabase></Actions>
+        </ActionGroup>
+    </ActionGroups>
+</Mod>
