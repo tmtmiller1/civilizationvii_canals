@@ -3,10 +3,10 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
-==== 1.0.0 | 2026-09-25 | src 9e49bf244269 | gen 50aa57d8eb2d ====
+==== 1.0.0 | 2026-09-25 | src 6c7dcd6b646e | gen 718812807f6d ====
 [b]Version 1.0.0 · 25 September 2026[/b]
 First release. Watched working end to end on Civilization VII 1.5.0 in games of all three ages; the run behind each step is in docs/verification-runs.md.
-• One Canal building per age, in the ordinary production list, unlocked by Engineering, Shipbuilding and Industrialization, at 300, 500 and 800 production.
+• A Canal building for each age, in the ordinary production list, unlocked by Engineering, Shipbuilding and Industrialization, at 300, 500 and 800 production. A city can dig as many canals as it has sites for.
 • The placement screen offers only canal sites: a land tile the city owns, within its build ring, with sea, lake or navigable river on at least two separate sides. A city or town centre counts as a canal end.
 • When the Canal completes the tile becomes water and any ship can sail through it in the same turn. The retype survives a save and reload.
 • Longer canals from the Exploration age: a straight two-tile line in Exploration, runs of up to five tiles that may bend and branch in Modern. Each opening redraws its neighbours so the channels meet.

@@ -4,7 +4,7 @@ Cut a ship channel through a narrow neck of land. Build the Canal on a land tile
 [h2]Mechanics[/h2]
 [list]
 [*][b]Compatible with 1.5.0.[/b]
-[*][b]One Canal per age[/b], in the ordinary production list, unlocked by Engineering, Shipbuilding and Industrialization, at 300, 500 and 800 production.
+[*][b]A Canal for each age[/b], in the ordinary production list, unlocked by Engineering, Shipbuilding and Industrialization, at 300, 500 and 800 production. A city can dig as many canals as it has sites for.
 [*][b]Canal sites only.[/b] The placement screen offers a land tile the city owns, within its build ring, with sea, lake or navigable river on at least two separate sides. A canal can join a river to the sea or two reaches of a river.
 [*][b]Ships go through the same turn.[/b] When the Canal completes the tile becomes water and any ship can path through it at once. The change survives a save and reload.
 [*][b]Longer canals.[/b] From the Exploration age a second Canal in a straight line with the first cuts a two-tile passage; in the Modern age runs of up to five tiles that may bend and branch. Each opening redraws its neighbours so the channels meet.
