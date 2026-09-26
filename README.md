@@ -45,8 +45,8 @@ other building.
 
 When the Canal completes, the tile turns to water and is drawn as a canal at once, dressed for the age it was dug
 in: a water channel cut through the land toward each shore it joins, boats moored where it meets open water, and
-along the banks an Antiquity harbour with its stone quay, or Exploration houses and a wharf lining the channel, or
-Modern buildings and a harbour. Any ship can now path through the tile between the two waters, in the same turn.
+along the banks an Antiquity harbor with its stone quay, or Exploration houses and a wharf lining the channel, or
+Modern buildings and a harbor. Any ship can now path through the tile between the two waters, in the same turn.
 
 ![The finished three-tile cut, close up](gallery/03-exploration-cut-close.jpg)
 
@@ -72,20 +72,20 @@ houses on it.
 
 In Antiquity a canal is always a single tile: the tiles beside an existing or queued canal are not offered. In
 every age a tile beside a canal is judged as part of that canal's run; a canal's own water never qualifies a
-neighbouring tile as an isthmus by itself.
+neighboring tile as an isthmus by itself.
 
-![An Antiquity canal beside the city centre, with a Galley in it](gallery/04-antiquity-galley-in-canal.jpg)
+![An Antiquity canal beside the city center, with a Galley in it](gallery/04-antiquity-galley-in-canal.jpg)
 
-*An Antiquity canal dug from the city's own tile to the sea, with a Galley in the channel. A settlement centre
-counts as a canal end, so a city or town can open its centre to the water.*
+*An Antiquity canal dug from the city's own tile to the sea, with a Galley in the channel. A settlement center
+counts as a canal end, so a city or town can open its center to the water.*
 
 ## Which tiles qualify
 
 - flat or hill land the city owns, within the city's build ring, not a navigable river tile;
 - ship-water on at least two separate sides of the hex: sea, lake or navigable river, in any combination (the
   same sea on both sides counts), ice not counted; two different bodies of water around it also qualify, even
-  where they meet in one stretch; the settlement's own centre tile counts as water here, so a city or town can
-  dig a canal from its centre out to the sea or a river, and a longer run may start or end at the centre;
+  where they meet in one stretch; the settlement's own center tile counts as water here, so a city or town can
+  dig a canal from its center out to the sea or a river, and a longer run may start or end at the center;
 - from Exploration on, alternatively the tile that extends an existing or queued canal within the age's run rule:
   a straight two-tile line in Exploration, up to five tiles with bends and branches in Modern;
 - no urban district on it, and no building other than a rural improvement, which is removed when the Canal is
@@ -117,7 +117,7 @@ from then on.
 ![A Modern cut with an Ironclad in it](gallery/05-modern-cut-ironclad.jpg)
 
 *A Modern canal, dug from the ocean to a navigable river, with an Ironclad on its way through. Modern canals
-are dressed with the age's harbour and buildings.*
+are dressed with the age's harbor and buildings.*
 
 ## Cliffs and locks
 
@@ -194,9 +194,9 @@ Five steps, each watched in the game on 2026-09-25 (Civilization VII 1.5.0). The
 4. **The passage.** A tile retyped to coast is pathable by ships immediately: a ship's path to the far side goes
    from around the land to through the tile in the same turn. The retype survives a save and reload. The tile's
    area id does not change until the age transition, which is why the placement rule resolves a canal tile's
-   waters through its neighbours rather than its area.
+   waters through its neighbors rather than its area.
 5. **The look.** A retyped hex keeps its land mesh until the next load, so the canal is drawn by script from
-   shipped meshes: one river channel piece per water side meeting at the hex centre, the age's houses and harbour
+   shipped meshes: one river channel piece per water side meeting at the hex center, the age's houses and harbor
    along the first arm, moored boats where the canal meets open water or a junction, and lock pieces at any
    shore that was a cliff. Three looks per age, chosen by plot number so a canal keeps its look across reloads.
    The opened canals are kept in the save and redrawn on load and at the start of every turn.

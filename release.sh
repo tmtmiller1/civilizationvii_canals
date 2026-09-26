@@ -34,8 +34,15 @@ case "$VERSION" in *-dev|*-smoke|0.0.*) echo "error: <Version> '$VERSION' looks 
 grep -q "version: \"$VERSION\"" ui/canals.js \
     || { echo "error: ui/canals.js does not carry version \"$VERSION\"."; exit 1; }
 
-echo "==> Syntax-checking the shipped script and XML"
-node -c ui/canals.js
+# Quality gate: never package a red build. `release:gate` runs lint plus the syntax
+# check that used to live inline here.
+# Set SKIP_VERIFY=1 to bypass (e.g. an emergency hotfix where the gate is knowingly red).
+if [ "${SKIP_VERIFY:-0}" != "1" ]; then
+    echo "release: running 'npm run release:gate' (set SKIP_VERIFY=1 to skip)..."
+    npm run release:gate || { echo "release: 'npm run release:gate' FAILED — aborting."; exit 1; }
+fi
+
+echo "==> Syntax-checking the shipped XML"
 if command -v xmllint >/dev/null 2>&1; then
     xmllint --noout "$MODINFO" data/*.xml text/en_us/*.xml
 fi
