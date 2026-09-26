@@ -1,0 +1,39 @@
+[h1]Canals[/h1]
+[b]Version 1.0.0, the first release. For Civilization VII 1.5.0.[/b]
+Cut a ship channel through a narrow neck of land. Build the Canal on a land tile between two shores; when it is finished the tile becomes water, ships sail through it, and it is drawn as a canal for its age, with a harbour, houses and boats along the banks.
+[h2]Mechanics[/h2]
+[list]
+[*][b]Compatible with 1.5.0.[/b]
+[*][b]One Canal per age[/b], in the ordinary production list, unlocked by Engineering, Shipbuilding and Industrialization, at 300, 500 and 800 production.
+[*][b]Canal sites only.[/b] The placement screen offers a land tile the city owns, within its build ring, with sea, lake or navigable river on at least two separate sides. A canal can join a river to the sea or two reaches of a river.
+[*][b]Ships go through the same turn.[/b] When the Canal completes the tile becomes water and any ship can path through it at once. The change survives a save and reload.
+[*][b]Longer canals.[/b] From the Exploration age a second Canal in a straight line with the first cuts a two-tile passage; in the Modern age runs of up to five tiles that may bend and branch. Each opening redraws its neighbours so the channels meet.
+[*][b]A worked tile with its own yields.[/b] The finished canal is a fishing tile of the city, and the Canal stays on it as a building with its own food and gold: 2 and 2 in Antiquity, 3 and 4 in Exploration, 4 and 6 in Modern.
+[*][b]Ships through a canal per turn:[/b] one for an Antiquity canal, two for Exploration, unlimited for Modern.
+[*][b]Drawn for its age.[/b] A channel toward each shore, moored boats at the mouths, and an Antiquity harbour and quay, Exploration houses and a wharf, or Modern buildings and a harbour along the banks. Three looks per age.
+[/list]
+[h2]Settlement centres[/h2]
+A city or town centre counts as a canal end, so a canal can run from the settlement's own tile out to the sea or a river.
+[h2]Cliffs[/h2]
+A canal can be cut through a tile with cliffs. Ships cross every edge once it opens. The cliff rock faces stay drawn until the game is next loaded, so at a cliff shore the canal is drawn stepping down through a lock: a stone chamber with gates, a gatehouse, a water wheel and water spilling over the cliff foot. Cosmetic only.
+[h2]Compatibility[/h2]
+[list]
+[*][b]No base-game files are replaced[/b] and no base-game rows change. The mod adds three buildings and their tech unlocks.
+[*][b]A save loads with the mod on or off.[/b] A canal already dug is ordinary map state: a water tile worked by the city.
+[*][b]A game started before the mod was enabled[/b] gets the Canal when its unlocking tech is researched.
+[*][b]Single player.[/b] In a network game the Canal is not offered.
+[/list]
+[h2]Languages[/h2]
+English only for now. The mod's text is a handful of strings, so a translation is a small job: ask for a language and I will add it.
+[h2]Source and documentation[/h2]
+[list]
+[*]Open source on GitHub: [url=https://github.com/tmtmiller1/civilizationvii_canals]source and full documentation[/url], and the [url=https://github.com/tmtmiller1/civilizationvii_canals/releases]release notes[/url].
+[/list]
+[h2]Credits[/h2]
+[list]
+[*][b]Tower[/b], for design and Civilization VII implementation.
+[/list]
+[h2]Special Thanks[/h2]
+[list]
+[*][b]Potato McWhisky[/b], for teaching me to love again, Civilization-wise (Civ VI), after growing up as a Civilization II, IV, and V player. Making this mod is an act of faith that the community will eventually help make Civilization VII as good as the previous entries.
+[/list]

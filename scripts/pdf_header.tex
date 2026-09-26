@@ -1,0 +1,48 @@
+\setlength{\emergencystretch}{4em}
+\sloppy
+
+% Screenshots: full column width, never taller than a page, each centred with its caption.
+\usepackage{graphicx}
+\setkeys{Gin}{width=\linewidth,height=0.46\textheight,keepaspectratio}
+% Pin each screenshot where it is written. A before/after pair only reads as a pair when the two frames
+% sit with the sentence that compares them, and LaTeX's default float placement moved them a page on.
+\usepackage{float}
+\floatplacement{figure}{H}
+\usepackage{placeins}
+\let\origsection\section
+\renewcommand{\section}{\FloatBarrier\origsection}
+
+% Better line breaks for code and links.
+\usepackage{fvextra}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{}
+
+% Tower-style table readability defaults: denser cells, top alignment,
+% gentle row spacing, and full-width longtables.
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{0pt}
+
+% Apply table style consistently to pandoc-emitted tables.
+\AtBeginEnvironment{longtable}{\small}
+\AtBeginEnvironment{tabular}{\small}
+
+% Title and TOC share the first page (no page break between them); the body
+% starts on a fresh page after the TOC.
+\makeatletter
+\let\origmaketitle\maketitle
+\renewcommand{\maketitle}{%
+  \origmaketitle
+  \thispagestyle{empty}
+}
+
+\let\origtableofcontents\tableofcontents
+\renewcommand{\tableofcontents}{%
+  \origtableofcontents
+  \clearpage
+}
+\makeatother

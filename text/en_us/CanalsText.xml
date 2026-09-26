@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Every tag unique: one duplicate LOC tag rolls back the whole file. -->
+<Database>
+    <EnglishText>
+        <Row Tag="LOC_CANALS_MOD_NAME">
+            <Text>Canals</Text>
+        </Row>
+        <Row Tag="LOC_CANALS_MOD_DESCRIPTION">
+            <Text>Adds a Canal building to each age. Build it on a land tile that separates two bodies of water; when it is finished the tile becomes a coast tile with a quay on it, and ships sail through. Unlocked by Engineering, Shipbuilding and Industrialization.</Text>
+        </Row>
+        <Row Tag="LOC_BUILDING_CANAL_NAME">
+            <Text>Canal</Text>
+        </Row>
+        <Row Tag="LOC_BUILDING_CANAL_DESCRIPTION">
+            <Text>Cuts a ship channel through a narrow neck of land. Can only be built on a land tile that separates two bodies of water. When it is finished the tile becomes a coast tile with a quay, and ships can sail through it.</Text>
+        </Row>
+        <Row Tag="LOC_BUILDING_CANAL_TOOLTIP">
+            <Text>Turns a land tile between two bodies of water into a navigable channel when completed.</Text>
+        </Row>
+        <Row Tag="LOC_CANAL_NOT_ISTHMUS">
+            <Text>A Canal must be built on a land tile that separates two bodies of water.</Text>
+        </Row>
+    </EnglishText>
+</Database>

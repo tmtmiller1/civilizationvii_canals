@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The three Canal buildings. No Constructible_ValidTerrains rows on purpose: a BUILDING with terrain rows was
+  watched to be unplaceable (engine-closed.md), and ui/canals.js restricts placement to isthmus tiles instead.
+  Urban district only. No yields of its own: the quay that replaces it on completion carries the yields.
+  Population 0 so no citizen is displaced when the tile turns to water.
+-->
+<Database>
+    <Types>
+        <Row Type="BUILDING_CANAL_ANTIQUITY" Kind="KIND_CONSTRUCTIBLE"/>
+        <Row Type="BUILDING_CANAL_EXPLORATION" Kind="KIND_CONSTRUCTIBLE"/>
+        <Row Type="BUILDING_CANAL_MODERN" Kind="KIND_CONSTRUCTIBLE"/>
+    </Types>
+    <Constructibles>
+        <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" Name="LOC_BUILDING_CANAL_NAME" Description="LOC_BUILDING_CANAL_DESCRIPTION" Tooltip="LOC_BUILDING_CANAL_TOOLTIP" ConstructibleClass="BUILDING" Cost="300" Population="1" Age="AGE_ANTIQUITY"/>
+        <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" Name="LOC_BUILDING_CANAL_NAME" Description="LOC_BUILDING_CANAL_DESCRIPTION" Tooltip="LOC_BUILDING_CANAL_TOOLTIP" ConstructibleClass="BUILDING" Cost="500" Population="1" Age="AGE_EXPLORATION"/>
+        <Row ConstructibleType="BUILDING_CANAL_MODERN" Name="LOC_BUILDING_CANAL_NAME" Description="LOC_BUILDING_CANAL_DESCRIPTION" Tooltip="LOC_BUILDING_CANAL_TOOLTIP" ConstructibleClass="BUILDING" Cost="800" Population="1" Age="AGE_MODERN"/>
+    </Constructibles>
+    <Buildings>
+        <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" Movable="false" Town="true" MultiplePerCity="true"/>
+        <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" Movable="false" Town="true" MultiplePerCity="true"/>
+        <Row ConstructibleType="BUILDING_CANAL_MODERN" Movable="false" Town="true" MultiplePerCity="true"/>
+    </Buildings>
+    <Constructible_ValidDistricts>
+        <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" DistrictType="DISTRICT_URBAN"/>
+        <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" DistrictType="DISTRICT_URBAN"/>
+        <Row ConstructibleType="BUILDING_CANAL_MODERN" DistrictType="DISTRICT_URBAN"/>
+        <!-- The finished canal keeps its Canal building on a rural district (no housing block); see ui/canals.js. -->
+        <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" DistrictType="DISTRICT_RURAL"/>
+        <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" DistrictType="DISTRICT_RURAL"/>
+        <Row ConstructibleType="BUILDING_CANAL_MODERN" DistrictType="DISTRICT_RURAL"/>
+    </Constructible_ValidDistricts>
+    <!-- Food and gold that grow with the age the canal was dug in. -->
+    <Constructible_YieldChanges>
+        <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" YieldType="YIELD_FOOD" YieldChange="2"/>
+        <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" YieldType="YIELD_GOLD" YieldChange="2"/>
+        <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" YieldType="YIELD_FOOD" YieldChange="3"/>
+        <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" YieldType="YIELD_GOLD" YieldChange="4"/>
+        <Row ConstructibleType="BUILDING_CANAL_MODERN" YieldType="YIELD_FOOD" YieldChange="4"/>
+        <Row ConstructibleType="BUILDING_CANAL_MODERN" YieldType="YIELD_GOLD" YieldChange="6"/>
+    </Constructible_YieldChanges>
+</Database>
