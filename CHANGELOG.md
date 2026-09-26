@@ -9,8 +9,8 @@ were tried before this design, the probes and the harness runs live in the autho
 First release. Watched working end to end on Civilization VII 1.5.0 in games of all three ages; the run behind
 each step is in `docs/verification-runs.md`.
 
-- One Canal building per age, in the ordinary production list, unlocked by Engineering, Shipbuilding and
-  Industrialization, at 300, 500 and 800 production.
+- A Canal building for each age, in the ordinary production list, unlocked by Engineering, Shipbuilding and
+  Industrialization, at 300, 500 and 800 production. A city can dig as many canals as it has sites for.
 - The placement screen offers only canal sites: a land tile the city owns, within its build ring, with sea, lake
   or navigable river on at least two separate sides. A city or town centre counts as a canal end.
 - When the Canal completes the tile becomes water and any ship can sail through it in the same turn. The retype

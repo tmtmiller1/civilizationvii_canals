@@ -12,15 +12,17 @@ the tile becomes water, drawn as a canal for its age, and ships sail straight th
 *An Exploration-age cut of three Canals, joining Roma's estuary to the northern sea. The channel, the houses and
 wharfs along its banks and the moored boats are drawn by the mod; the Cog's route through it is the game's own.*
 
-The Canal is an ordinary building in the production list, one per age, unlocked by a tech. The mod decides where
-it may go, turns the tile into water when it completes, and dresses it. Everything else, the ship pathing, the
+The Canal is an ordinary building in the production list. Each age has its own Canal, unlocked by one of that
+age's techs, and a city can dig as many canals as it has sites for. The mod decides where a Canal may go, turns
+the tile into water when it completes, and dresses it. Everything else, the ship pathing, the
 tile's ownership, the citizen who works it and the yields it gives, is the game's own state.
 
 ---
 
 ## What the player does
 
-Pick the Canal in a city's production list. It is a building, one per age, unlocked by a tech:
+Pick the Canal in a city's production list. It is a building; each age has its own, unlocked by a tech, and a
+city can build any number of them, one per site:
 
 | Age | Unlocked by | Production cost |
 | --- | --- | --- |
@@ -81,20 +83,23 @@ counts as a canal end, so a city or town can open its centre to the water.*
 
 - flat or hill land the city owns, within the city's build ring, not a navigable river tile;
 - ship-water on at least two separate sides of the hex: sea, lake or navigable river, in any combination (the
-  same sea on both sides counts), ice not counted; the settlement's own centre tile counts as water here, so a
-  city or town can dig a canal from its centre out to the sea or a river, and a longer run may start or end at
-  the centre;
+  same sea on both sides counts), ice not counted; two different bodies of water around it also qualify, even
+  where they meet in one stretch; the settlement's own centre tile counts as water here, so a city or town can
+  dig a canal from its centre out to the sea or a river, and a longer run may start or end at the centre;
 - from Exploration on, alternatively the tile that extends an existing or queued canal within the age's run rule:
   a straight two-tile line in Exploration, up to five tiles with bends and branches in Modern;
-- no building on it yet other than a rural improvement, which is removed when the Canal is placed;
-- no unit standing on it.
+- no urban district on it, and no building other than a rural improvement, which is removed when the Canal is
+  placed;
+- no unit standing on it;
+- not already a canal, dug or queued.
 
 ## What it gives, and what it costs
 
 The Canal, like other buildings, takes one citizen to build. When it completes that citizen moves onto the
 finished canal, which becomes a worked fishing tile of the city, and the Canal building stays on it as an
 ordinary building of the city with its own yields, by the age it was dug in. All of it is ordinary city yield,
-counted where the city counts everything else.
+counted where the city counts everything else. If the city cannot place the citizen on the canal itself, the
+tile still becomes a rural tile of the city and the citizen is left for you to place.
 
 | Canal | Food | Gold | Ships through it per turn |
 | --- | --- | --- | --- |
@@ -103,7 +108,8 @@ counted where the city counts everything else.
 | Modern | 4 | 6 | no limit |
 
 The ship limit holds your own move orders: a move whose path runs through a canal that has already taken its
-ships this turn is not sent. The game's AI plots its routes natively and is not held.
+ships this turn is not sent, and the count starts again each turn. A ship already sitting in the canal is not
+counted. The game's AI plots its routes natively and is not held.
 
 The cost is the production and the tile: the rural improvement on it, if any, is gone, and the tile is water
 from then on.
