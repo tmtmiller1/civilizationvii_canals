@@ -32,7 +32,7 @@ const BUILD_RADIUS = 3;
 const TRANSITS_PER_TURN = { AGE_ANTIQUITY: 1, AGE_EXPLORATION: 2, AGE_MODERN: Infinity };
 
 function log(m) { try { console.error(TAG + " " + m); } catch (_) { /* ignore */ } }
-function safe(fn, fb) { try { return fn(); } catch (e) { return fb; } }
+function safe(fn, fb) { try { return fn(); } catch (_e) { return fb; } }
 function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 function J(o) { try { return JSON.stringify(o); } catch (_) { return "?"; } }
 
@@ -44,24 +44,30 @@ function terrainOf(loc) { return safe(() => String(GameInfo.Terrains.lookup(Game
 function featureOf(loc) { return safe(() => { const f = GameplayMap.getFeatureType(loc.x, loc.y); return f === FeatureTypes.NO_FEATURE ? "" : String(GameInfo.Features.lookup(f).FeatureType); }, ""); }
 function isWater(loc) { return safe(() => GameplayMap.isWater(loc.x, loc.y), true); }
 function areaOf(loc) { return safe(() => GameplayMap.getAreaId(loc.x, loc.y), null); }
-function neighbors(loc) { return safe(() => (GameplayMap.getPlotIndicesInRadius(loc.x, loc.y, 1) || []).filter((i) => i !== idx(loc)).map(locOf), []); }
+function neighbors(loc) {
+  return safe(() => (GameplayMap.getPlotIndicesInRadius(loc.x, loc.y, 1) || []).filter((i) => i !== idx(loc))
+    .map(locOf), []);
+}
 function districtAt(loc) { return safe(() => { const d = Districts.getAtLocation(loc); return d ? String(GameInfo.Districts.lookup(d.type).DistrictType) : ""; }, ""); }
 function districtIdAt(loc) { return safe(() => Districts.getIdAtLocation(loc), null); }
 function occupants(loc) {
   return safe(() => (MapConstructibles.getConstructibles(loc.x, loc.y) || []).map((c) => {
     const inst = Constructibles.getByComponentID(c);
     const def = GameInfo.Constructibles.lookup(inst.type);
-    return { type: String(def.ConstructibleType), owner: inst.owner, id: inst.localId != null ? inst.localId : inst.id, complete: inst.complete !== false };
+    return {
+      type: String(def.ConstructibleType), owner: inst.owner,
+      id: inst.localId != null ? inst.localId : inst.id, complete: inst.complete !== false
+    };
   }), []);
 }
 function canalOn(loc) { return occupants(loc).find((o) => CANAL_TYPES.includes(o.type)) || null; }
 function isImprovement(type) { return safe(() => String(GameInfo.Constructibles.lookup(type).ConstructibleClass) === "IMPROVEMENT", false); }
 
 /**
- * The water bodies a land tile touches: area id -> one water neighbour, ice excluded.
+ * The water bodies a land tile touches: area id -> one water neighbor, ice excluded.
  * A finished canal keeps the area id of the land it was cut from (watched: the engine never recalculates areas
  * in-turn or on reload), so a water tile whose area id matches the surrounding land is a canal, not a sea; its
- * seas are resolved through its own water neighbours (a few hops, so a chain of canals resolves too).
+ * seas are resolved through its own water neighbors (a few hops, so a chain of canals resolves too).
  */
 function waterAreas(loc) {
   const landAreas = new Set([areaOf(loc)]);
@@ -84,29 +90,39 @@ function waterAreas(loc) {
 
 const RING = ["DIRECTION_EAST", "DIRECTION_SOUTHEAST", "DIRECTION_SOUTHWEST", "DIRECTION_WEST", "DIRECTION_NORTHWEST", "DIRECTION_NORTHEAST"];
 
-/** A city or town centre: a canal end in its own right, like open water (rule 2026-09-25: a settlement can dig a canal
- * from its own tile to the sea or a river, and a run may start or finish at the centre). The centre itself is never dug. */
+/** A city or town center: a canal end in its own right, like open water (rule 2026-09-25: a settlement can dig a canal
+ * from its own tile to the sea or a river, and a run may start or finish at the center). The center itself is
+   never dug. */
 function isSettlementCentre(loc) { return districtAt(loc) === "DISTRICT_CITY_CENTER"; }
 /** Water a ship can sail: sea, lake, or a navigable river tile (which the engine's water flag does not cover); a
- * settlement centre counts as a canal end too. */
+ * settlement center counts as a canal end too. */
 function isShipWater(loc) { return ((isWater(loc) || safe(() => GameplayMap.isNavigableRiver(loc.x, loc.y), false)) && featureOf(loc) !== "FEATURE_ICE") || isSettlementCentre(loc); }
 
 /**
- * How many separate stretches of water sit around the hex: walking the six neighbours in ring order, a run of
+ * How many separate stretches of water sit around the hex: walking the six neighbors in ring order, a run of
  * water tiles (ice not counted) is one stretch. Two stretches means the tile is a strip of land between two
  * coasts, whether or not those coasts belong to the same sea: three coast tiles on one side and one on the other
  * is two stretches; five coast tiles in a row (a headland) is one.
  */
-/** A ship-water neighbour in that ring direction. Cliffs do not matter: the retype clears the plot's cliff flags
+/** A ship-water neighbor in that ring direction. Cliffs do not matter: the retype clears the plot's cliff flags
  * (watched, c21); only their drawn rock faces remain until the next load. */
 function openWaterSide(loc, d) {
   const n = safe(() => GameplayMap.getAdjacentPlotLocation(loc, DirectionTypes[d]), null);
   return !!(n && n.x >= 0 && isShipWater(n));
 }
 /** Ring indexes of the hex's edges that are cliff crossings (read before a retype, which clears them). */
-function cliffSideIndexes(loc) { const out = []; RING.forEach((d, i) => { if (safe(() => GameplayMap.isCliffCrossing(loc.x, loc.y, DirectionTypes[d]), false) === true) out.push(i); }); return out; }
+function cliffSideIndexes(loc) {
+  const out = [];
+  RING.forEach((d, i) => {
+    if (safe(() => GameplayMap.isCliffCrossing(loc.x, loc.y, DirectionTypes[d]), false) === true) out.push(i);
+  });
+  return out;
+}
 /** The same, with the tile itself given: used by the chain rule. */
-function neighborIn(loc, d) { const n = safe(() => GameplayMap.getAdjacentPlotLocation(loc, DirectionTypes[d]), null); return n && n.x >= 0 ? { x: n.x, y: n.y } : null; }
+function neighborIn(loc, d) {
+  const n = safe(() => GameplayMap.getAdjacentPlotLocation(loc, DirectionTypes[d]), null);
+  return n && n.x >= 0 ? { x: n.x, y: n.y } : null;
+}
 
 function waterStretches(loc) {
   const ring = RING.map((d) => openWaterSide(loc, d));
@@ -127,10 +143,19 @@ function isCuttable(loc) {
 function currentAge() { return safe(() => String(GameInfo.Ages.lookup(Game.age).AgeType), "AGE_ANTIQUITY"); }
 
 /** Most tiles a canal run may have, by age; whether it must be a straight line; whether it may branch. */
-const CHAIN_RULES = { AGE_ANTIQUITY: { max: 1, straight: true, branch: false }, AGE_EXPLORATION: { max: 2, straight: true, branch: false }, AGE_MODERN: { max: 5, straight: false, branch: true } };
+const CHAIN_RULES = {
+  AGE_ANTIQUITY: { max: 1, straight: true, branch: false },
+  AGE_EXPLORATION: { max: 2, straight: true, branch: false },
+  AGE_MODERN: { max: 5, straight: false, branch: true }
+};
 
-/** Plots that are canal tiles: opened ones (now coast) and queued ones (still land, counted so canals can be built in sequence). */
-function canalPlots() { const s = new Set(); for (const e of loadOpen()) s.add(e.plot); for (const p of loadPending()) s.add(p); return s; }
+/** Plots that are canal tiles: opened ones (now coast) and queued ones (still land, counted so canals can be built
+    in sequence). */
+function canalPlots() {
+  const s = new Set();
+  for (const e of loadOpen()) s.add(e.plot); for (const p of loadPending()) s.add(p);
+  return s;
+}
 
 /** Ship-water that is not a canal of ours: sea, lake, navigable river. */
 function isNaturalWater(loc, canals) { return isShipWater(loc) && !canals.has(idx(loc)); }
@@ -144,7 +169,7 @@ function isNaturalWater(loc, canals) { return isShipWater(loc) && !canals.has(id
  * Modern: a tile touching water or a canal, as long as the run it joins has at most five tiles and touches
  * natural water; runs may bend and branch.
  * A tile beside a canal always joins that canal's run and is judged by the run rule: a canal's own water never
- * makes its neighbour a two-shore isthmus on its own (watched gal-exp: that hole let a fourth tile onto a run's
+ * makes its neighbor a two-shore isthmus on its own (watched gal-exp: that hole let a fourth tile onto a run's
  * side and drew a branched blob in the Exploration age).
  */
 function isIsthmus(loc) {
@@ -157,16 +182,34 @@ function isIsthmus(loc) {
   const me = idx(loc);
   // the run of canal tiles this tile would join
   const comp = new Set([me]); const queue = [loc];
-  while (queue.length) { const c = queue.pop(); for (const d of RING) { const n = neighborIn(c, d); if (!n) continue; const p = idx(n); if (canals.has(p) && !comp.has(p)) { comp.add(p); queue.push(n); } } }
+  while (queue.length) {
+    const c = queue.pop();
+    for (const d of RING) {
+      const n = neighborIn(c, d); if (!n) continue;
+      const p = idx(n); if (canals.has(p) && !comp.has(p)) { comp.add(p); queue.push(n); }
+    }
+  }
   if (comp.size > rule.max) return false;
   // every tile of the run must reach natural water through the run
   const dist = new Map(); const q2 = [];
-  for (const p of comp) { const l = locOf(p); if (RING.some((d) => { const n = neighborIn(l, d); return n && isNaturalWater(n, canals); })) { dist.set(p, 1); q2.push(p); } }
-  while (q2.length) { const p = q2.shift(); const l = locOf(p); for (const d of RING) { const n = neighborIn(l, d); if (!n) continue; const np = idx(n); if (comp.has(np) && !dist.has(np)) { dist.set(np, dist.get(p) + 1); q2.push(np); } } }
+  for (const p of comp) {
+    const l = locOf(p);
+    if (RING.some((d) => { const n = neighborIn(l, d); return n && isNaturalWater(n, canals); })) {
+      dist.set(p, 1); q2.push(p);
+    }
+  }
+  while (q2.length) {
+    const p = q2.shift(); const l = locOf(p);
+    for (const d of RING) {
+      const n = neighborIn(l, d); if (!n) continue;
+      const np = idx(n); if (comp.has(np) && !dist.has(np)) { dist.set(np, dist.get(p) + 1); q2.push(np); }
+    }
+  }
   for (const p of comp) if (!dist.has(p)) return false;
   // the run's shape: links per tile (a branch is three), and in a straight run the two links are opposite sides
   for (const p of comp) {
-    const links = []; RING.forEach((d, i) => { const n = neighborIn(locOf(p), d); if (n && comp.has(idx(n))) links.push(i); });
+    const links = [];
+    RING.forEach((d, i) => { const n = neighborIn(locOf(p), d); if (n && comp.has(idx(n))) links.push(i); });
     if (!rule.branch && links.length > 2) return false;
     if (rule.straight && links.length === 2 && (links[1] - links[0]) !== 3) return false;
   }
@@ -177,18 +220,33 @@ function isIsthmus(loc) {
 
 /** Remembered Canal sites (plot indexes), kept in the save so a reload mid-construction still completes. */
 function loadPending() {
-  return safe(() => { const v = Configuration.getGame().getValue(PERSIST_KEY); const a = v ? JSON.parse(String(v)) : []; return Array.isArray(a) ? a : []; }, []);
+  return safe(() => {
+    const v = Configuration.getGame().getValue(PERSIST_KEY); const a = v ? JSON.parse(String(v)) : [];
+    return Array.isArray(a) ? a : [];
+  }, []);
 }
 function savePending(list) { safe(() => Configuration.editGame().setValue(PERSIST_KEY, JSON.stringify(list))); }
 function remember(plot) { const l = loadPending(); if (!l.includes(plot)) { l.push(plot); savePending(l); } }
-function forget(plot) { const l = loadPending(); const n = l.filter((p) => p !== plot); if (n.length !== l.length) savePending(n); }
+function forget(plot) {
+  const l = loadPending(); const n = l.filter((p) => p !== plot);
+  if (n.length !== l.length) savePending(n);
+}
 /** Canals opened so far (plot indexes), kept in the save so their overlay is redrawn after a load. */
 function loadOpen() { return safe(() => { const v = Configuration.getGame().getValue(OPEN_KEY); const a = v ? JSON.parse(String(v)) : []; return Array.isArray(a) ? a.map((e) => (typeof e === "number" ? { plot: e, age: "AGE_ANTIQUITY" } : e)) : []; }, []); }
-function rememberOpen(plot, age, cliffs) { const l = loadOpen(); if (!l.some((e) => e.plot === plot)) { l.push({ plot, age, cliffs: cliffs || [] }); safe(() => Configuration.editGame().setValue(OPEN_KEY, JSON.stringify(l))); } }
+function rememberOpen(plot, age, cliffs) {
+  const l = loadOpen();
+  if (!l.some((e) => e.plot === plot)) {
+    l.push({ plot, age, cliffs: cliffs || [] });
+    safe(() => Configuration.editGame().setValue(OPEN_KEY, JSON.stringify(l)));
+  }
+}
 
 // --- the canal itself -----------------------------------------------------------------------------
 
-const state = { enabled: true, originals: null, canalIndexes: new Set(), busy: new Set(), multiplayer: false, paidTurn: -1, transits: new Map(), transitTurn: -1 };
+const state = {
+  enabled: true, originals: null, canalIndexes: new Set(), busy: new Set(),
+  multiplayer: false, paidTurn: -1, transits: new Map(), transitTurn: -1
+};
 
 function canalIndex(v) { return state.canalIndexes.has(v); }
 
@@ -222,7 +280,10 @@ async function openCanal(loc, owner) {
     if (!isIsthmus(loc)) { log(`Canal at ${loc.x},${loc.y} is not on a canal site; left as a building`); forget(plot); return; }
     const who = owner != null ? owner : canal.owner;
     const local = GameContext.localPlayerID;
-    const cityId = safe(() => { const c = GameplayMap.getOwningCityFromXY(loc.x, loc.y); return c && c.id !== -1 ? c : null; }, null);
+    const cityId = safe(() => {
+      const c = GameplayMap.getOwningCityFromXY(loc.x, loc.y);
+      return c && c.id !== -1 ? c : null;
+    }, null);
     // The retype clears the plot's cliff flags but leaves the rock faces drawn; remember which shores were cliffs
     // so the overlay can dress them as locks.
     const cliffSides = cliffSideIndexes(loc);
@@ -238,7 +299,10 @@ async function openCanal(loc, owner) {
     if (did) safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "DISTRICT", Owner: did.owner, LocalID: did.id }));
     await sleep(1200);
     // Removing the district releases the plot (watched); give it back to the city.
-    if (cityId && safe(() => GameplayMap.getOwner(loc.x, loc.y), -1) !== who) { safe(() => Cities.get(cityId).purchasePlot({ x: loc.x, y: loc.y })); await sleep(1500); }
+    if (cityId && safe(() => GameplayMap.getOwner(loc.x, loc.y), -1) !== who) {
+      safe(() => Cities.get(cityId).purchasePlot({ x: loc.x, y: loc.y }));
+      await sleep(1500);
+    }
     forget(plot);
     const age = canal.type === "BUILDING_CANAL_MODERN" ? "AGE_MODERN" : canal.type === "BUILDING_CANAL_EXPLORATION" ? "AGE_EXPLORATION" : "AGE_ANTIQUITY";
     await settleCanalTile(loc, cityId, who, canal.type);
@@ -253,7 +317,7 @@ async function openCanal(loc, owner) {
 //
 // A retyped hex keeps its land mesh until the next load (the engine redraws it as water then). Until then the
 // canal is drawn by script from shipped meshes (watched 2026-09-25, runs c11 to c13): one river channel piece per
-// water side, meeting at the hex centre, a stone quay with cranes along the first arm, and moored river boats.
+// water side, meeting at the hex center, a stone quay with cranes along the first arm, and moored river boats.
 // The model group lives for the session; after a reload the engine's own water and quay take over.
 
 const ARM_ASSET = "TER_Decal_RiverPiece_Straight";
@@ -261,7 +325,7 @@ const BOATS_ASSET = "IMP_FishingBoat_River_I_W_O_E";
 /**
  * Per age, several looks; a canal takes the one its plot number selects, so it keeps that look across reloads.
  * Each entry: whether the river-city house layout is drawn (with which attachment set), and the props placed along
- * the first arm as [asset, along, left, scale]. Watched 2026-09-25 (runs c16, c17, c19): the harbours, the wharf,
+ * the first arm as [asset, along, left, scale]. Watched 2026-09-25 (runs c16, c17, c19): the harbors, the wharf,
  * the shipyard and the layouts; the pier B and Modern pier pieces are siblings of watched pieces.
  */
 const AGE_LOOKS = {
@@ -313,7 +377,10 @@ function layoutFor(sides) {
 }
 
 /** Rotate an offset given in the first arm's frame (x along the arm, y to its left) into world offsets. */
-function alongArm(angleDeg, x, y) { const a = angleDeg * Math.PI / 180; return { x: x * Math.cos(a) - y * Math.sin(a), y: x * Math.sin(a) + y * Math.cos(a), z: 0 }; }
+function alongArm(angleDeg, x, y) {
+  const a = angleDeg * Math.PI / 180;
+  return { x: x * Math.cos(a) - y * Math.sin(a), y: x * Math.sin(a) + y * Math.cos(a), z: 0 };
+}
 
 /**
  * A lock where a channel meets a shore that was a cliff (the rock faces stay drawn after the retype, so the canal
@@ -339,14 +406,26 @@ function drawOverlay(loc, age, cliffs) {
   const look = looks[plot % looks.length];
   const group = safe(() => WorldUI.createModelGroup("Canals_" + plot), null);
   if (!group) return false;
-  const P = (scale, angle) => ({ placement: PlacementMode.TERRAIN, followTerrain: true, needsShadows: true, scale, angle });
+  const P = (scale, angle) => ({
+    placement: PlacementMode.TERRAIN, followTerrain: true, needsShadows: true, scale, angle
+  });
   const plotRef = { i: loc.x, j: loc.y };
   const a0 = armAngle(sides[0]);
-  const add = (asset, off, scale, angle) => safe(() => group.addModelAtPlot(asset, plotRef, off || { x: 0, y: 0, z: 0 }, P(scale, angle)));
+  const add = (asset, off, scale, angle) => safe(
+    () => group.addModelAtPlot(asset, plotRef, off || { x: 0, y: 0, z: 0 }, P(scale, angle))
+  );
   // The house layout is a corridor between two shores; a junction of three or more channels gets none.
-  if (look.layout && sides.length <= 2) { const L = layoutFor(sides); add(L, null, 1, a0); if (look.attachments) add(L + look.attachments, null, 1, a0); if (look.decal) add(L + look.decal, null, 1, a0); }
+  if (look.layout && sides.length <= 2) {
+    const L = layoutFor(sides); add(L, null, 1, a0);
+    if (look.attachments) add(L + look.attachments, null, 1, a0);
+    if (look.decal) add(L + look.decal, null, 1, a0);
+  }
   for (const i of sides) add(ARM_ASSET, null, 1, armAngle(i));
-  if (cliffs && cliffs.length) for (const i of sides) if (cliffs.includes(i)) for (const [asset, x, y, scale, rot, z] of LOCK_PIECES) { const off = alongArm(armAngle(i), x, y); off.z = z || 0; add(asset, off, scale, (armAngle(i) + rot) % 360); }
+  if (cliffs && cliffs.length) for (const i of sides) if (cliffs.includes(i))
+    for (const [asset, x, y, scale, rot, z] of LOCK_PIECES) {
+      const off = alongArm(armAngle(i), x, y); off.z = z || 0;
+      add(asset, off, scale, (armAngle(i) + rot) % 360);
+    }
   for (const [asset, x, y, scale] of look.props) add(asset, alongArm(a0, x, y), scale, a0);
   // Boats on the tiles that meet open water or a junction; a straight middle reach of a longer canal stays clear.
   if (sides.length !== 2 || (sides[1] - sides[0] + 6) % 6 !== 3 || plot % 2 === 0) add(BOATS_ASSET, null, 0.7, a0);
@@ -354,7 +433,10 @@ function drawOverlay(loc, age, cliffs) {
   return true;
 }
 
-function clearOverlay(loc) { const g = overlays.get(idx(loc)); if (g) { safe(() => g.clear()); safe(() => g.destroy()); overlays.delete(idx(loc)); } }
+function clearOverlay(loc) {
+  const g = overlays.get(idx(loc));
+  if (g) { safe(() => g.clear()); safe(() => g.destroy()); overlays.delete(idx(loc)); }
+}
 
 /** A canal that has just opened is water now: the opened canals beside it are redrawn so their channels meet it. */
 function redrawNeighbours(loc) {
@@ -416,7 +498,8 @@ async function settleCanalTile(loc, cityId, owner, canalType) {
       const k = plots.indexOf(plot);
       if (k >= 0) {
         const args = { X: loc.x, Y: loc.y };
-        if (can.ConstructibleTypes && can.ConstructibleTypes[k] != null) args.ConstructibleType = can.ConstructibleTypes[k];
+        if (can.ConstructibleTypes && can.ConstructibleTypes[k] != null)
+          args.ConstructibleType = can.ConstructibleTypes[k];
         safe(() => Game.CityCommands.sendRequest(cityId, CityCommandTypes.EXPAND, args));
         for (let i = 0; i < 30 && districtAt(loc) === ""; i++) await sleep(100);
       }
@@ -468,7 +551,8 @@ function eligiblePlots(cityID) {
   for (const p of safe(() => city.getPurchasedPlots() || [], [])) {
     const loc = locOf(p);
     // Only tiles the city can build on: within its ring (watched: a purchased tile 12 plots out is refused).
-    if (centre && safe(() => GameplayMap.getPlotDistance(centre.x, centre.y, loc.x, loc.y), 99) > BUILD_RADIUS) continue;
+    if (centre && safe(() => GameplayMap.getPlotDistance(centre.x, centre.y, loc.x, loc.y), 99) > BUILD_RADIUS)
+      continue;
     if (!isIsthmus(loc)) continue;
     // never a tile that holds buildings: the canal removes whatever stands on it
     const d = districtAt(loc);
@@ -505,7 +589,11 @@ async function districtThenBuild(cityID, loc, ctype, forward) {
   const plot = idx(loc);
   const hadDistrict = districtAt(loc) === "DISTRICT_URBAN";
   const oCan = state.originals && state.originals.canStart;
-  const engineAccepts = () => safe(() => { const r = oCan.call(Game.CityOperations, cityID, CityOperationTypes.BUILD, { ConstructibleType: ctype, X: loc.x, Y: loc.y }, false); return !!(r && r.Success); }, false);
+  const engineAccepts = () => safe(() => {
+    const r = oCan.call(Game.CityOperations, cityID, CityOperationTypes.BUILD,
+      { ConstructibleType: ctype, X: loc.x, Y: loc.y }, false);
+    return !!(r && r.Success);
+  }, false);
   if (!hadDistrict) {
     for (const o of occupants(loc)) safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: o.owner, LocalID: o.id }));
     safe(() => Game.PlayerOperations.sendRequest(local, "CREATE_ELEMENT", { Kind: "DISTRICT", Type: "DISTRICT_URBAN", Location: { x: loc.x, y: loc.y }, Owner: local }));
@@ -527,13 +615,15 @@ async function districtThenBuild(cityID, loc, ctype, forward) {
     if (did) safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "DISTRICT", Owner: did.owner, LocalID: did.id }));
     // Removing the district released the plot (watched); buy it back for the city.
     await sleep(1000);
-    if (safe(() => GameplayMap.getOwner(loc.x, loc.y), -1) !== local) safe(() => Cities.get(cityID).purchasePlot({ x: loc.x, y: loc.y }));
+    if (safe(() => GameplayMap.getOwner(loc.x, loc.y), -1) !== local)
+      safe(() => Cities.get(cityID).purchasePlot({ x: loc.x, y: loc.y }));
   }
 }
 
 function wrapSendRequest(oSend) {
   return function (cityID, type, args, ...rest) {
-    if (!state.enabled || state.multiplayer || type !== CityOperationTypes.BUILD || !args || !canalIndex(args.ConstructibleType)) return oSend(cityID, type, args, ...rest);
+    if (!state.enabled || state.multiplayer || type !== CityOperationTypes.BUILD || !args
+      || !canalIndex(args.ConstructibleType)) return oSend(cityID, type, args, ...rest);
     const loc = plotOf(args);
     if (!loc || !isIsthmus(loc)) return oSend(cityID, type, args, ...rest);
     districtThenBuild(cityID, loc, args.ConstructibleType, () => oSend(cityID, type, args, ...rest));
@@ -544,7 +634,10 @@ function wrapSendRequest(oSend) {
 // --- install ---------------------------------------------------------------------------------------
 
 function install() {
-  for (const t of CANAL_TYPES) { const d = safe(() => GameInfo.Constructibles.lookup(t), null); if (d) { state.canalIndexes.add(d.$index); safe(() => state.canalIndexes.add(GameInfo.Types.lookup(t).Hash)); } }
+  for (const t of CANAL_TYPES) {
+    const d = safe(() => GameInfo.Constructibles.lookup(t), null);
+    if (d) { state.canalIndexes.add(d.$index); safe(() => state.canalIndexes.add(GameInfo.Types.lookup(t).Hash)); }
+  }
   if (!state.canalIndexes.size) { log("no Canal buildings in the database; inactive"); return false; }
   state.multiplayer = !!safe(() => Configuration.getGame().isNetworkMultiplayer, false);
   const host = safe(() => Game.CityOperations, null);
@@ -563,7 +656,9 @@ function install() {
 
 function uninstall() {
   const host = safe(() => Game.CityOperations, null);
-  if (host && state.originals) { host.canStart = state.originals.canStart; host.sendRequest = state.originals.sendRequest; }
+  if (host && state.originals) {
+    host.canStart = state.originals.canStart; host.sendRequest = state.originals.sendRequest;
+  }
   const uhost = safe(() => Game.UnitOperations, null);
   if (uhost && state.originals && state.originals.unitSend) uhost.sendRequest = state.originals.unitSend;
   state.enabled = false;
@@ -575,7 +670,8 @@ if (!G[KEY]) {
     version: "1.0.0",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
-    uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen, drawOverlay, clearOverlay, redrawNeighbours,
+    uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen,
+    drawOverlay, clearOverlay, redrawNeighbours,
   };
   install();
 }

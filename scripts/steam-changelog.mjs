@@ -20,7 +20,7 @@
 //
 // Hand edits: each block header records a hash of its CHANGELOG.md section (src) and of the generated text (gen).
 // A block whose text no longer matches gen was edited by hand and is never overwritten. If its CHANGELOG.md section
-// changes afterwards, `note` for that version stops with an error so the two can be reconciled (delete the block to
+// changes afterward, `note` for that version stops with an error so the two can be reconciled (delete the block to
 // regenerate it).
 
 import { createHash } from 'node:crypto';

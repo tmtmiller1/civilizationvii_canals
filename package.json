@@ -2,9 +2,13 @@
   "name": "canals-dev",
   "version": "0.0.0",
   "private": true,
-  "description": "Dev-only tooling for the Canals Civ VII mod (README.pdf). Not shipped.",
+  "description": "Dev-only tooling and quality gate for the Canals Civ VII mod. Not shipped.",
   "type": "module",
   "scripts": {
+    "lint": "npx --yes eslint \"ui/**/*.js\" --no-error-on-unmatched-pattern",
+    "check": "node --check ui/canals.js",
+    "verify": "npm run lint && npm run check",
+    "release:gate": "npm run verify",
     "readme:pdf": "bash scripts/build_readme_pdf.sh"
   }
 }
