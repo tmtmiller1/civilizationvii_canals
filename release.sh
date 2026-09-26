@@ -55,7 +55,7 @@ mkdir -p "$TARGET_DIR"
 
 echo "==> Mirroring the shipped files -> $TARGET_DIR/"
 rsync -a --exclude='.git' --exclude='.gitignore' --exclude='.DS_Store' --exclude='dist' --exclude='node_modules' \
-    --exclude='release.sh' --exclude='scripts' --exclude='docs' --exclude='gallery' --exclude='screenshots' \
+    --exclude='release.sh' --exclude='scripts' --exclude='docs' --exclude='gallery' --exclude='screenshots' --exclude='steam' \
     --exclude='package.json' --exclude='package-lock.json' --exclude='README.pdf' --exclude='CHANGELOG.steam.txt' \
     --exclude='steam_workshop_id.txt' --exclude='*.bak' --exclude='Screenshot *' \
     ./ "$TARGET_DIR"/
