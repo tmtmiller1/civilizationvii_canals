@@ -1,33 +1,38 @@
 [h1]Canals[/h1]
-[b]Version 1.0.0, the first release. For Civilization VII 1.5.0.[/b]
-Cut a ship channel through a narrow neck of land. Build the Canal on a land tile between two shores; when it is finished the tile becomes water, ships sail through it, and it is drawn as a canal for its age, with a harbor, houses and boats along the banks.
+[b]Version 1.1.0. For Civilization VII 1.5.0.[/b]
+Cut a ship channel through a narrow neck of land. Build the Canal on a land tile between two shores; when it is finished the tile becomes water, ships sail through it, and it is drawn as a canal for its age, with a harbor, houses and boats along the banks. AI players dig canals and sail through them too.
 [h2]Mechanics[/h2]
 [list]
-[*][b]Compatible with 1.5.0.[/b]
-[*][b]A Canal for each age[/b], in the ordinary production list, unlocked by Engineering, Shipbuilding and Industrialization, at 300, 500 and 800 production. A city can dig as many canals as it has sites for.
-[*][b]Canal sites only.[/b] The placement screen offers a land tile the city owns, within its build ring, with sea, lake or navigable river on at least two separate sides. A canal can join a river to the sea or two reaches of a river.
-[*][b]Ships go through the same turn.[/b] When the Canal completes the tile becomes water and any ship can path through it at once. The change survives a save and reload.
-[*][b]Longer canals.[/b] From the Exploration age a second Canal in a straight line with the first cuts a two-tile passage; in the Modern age runs of up to five tiles that may bend and branch. Each opening redraws its neighbors so the channels meet.
+[*][b]A Canal for each age[/b]: the Ancient, Medieval and Modern Canal, in the ordinary production list, unlocked by Engineering, Shipbuilding and Industrialization, at 300, 500 and 800 production. A settlement can dig as many canals as it has sites for.
+[*][b]Towns too.[/b] A town buys its Canal with gold from its purchase list, like any other building; a bought Canal opens at once.
+[*][b]Canal sites only.[/b] The placement screen offers a land tile the city owns, within its build ring, with sea, lake or navigable river on at least two separate sides. A canal can join a river to the sea or two reaches of a river. A tile that holds a resource takes no building and is not offered.
+[*][b]Ships go through the same turn.[/b] When the Canal completes the tile becomes water and any ship can path through it at once.
+[*][b]Canals last.[/b] A canal is still a channel cut through land after a save and reload.
+[*][b]Longer canals.[/b] From the Exploration age a second Canal in a straight line with the first cuts a two-tile passage; in the Modern age runs of up to five tiles may bend and branch. Neighboring canals join into one waterway, and a canal may run on from one city's or town's land into another's.
 [*][b]A worked tile with its own yields.[/b] The finished canal is a fishing tile of the city, and the Canal stays on it as a building with its own food and gold: 2 and 2 in Antiquity, 3 and 4 in Exploration, 4 and 6 in Modern.
 [*][b]Ships through a canal per turn:[/b] one for an Antiquity canal, two for Exploration, unlimited for Modern.
-[*][b]Drawn for its age.[/b] A channel toward each shore, moored boats at the mouths, and an Antiquity harbor and quay, Exploration houses and a wharf, or Modern buildings and a harbor along the banks. Three looks per age.
+[*][b]Drawn for its age.[/b] A channel between its shores, one branch into any other body of water it touches, moored boats at the mouths, and an Antiquity harbor and quay, Exploration houses and a wharf, or Modern buildings and a harbor along the banks. Three looks per age.
 [/list]
+[h2]AI canals[/h2]
+An AI player with the Canal unlocked digs one on a tile it works that joins two separate bodies of water. Its city builds the Canal with its production, or buys it outright when it has gold to spare. AI canals open and are drawn like yours, and AI units sail through them. Each AI waits eight turns between canals.
 [h2]Settlement centers[/h2]
 A city or town center counts as a canal end, so a canal can run from the settlement's own tile out to the sea or a river.
 [h2]Cliffs[/h2]
-A canal can be cut through a tile with cliffs. Ships cross every edge once it opens. The cliff rock faces stay drawn until the game is next loaded, so at a cliff shore the canal is drawn stepping down through a lock: a stone chamber with gates, a gatehouse, a water wheel and water spilling over the cliff foot. Cosmetic only.
+A canal can be cut through a tile with cliffs, and ships cross every edge once it opens. Where the channel meets a shore that was a cliff, it steps down through a lock: a stone chamber with gates, a gatehouse and a water wheel.
+[h2]Autosaves[/h2]
+While a canal is open, autosaves are written at the start of your turn, on your autosave frequency and keep count, as AutoSave_Canals_01 and onward. During such a game the Options screen shows the autosave frequency plus 1000; it reads normally again at the main menu.
 [h2]Compatibility[/h2]
 [list]
-[*][b]No base-game files are replaced[/b] and no base-game rows change. The mod adds three buildings and their tech unlocks.
-[*][b]A save loads with the mod on or off.[/b] A canal already dug is ordinary map state: a water tile worked by the city.
-[*][b]A game started before the mod was enabled[/b] gets the Canal when its unlocking tech is researched.
+[*][b]Civilization VII 1.5.0.[/b] No base-game files are replaced and no base-game rows change; three buildings and their tech unlocks are added.
+[*][b]A save loads with or without Canals enabled.[/b] Without it, a dug canal is a plain land tile of the city, and a ship left in it is stranded.
+[*][b]Start a new game with Canals enabled.[/b] In a game already under way, a Canal whose tech was researched earlier is not available, to you or to the AI.
 [*][b]Single player.[/b] In a network game the Canal is not offered.
+[*][b]English only.[/b]
 [/list]
-[h2]Languages[/h2]
-English only for now. The mod's text is a handful of strings, so a translation is a small job: ask for a language and I will add it.
 [h2]Source and documentation[/h2]
 [list]
 [*]Open source on GitHub: [url=https://github.com/tmtmiller1/civilizationvii_canals]source and full documentation[/url], and the [url=https://github.com/tmtmiller1/civilizationvii_canals/releases]release notes[/url].
+[*]This version on GitHub: [url=https://github.com/tmtmiller1/civilizationvii_canals/releases/tag/v1.1.0]Canals 1.1.0[/url], with the zip for a manual install.
 [/list]
 [h2]Credits[/h2]
 [list]

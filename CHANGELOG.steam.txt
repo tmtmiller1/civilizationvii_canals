@@ -3,6 +3,25 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.1.0 | 2026-09-28 | src 6f8c0c57132f | gen 2e9e4e13bae0 ====
+[b]Version 1.1.0 · 28 September 2026[/b]
+• A canal keeps its look across a save and reload. A coast tile loads as open sea, so a canal reloaded as an open strait; saves now hold each canal as the land it was cut from, and after a load it is water again under the channel, still drawn through land. This covers the autosave, saves from the menu, the quicksave key, and the save the game makes on loading an autosave.
+• AI players dig canals. An AI with the Canal unlocked picks a tile it works that joins two separate bodies of water, and its city builds the Canal there with its production, as a player's does, or buys it outright when it has the gold with a fifth to spare. The canal opens and is drawn like a player's. Each AI has one Canal under way at a time and waits eight turns between canals.
+• Canals are water through every AI turn, so AI units sail through them.
+• While a canal is open, autosaves are written at the start of your turn, on your own autosave frequency and keep count, as AutoSave_Canals_NN. The game's own autosave is held for that time and your setting is put back whenever the main menu loads; during such a game the Options screen shows the frequency plus 1000.
+• Nothing else can be built on a canal tile. A Garden or a Harbor was offered the tile as a place to expand onto.
+• Where canals meet, the junction is drawn as one open basin, and locks appear only where a channel meets a natural shore that was a cliff.
+• With Canals removed, a dug canal loads as a land tile of the city instead of water.
+• Towns can have canals. A town buys the Canal with gold from its purchase list, and a city can buy one the same way; the purchase placement screen offers the canal sites only, and a bought Canal opens at once. A canal runs on from one settlement's land into another's in any mix of cities and towns: a tile beside another settlement's canal is offered as the next tile of it.
+• The Canal is listed wherever it can be built. The lists are drawn from the engine's own judgement of a building, which is blind to canal sites, so a town was offered no Canal at all; the mod's verdict now reaches the list.
+• Only the Canal of the age being played is offered, and only once its tech is in. Both were open before: a refusal the engine gives without a reason, which is what it returns for a locked or wrong-age building, was read as a yes.
+• A settlement standing next to a neck of land no longer takes away the neck's own canal site. A city or town center is a way through for a ship in its own right, and is counted as one rather than as a piece of the water beside it, which could bridge a neck's two shores and read them as a single coast.
+• A tile that holds a resource is no longer offered as a canal site. The game allows no building on a resource tile, so such a Canal was refused once it was ordered; now the site is not offered, and asking for it directly gives a message saying why.
+• A canal is drawn as a channel between its shores. A tile with water on several sides used to get a channel arm toward every one of them and looked like a star; it now gets one arm to each canal beside it and otherwise the two shores that lie most nearly opposite. Where the canal also touches a separate body of water, such as a lake beside the cut, one branch opens into it from a single tile, so it is plain that ships can come in that way.
+• The three Canals are named for their age: Ancient Canal, Medieval Canal and Modern Canal.
+• Each Canal has its own building icon.
+• The compatibility notes now say to start a new game with the mod enabled.
+
 ==== 1.0.0 | 2026-09-25 | src 6c7dcd6b646e | gen 718812807f6d ====
 [b]Version 1.0.0 · 25 September 2026[/b]
 First release. Watched working end to end on Civilization VII 1.5.0 in games of all three ages; the run behind each step is in docs/verification-runs.md.

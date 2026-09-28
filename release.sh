@@ -62,8 +62,8 @@ mkdir -p "$TARGET_DIR"
 
 echo "==> Mirroring the shipped files -> $TARGET_DIR/"
 rsync -a --exclude='.git' --exclude='.gitignore' --exclude='.DS_Store' --exclude='dist' --exclude='node_modules' \
-    --exclude='release.sh' --exclude='scripts' --exclude='docs' --exclude='gallery' --exclude='screenshots' --exclude='steam' \
-    --exclude='package.json' --exclude='package-lock.json' --exclude='README.pdf' --exclude='CHANGELOG.steam.txt' \
+    --exclude='release.sh' --exclude='scripts' --exclude='art' --exclude='docs' --exclude='gallery' --exclude='screenshots' --exclude='steam' \
+    --exclude='package.json' --exclude='package-lock.json' --exclude='eslint.config.js' --exclude='README.pdf' --exclude='CHANGELOG.steam.txt' \
     --exclude='steam_workshop_id.txt' --exclude='*.bak' --exclude='Screenshot *' \
     ./ "$TARGET_DIR"/
 
@@ -76,8 +76,10 @@ echo "==> Zipping $ZIP_PATH"
 echo "==> Verifying zip contents against allow-list"
 ALLOW="^${MOD_DIR}/(${MODINFO//./\\.}|README\\.md|LICENSE|CHANGELOG\\.md)$"
 ALLOW="$ALLOW"'|^'"$MOD_DIR"'/ui/canals\.js$'
+ALLOW="$ALLOW"'|^'"$MOD_DIR"'/ui/canals-shell\.js$'
 ALLOW="$ALLOW"'|^'"$MOD_DIR"'/data/canals(-[a-z]+)?\.xml$'
 ALLOW="$ALLOW"'|^'"$MOD_DIR"'/text/[a-z_]+/CanalsText\.xml$'
+ALLOW="$ALLOW"'|^'"$MOD_DIR"'/icons/building_canal_(ancient|medieval|modern)_(256|128|64)\.png$'
 UNEXPECTED="$(unzip -Z1 "$ZIP_PATH" | grep -vE '/$' | grep -vE "$ALLOW" || true)"
 if [ -n "$UNEXPECTED" ]; then
     echo "error: zip contains entries not on the allow-list:"; echo "$UNEXPECTED" | sed 's/^/    /'
