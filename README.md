@@ -5,15 +5,17 @@
 # Canals
 
 A Civilization VII mod. Build a Canal on a narrow neck of land between two bodies of water. When it is finished
-the tile becomes water, drawn as a canal for its age, and ships sail straight through it.
+the tile becomes water, drawn as a canal for its age, and ships sail straight through it. It stays a canal across
+every save and reload, and the AI digs canals and sails through them too.
 
-![A Cog sailing through a three-tile Exploration canal cut across the neck of land beside Roma](gallery/01-exploration-cut-cog-through.jpg)
+![A two-tile Exploration canal at Roma, after a save and reload](gallery/01-exploration-cut-after-reload.jpg)
 
-*An Exploration-age cut of three Canals, joining Roma's estuary to the northern sea. The channel, the houses and
-wharfs along its banks and the moored boats are drawn by the mod; the Cog's route through it is the game's own.*
+*A two-tile Exploration cut at Roma, joining the northern sea to the city's estuary, after a save and reload.
+The channel, the quays and the moored boats are drawn by the mod; the canal is still water, and still a canal.*
 
-The Canal is an ordinary building in the production list. Each age has its own Canal, unlocked by one of that
-age's techs, and a city can dig as many canals as it has sites for. The mod decides where a Canal may go, turns
+The Canal is an ordinary building in the production list, and a town buys it with gold like any other building.
+Each age has its own Canal, unlocked by one of that age's techs, and a settlement can dig as many canals as it has
+sites for. The mod decides where a Canal may go, turns
 the tile into water when it completes, and dresses it. Everything else, the ship pathing, the
 tile's ownership, the citizen who works it and the yields it gives, is the game's own state.
 
@@ -21,37 +23,42 @@ tile's ownership, the citizen who works it and the yields it gives, is the game'
 
 ## What the player does
 
-Pick the Canal in a city's production list. It is a building; each age has its own, unlocked by a tech, and a
-city can build any number of them, one per site:
+Pick the Canal in a city's production list, or buy it with gold in a town's purchase list (or a city's). It is a
+building; each age has its own, unlocked by a tech, and a settlement can have any number of them, one per site:
 
-| Age | Unlocked by | Production cost |
-| --- | --- | --- |
-| Antiquity | Engineering | 300 |
-| Exploration | Shipbuilding | 500 |
-| Modern | Industrialization | 800 |
+| Age | Building | Unlocked by | Production cost |
+| --- | --- | --- | --- |
+| Antiquity | Ancient Canal | Engineering | 300 |
+| Exploration | Medieval Canal | Shipbuilding | 500 |
+| Modern | Modern Canal | Industrialization | 800 |
+
+A bought Canal is finished at once: the tile turns to water as soon as the purchase goes through.
 
 On the placement screen the city offers only the tiles a canal makes sense on. In Antiquity that is a land tile
 the city owns with water on at least two separate sides: a strip of land between two shores. Sea, lake and
 navigable river all count, so a canal can join a river to the sea or two reaches of a river. Three coast tiles on
 one side and one on the other qualifies; a headland with all its water in one stretch does not.
 
-![The city before the cut: the neck of land between the estuary and the sea](gallery/02-exploration-site-before.jpg)
+![The neck of land at Roma before the cut](gallery/02-exploration-site-before.jpg)
 
-*The site before the first Canal is ordered. The neck of land between Roma's estuary and the sea is three tiles
-across, which the Exploration age allows.*
+*The site before the first Canal is ordered: the neck of land between Roma's estuary and the northern sea.*
 
 Choose a tile. It becomes an urban district holding the Canal under construction, and the city builds it like any
 other building.
 
 When the Canal completes, the tile turns to water and is drawn as a canal at once, dressed for the age it was dug
-in: a water channel cut through the land toward each shore it joins, boats moored where it meets open water, and
+in: a water channel cut through the land between the shores it joins, boats moored where it meets open water, and
 along the banks an Antiquity harbor with its stone quay, or Exploration houses and a wharf lining the channel, or
 Modern buildings and a harbor. Any ship can now path through the tile between the two waters, in the same turn.
+The channel runs between two shores rather than toward every side the tile has water on, so a tile standing in open
+water is not drawn as a star. Where the canal touches another body of water as well, a lake beside the cut for
+instance, one branch opens into it, from whichever tile of the canal suits it best, so it is plain that ships can
+come in that way too.
 
-![The finished three-tile cut, close up](gallery/03-exploration-cut-close.jpg)
+![A Cog in the finished two-tile cut](gallery/03-exploration-cut-cog.jpg)
 
-*The finished cut. Each Canal that opens beside an earlier one redraws both so their channels meet, and a longer
-cut reads as one waterway.*
+*The finished cut with a Cog sailing through. Each Canal that opens beside an earlier one redraws both, so the
+channels meet and the cut reads as one waterway.*
 
 ## Longer canals
 
@@ -59,6 +66,10 @@ From the Exploration age a canal can be two tiles long: a second Canal is offere
 that continues it in a straight line, and nowhere else around it. That is the whole Exploration allowance: no
 third tile, no bend, no branch. A queued Canal counts as part of the run, so the second can be ordered while the
 first is still being dug; ships pass once both are finished.
+
+A canal can cross from one settlement's land into another's: each tile is built or bought by the city or town that
+owns it, and a tile beside another settlement's canal is offered as the next tile of that canal. City and town, two
+towns, or two cities make one waterway alike.
 
 In the Modern age a run may be up to five tiles long and may bend and branch, as long as every tile of it reaches
 open water through the run. A junction where a branch leaves the main cut is drawn as an open basin, with no
@@ -74,23 +85,30 @@ In Antiquity a canal is always a single tile: the tiles beside an existing or qu
 every age a tile beside a canal is judged as part of that canal's run; a canal's own water never qualifies a
 neighboring tile as an isthmus by itself.
 
-![An Antiquity canal beside the city center, with a Galley in it](gallery/04-antiquity-galley-in-canal.jpg)
+![An Antiquity canal from the city center to the sea, with a Galley in it](gallery/04-antiquity-galley-in-canal.jpg)
 
 *An Antiquity canal dug from the city's own tile to the sea, with a Galley in the channel. A settlement center
 counts as a canal end, so a city or town can open its center to the water.*
 
+![The same Antiquity canal after a save and reload](gallery/05-antiquity-after-reload.jpg)
+
+*The same canal after a save and reload: the quay, the boats and the channel through the land are all still there.*
+
 ## Which tiles qualify
 
 - flat or hill land the city owns, within the city's build ring, not a navigable river tile;
-- ship-water on at least two separate sides of the hex: sea, lake or navigable river, in any combination (the
-  same sea on both sides counts), ice not counted; two different bodies of water around it also qualify, even
-  where they meet in one stretch; the settlement's own center tile counts as water here, so a city or town can
-  dig a canal from its center out to the sea or a river, and a longer run may start or end at the center;
+- at least two separate ways in for a ship: sea, lake or navigable river on separate sides of the hex, in any
+  combination (the same sea on both sides counts), ice not counted; two different bodies of water around it also
+  qualify, even where they meet in one stretch; a settlement's own center beside the tile is a way in of its own,
+  so a city or town can dig a canal from its center out to the sea or a river, and a longer run may start or end
+  at the center. A center counts apart from the water rather than as a piece of it, so a settlement standing next
+  to a neck never costs the neck its two shores;
 - from Exploration on, alternatively the tile that extends an existing or queued canal within the age's run rule:
   a straight two-tile line in Exploration, up to five tiles with bends and branches in Modern;
 - no urban district on it, and no building other than a rural improvement, which is removed when the Canal is
   placed;
 - no unit standing on it;
+- no resource on it: a tile holding a resource can take no building, and the Canal is one;
 - not already a canal, dug or queued.
 
 ## What it gives, and what it costs
@@ -114,10 +132,10 @@ counted. The game's AI plots its routes natively and is not held.
 The cost is the production and the tile: the rural improvement on it, if any, is gone, and the tile is water
 from then on.
 
-![A Modern cut with an Ironclad in it](gallery/05-modern-cut-ironclad.jpg)
+![A branched Modern canal system at Roma, with an Ironclad in the channel](gallery/06-modern-branched-run-ironclad.jpg)
 
-*A Modern canal, dug from the ocean to a navigable river, with an Ironclad on its way through. Modern canals
-are dressed with the age's harbor and buildings.*
+*A Modern run of five Canals at Roma that bends and branches between the northern sea, the estuary and the river,
+with an Ironclad in the channel and the age's harbors and buildings along the banks.*
 
 ## Cliffs and locks
 
@@ -127,40 +145,32 @@ so where a channel meets a cliff shore the canal is drawn stepping down through 
 across the channel, a gatehouse on one bank, a water wheel on the other, and water spilling over the cliff foot
 beyond the gates. This is cosmetic only.
 
-![A canal meeting a cliff shore, drawn as a lock](gallery/07-exploration-lock-close.jpg)
+## AI canals
 
-*Where the channel meets a shore that was a cliff, the canal is drawn as a lock.*
+![A canal dug by an AI player across a snowy neck of land](gallery/07-ai-canal-snowy-neck.jpg)
 
-## More canals
+*A canal an AI player dug on its own land, joining a lake to the sea across a snowy neck.*
 
-![A Modern run of three Canals at Pârsa, with an Ironclad in the channel](gallery/08-modern-run-parsa-wide.jpg)
+![An AI canal running through a town from the river to the harbor](gallery/08-ai-canal-town.jpg)
 
-*A Modern run of three Canals at Pârsa, cut from the northern sea to the river mouth in the south-west, with an
-Ironclad in the channel. The tile tooltip lists the Canal and the Fishing Boat on the tile, and each tile's food
-and gold is counted in the city.*
+*Another AI canal, cut through the houses of a town from the river down to its harbor.*
 
-![The same Modern run close up, the Ironclad passing the buildings along the banks](gallery/09-modern-run-parsa-close.jpg)
-
-*The same run close up: the Ironclad passing the Modern buildings along the banks, the channel opening onto the
-sea beyond the pines.*
-
-![A single Exploration canal at Ostia, joining the ocean to the bay behind the coast](gallery/10-exploration-ostia-canal-close.jpg)
-
-*An Exploration-age Canal at Ostia, on distant lands, joining the ocean to the bay behind the coast. The ship is
-on the bay side, about to go through.*
-
-![The same canal from further out, the ship through on the ocean side](gallery/11-exploration-ostia-canal-wide.jpg)
-
-*The same canal from further out. The ship is through, on the ocean side, and the canal tile reads as one more
-water tile of Ostia.*
+An AI player with the Canal unlocked digs one on a tile it works that joins two separate bodies of water. Its
+city builds the Canal with its production, or buys it outright when it has gold to spare, and the AI's units sail
+through it. Each AI waits eight turns between canals.
 
 ## Compatibility
 
 - Adds three buildings and their tech unlocks, changes no base-game rows, replaces no base-game files.
-- A save loads with the mod on or off. A canal already dug is ordinary map state: a water tile worked by the city.
-  The channel, quay and boats are drawn by the mod while it is on; without it the tile is plain water.
-- A game started before the mod was enabled gets the Canal when its unlocking tech is researched; if that tech was
-  researched earlier, that age's Canal is not available in that game.
+- A save loads with the mod on or off. Saves hold each canal as the land it was cut from, and the mod turns it back
+  to water when the game is loaded with the mod on. Without the mod a dug canal is a plain land tile of the city: its
+  fishing boat and district stay, the Canal building and its yields go, and a ship left in the canal is stranded on
+  the land.
+- Start a new game with the mod enabled. In a game already under way when the mod is added, a Canal whose tech was
+  researched before that point is not available, to you or to the AI.
+- While a canal is open the mod writes the autosave itself, at the start of your turn, on your own frequency and keep
+  count, as AutoSave_Canals_NN. The game's own autosave is held meanwhile, so the Options screen then shows your
+  frequency plus 1000; your setting is put back whenever the main menu loads.
 - Single player. In a network game the Canal is not offered.
 - English only for now. The mod's text is a handful of strings.
 
@@ -175,31 +185,49 @@ water tile of Ostia.*
 
 ## How it works
 
-Five steps, each watched in the game on 2026-09-25 (Civilization VII 1.5.0). The run that proved each one is in
-[docs/verification-runs.md](docs/verification-runs.md).
+Five steps, each watched in the game on 2026-09-25, the purchase path on 2026-09-27 (Civilization VII 1.5.0). The
+run that proved each one is in [docs/verification-runs.md](docs/verification-runs.md).
 
 1. **Placement.** The Canal buildings carry no terrain rule of their own. The mod wraps the engine's placement
-   query: for a Canal, the offered plots are the city's land tiles within its build ring that pass the rule
-   above, and the per-plot check refuses anything else with the mod's own message. The engine's verdict on
-   *whether* a Canal may be built (locked, already queued) is kept; the mod decides only *where*.
+   queries, for production and for purchase with gold (a town's only way to get a building): for a Canal, the
+   offered plots are the settlement's land tiles within its build ring that pass the rule above, and the per-plot
+   check refuses anything else with the mod's own message. The engine's verdict on *whether* a Canal may be had
+   (locked, already queued, not enough gold) is kept; the mod decides only *where*.
 2. **Commit.** The engine offers buildings only on tiles that already hold an urban district, so a Canal on a
    rural isthmus first gets one, created by script, after which the Canal is offered there and a real build order
-   queues it. The plot is remembered in the save, so a reload mid-construction still finishes the job. If the
-   engine does not take the build within a few seconds, the district is removed again and the plot bought back.
+   queues it, or a real purchase buys it. A bought Canal arrives complete and the engine sends no completion event
+   for it, so the mod opens it straight away. The plot is remembered in the save, so a reload mid-construction
+   still finishes the job. If the engine does not take the order within a few seconds, the district is removed
+   again and the plot bought back.
 3. **Completion.** When the Canal completes, the handler retypes the tile to coast (the feature cleared first),
    removes the Canal and its urban district (a district's housing block would hide the canal), buys the released
    plot back for the city, frees the Canal's citizen as a pending point and places it on the new water tile with
    the city's own expand order (a rural district with fishing boats, worked by that citizen), and re-creates the
    Canal building on that rural district, where its yield rows count in the city at once.
 4. **The passage.** A tile retyped to coast is pathable by ships immediately: a ship's path to the far side goes
-   from around the land to through the tile in the same turn. The retype survives a save and reload. The tile's
+   from around the land to through the tile in the same turn. The tile's
    area id does not change until the age transition, which is why the placement rule resolves a canal tile's
    waters through its neighbors rather than its area.
-5. **The look.** A retyped hex keeps its land mesh until the next load, so the canal is drawn by script from
-   shipped meshes: one river channel piece per water side meeting at the hex center, the age's houses and harbor
-   along the first arm, moored boats where the canal meets open water or a junction, and lock pieces at any
-   shore that was a cliff. Three looks per age, chosen by plot number so a canal keeps its look across reloads.
+5. **The look.** A retyped hex keeps its land mesh, and a load draws it as land too (step 6), so the canal is
+   drawn by script from
+   shipped meshes: river channel pieces meeting at the hex center - one to each canal beside it, the two shores
+   that lie most nearly opposite, and one branch into each other body of water the canal touches - the age's
+   houses and harbor along the first arm, moored boats where the canal meets open water or a junction, and lock
+   pieces at any shore that was a cliff. Three looks per age, chosen by plot number so a canal keeps its look
+   across reloads.
    The opened canals are kept in the save and redrawn on load and at the start of every turn.
+6. **AI canals.** At the start of each of your turns an AI with the Canal unlocked looks for a tile it works that
+   joins two separate bodies of water. When it finds one, the city builds a Canal there with its production, as
+   yours do, or buys it outright if it has the gold with a fifth to spare. The canal then opens as yours do, and AI
+   units sail through it. Each AI waits eight turns between canals.
+7. **Saving.** A load draws each hex from the terrain in the save, and a coast hex comes out as open sea, so every
+   save holds the canals as land. The terrain must change before a save starts, never during one: a retype while
+   the game is writing a save crashes it. Every save goes through the game's save call, which the mod wraps: the
+   canals turn to land, the save is sent once the map reads them as land, and they are coast again when it completes.
+   The game's autosave comes too soon after the AI turns for that, so the mod writes the autosave itself at the start
+   of your turn; the canals are water through every AI turn. After a load they stay land until the game
+   has started and the save the engine makes on loading an autosave is done, then turn coast; the land mesh the
+   load drew stays in place under the mod's channel.
 
 A safety sweep on load and at the start of every turn re-checks every remembered site and every complete Canal
 on the map, so a missed completion event is caught on the next turn. A completed Canal that shares its tile with
@@ -211,7 +239,18 @@ Watched working end to end on Civilization VII 1.5.0, 2026-09-25, in games of al
 the real production screen, the district and the build order, the completion handler opening the canal, the
 citizen placed and the yields counted in the city, a Galley, a Cog and an Ironclad each sailing through, the
 three-tile Exploration cut and the Modern trunk ordered in sequence through the real build path, the lock
-dressing at a cliff shore, and short AI soaks with the Canal unlocked for every player without a crash.
+dressing at a cliff shore, and short AI soaks with the Canal unlocked for every player without a crash. On
+2026-09-27 a town bought a Medieval Canal through the purchase path: the placement screen offered the canal site
+alone, the canal opened at once, the gold was charged once and a Cog sailed through. On 2026-09-28 each age's Canal
+was watched in the lists a player reads it from, named and with its own icon: the city's production list, the city's
+purchase tab and a town's purchase list, in games of all three ages. Also on 2026-09-28, on a canal opened through
+the real build path: the autosave, a script save and a quicksave through the game's own save model each wrote the
+canal as land, with no crash; the script save and the mod's own autosave each reloaded with the canal drawn through
+land and a ship pathing through it, and the canal was water through every AI turn. AI players started canals on
+their own in autoplayed games, paid for them with their cities' production and opened them; two AI canals placed
+by the planner opened for their owners on a turn-66 map, and the AI's embarked units moved through one on three
+turns. A two-tile cut held by two cities, one built with production and one bought, still carried a ship through
+on the release build. An age transition with the mod running went through without a crash.
 
 Not watched:
 
@@ -220,15 +259,11 @@ Not watched:
   build order with no reason code in the gallery run, and branching was otherwise proved by retyping the tiles
   directly.
 - The second and third look of each age as whole compositions (their pieces were photographed individually).
-- A canal opening on an AI player's completion. The handler runs for any owner, but no AI built one in the soaks,
-  which were run before the Canal had yields.
-- The age transition with a canal on the map. The engine recalculates areas then, which should only make the
-  canal more native.
+- An AI warship crossing between two seas through a canal: the AI units seen in canals were embarked land units.
+- The age transition with a canal on the map (one ran with no canal open). The engine recalculates areas then.
 
 Known limits:
 
-- The hex mesh: a retyped tile keeps its land mesh until the next load, and the mod's overlay stands in for it.
-  After a reload the engine draws the tile as water itself.
 - Multiplayer: the retype is a local call, so the mod does not offer the Canal in a network game.
 
 ## Layout
@@ -240,7 +275,8 @@ data/canals-antiquity.xml           each age's tech unlock, loaded only while th
 data/canals-exploration.xml
 data/canals-modern.xml
 ui/canals.js                        the mod: placement, commit, completion, looks, locks,
-                                    ship limit, safety sweep
+                                    ship limit, saving, AI canals, safety sweep
+ui/canals-shell.js                  main menu: puts the player's autosave frequency back
 text/en_us/CanalsText.xml           name, description and the placement message
 docs/verification-runs.md           every step and the run that proved it
 docs/steam-workshop-description.txt the Workshop page text

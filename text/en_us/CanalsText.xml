@@ -8,8 +8,14 @@
         <Row Tag="LOC_CANALS_MOD_DESCRIPTION">
             <Text>Adds a Canal building to each age. Build it on a land tile that separates two bodies of water; when it is finished the tile becomes a coast tile with a quay on it, and ships sail through. Unlocked by Engineering, Shipbuilding and Industrialization.</Text>
         </Row>
-        <Row Tag="LOC_BUILDING_CANAL_NAME">
-            <Text>Canal</Text>
+        <Row Tag="LOC_BUILDING_CANAL_ANTIQUITY_NAME">
+            <Text>Ancient Canal</Text>
+        </Row>
+        <Row Tag="LOC_BUILDING_CANAL_EXPLORATION_NAME">
+            <Text>Medieval Canal</Text>
+        </Row>
+        <Row Tag="LOC_BUILDING_CANAL_MODERN_NAME">
+            <Text>Modern Canal</Text>
         </Row>
         <Row Tag="LOC_BUILDING_CANAL_DESCRIPTION">
             <Text>Cuts a ship channel through a narrow neck of land. Can only be built on a land tile that separates two bodies of water. When it is finished the tile becomes a coast tile with a quay, and ships can sail through it.</Text>
@@ -19,6 +25,12 @@
         </Row>
         <Row Tag="LOC_CANAL_NOT_ISTHMUS">
             <Text>A Canal must be built on a land tile that separates two bodies of water.</Text>
+        </Row>
+        <Row Tag="LOC_CANAL_RESOURCE">
+            <Text>A Canal cannot be dug through a tile that holds a resource.</Text>
+        </Row>
+        <Row Tag="LOC_CANAL_TILE_TAKEN">
+            <Text>Nothing else can be built on a canal.</Text>
         </Row>
     </EnglishText>
 </Database>

@@ -1,0 +1,5 @@
+Canals 1.1.0 is up. A canal now stays a canal: after a save and reload it is still a channel cut through land, with its ships still sailing through.
+AI players dig canals too. An AI builds one where a tile it works joins two bodies of water, pays for it with its city's production, and sails its units through it.
+Towns can have canals: a town buys the Canal from its purchase list and it opens at once, and a canal can run on from one settlement's land into another's. Each age's Canal has its own name and icon, resource tiles are no longer offered, and a canal is drawn as one channel between its shores.
+While a canal is open, autosaves are written at the start of your turn as AutoSave_Canals_01 and onward, on your usual frequency.
+Full notes and screenshots: github.com/tmtmiller1/civilizationvii_canals/releases

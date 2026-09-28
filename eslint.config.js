@@ -34,8 +34,18 @@ const ENGINE_GLOBALS = {
   PlacementMode: "readonly",
   CityOperationTypes: "readonly",
   CityCommandTypes: "readonly",
+  CityQueryType: "readonly",
+  ResourceTypes: "readonly",
   UnitOperationTypes: "readonly",
-  WorldBuilder: "readonly"
+  WorldBuilder: "readonly",
+  // the save call, wrapped so canals are land before a save is written
+  Network: "readonly",
+  UIGameLoadingState: "readonly",
+  SaveLocations: "readonly",
+  SaveLocationCategories: "readonly",
+  SaveTypes: "readonly",
+  SaveFileTypes: "readonly",
+  YieldTypes: "readonly"
 };
 
 const BROWSER_GLOBALS = {

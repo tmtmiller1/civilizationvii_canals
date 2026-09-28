@@ -14,7 +14,7 @@
         <Authors>Tower</Authors>
         <Package>Canals</Package>
         <PackageSortIndex>100</PackageSortIndex>
-        <Version>1.0.0</Version>
+        <Version>1.1.0</Version>
         <AffectsSavedGames>0</AffectsSavedGames>
     </Properties>
     <Dependencies>
@@ -30,6 +30,7 @@
         <ActionGroup id="canals-shell" scope="shell" criteria="always">
             <Actions>
                 <UpdateText><Item>text/en_us/CanalsText.xml</Item></UpdateText>
+                <UIScripts><Item>ui/canals-shell.js</Item></UIScripts>
             </Actions>
         </ActionGroup>
         <ActionGroup id="canals-game" scope="game" criteria="always">
@@ -37,6 +38,18 @@
             <Actions>
                 <UpdateDatabase><Item>data/canals.xml</Item></UpdateDatabase>
                 <UpdateText><Item>text/en_us/CanalsText.xml</Item></UpdateText>
+                <ImportFiles>
+                    <Item>icons/building_canal_ancient_256.png</Item>
+                    <Item>icons/building_canal_ancient_128.png</Item>
+                    <Item>icons/building_canal_ancient_64.png</Item>
+                    <Item>icons/building_canal_medieval_256.png</Item>
+                    <Item>icons/building_canal_medieval_128.png</Item>
+                    <Item>icons/building_canal_medieval_64.png</Item>
+                    <Item>icons/building_canal_modern_256.png</Item>
+                    <Item>icons/building_canal_modern_128.png</Item>
+                    <Item>icons/building_canal_modern_64.png</Item>
+                </ImportFiles>
+                <UpdateIcons><Item>data/canals-icons.xml</Item></UpdateIcons>
                 <UIScripts><Item>ui/canals.js</Item></UIScripts>
             </Actions>
         </ActionGroup>

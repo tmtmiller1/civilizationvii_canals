@@ -12,9 +12,9 @@
         <Row Type="BUILDING_CANAL_MODERN" Kind="KIND_CONSTRUCTIBLE"/>
     </Types>
     <Constructibles>
-        <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" Name="LOC_BUILDING_CANAL_NAME" Description="LOC_BUILDING_CANAL_DESCRIPTION" Tooltip="LOC_BUILDING_CANAL_TOOLTIP" ConstructibleClass="BUILDING" Cost="300" Population="1" Age="AGE_ANTIQUITY"/>
-        <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" Name="LOC_BUILDING_CANAL_NAME" Description="LOC_BUILDING_CANAL_DESCRIPTION" Tooltip="LOC_BUILDING_CANAL_TOOLTIP" ConstructibleClass="BUILDING" Cost="500" Population="1" Age="AGE_EXPLORATION"/>
-        <Row ConstructibleType="BUILDING_CANAL_MODERN" Name="LOC_BUILDING_CANAL_NAME" Description="LOC_BUILDING_CANAL_DESCRIPTION" Tooltip="LOC_BUILDING_CANAL_TOOLTIP" ConstructibleClass="BUILDING" Cost="800" Population="1" Age="AGE_MODERN"/>
+        <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" Name="LOC_BUILDING_CANAL_ANTIQUITY_NAME" Description="LOC_BUILDING_CANAL_DESCRIPTION" Tooltip="LOC_BUILDING_CANAL_TOOLTIP" ConstructibleClass="BUILDING" Cost="300" Population="1" Age="AGE_ANTIQUITY"/>
+        <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" Name="LOC_BUILDING_CANAL_EXPLORATION_NAME" Description="LOC_BUILDING_CANAL_DESCRIPTION" Tooltip="LOC_BUILDING_CANAL_TOOLTIP" ConstructibleClass="BUILDING" Cost="500" Population="1" Age="AGE_EXPLORATION"/>
+        <Row ConstructibleType="BUILDING_CANAL_MODERN" Name="LOC_BUILDING_CANAL_MODERN_NAME" Description="LOC_BUILDING_CANAL_DESCRIPTION" Tooltip="LOC_BUILDING_CANAL_TOOLTIP" ConstructibleClass="BUILDING" Cost="800" Population="1" Age="AGE_MODERN"/>
     </Constructibles>
     <Buildings>
         <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" Movable="false" Town="true" MultiplePerCity="true"/>
