@@ -288,7 +288,17 @@ const state = {
   openedHere: new Set(),
   // canals whose hex is drawn as land this session: opened in it, or loaded as land (see keepLandLook)
   landMesh: new Set(), saving: false, hold: false, loading: false, pendingSave: false, aiRunning: false, localId: -1,
-  multiplayer: false, paidTurn: -1, transits: new Map(), transitTurn: -1
+  multiplayer: false, paidTurn: -1, transits: new Map(), transitTurn: -1,
+  // the age has ended (GameAgeEnded); the canals stay land for the transition
+  ageEnded: false,
+  // the autosave the mod's newest one pushes past the player's keep count, deleted once the new one is written
+  prune: null,
+  // canals a save held as Coast (Canals 1.0.0), turned to land as the game loaded
+  staleLoad: [],
+  // messages shown this session (a network game keeps no record of its own)
+  told: new Set(),
+  // the autosave to load once it is written (offerReload)
+  reloadFrom: null
 };
 
 function canalIndex(v) { return state.canalIndexes.has(v); }
@@ -816,11 +826,34 @@ function landAhead(why) {
   return n;
 }
 
-/** The hold is over: canals back to Coast (never while a save runs or is about to). */
+/** The hold is over: canals back to Coast (never while a save runs or is about to, nor once the age is over). */
 function coastAgain() {
   if (state.saving || state.loading || state.pendingSave) return [];
+  if (ageIsOver()) { state.hold = true; retypeCanals("land"); return []; }
   state.hold = false;
   return retypeCanals("coast");
+}
+
+// The next age is built from the map as this one leaves it. The transition is a save of its own
+// (SaveFileTypes.GAME_TRANSITION), and the new age's map script recomputes the water bodies from the terrain it
+// inherits (TerrainBuilder.storeWaterData, base-standard/scripts/age-transition-post-load.js). A canal still Coast
+// at that point would come into the new age as open sea. So once the age is over the canals turn to land and stay
+// land; the new age loads them as land, like any save, and they turn Coast again after that load. "One more turn"
+// (an extended game) is ordinary play: the canals are water again at the next turn start.
+
+/** The age has ended and play does not go on past it. */
+function ageIsOver() {
+  const m = safe(() => Game.AgeProgressManager, null);
+  if (m && safe(() => m.isExtendedGame, false)) return false;
+  return state.ageEnded || !!(m && safe(() => m.isAgeOver, false));
+}
+/** GameAgeEnded, and again on BeforeAgeTransition: land the canals now (a retype never runs during a save). */
+function onAgeEnded() {
+  if (!state.enabled || state.multiplayer) return;
+  state.ageEnded = true;
+  if (!loadOpen().length) return;
+  const n = landAhead("the age is over");
+  if (!n && !readsLand()) log("the age is over during a save; the canals turn to land when it completes");
 }
 
 function onSaveStart() {
@@ -832,6 +865,14 @@ function onSaveDone() {
   if (!state.enabled || state.multiplayer) return;
   state.saving = false; state.pendingSave = false;
   coastAgain();
+  if (state.prune) setTimeout(pruneAutosave, 500);
+  if (state.reloadFrom) {
+    const name = state.reloadFrom; state.reloadFrom = null;
+    setTimeout(() => {
+      const ok = safe(() => Network.loadGame(autosaveParams(name), ServerType.SERVER_TYPE_NONE), false);
+      log(`reload from ${name}: ${ok ? "sent" : "refused"}`);
+    }, 1000);
+  }
 }
 
 /** Network.saveGame, but the canals are land on the map before the save is sent. */
@@ -877,19 +918,69 @@ function holdEngineAutosave() {
   log(`autosave: every ${Math.max(1, f)} turn(s), written by the mod with the canals as land`);
 }
 
-/** The player's turn has begun: write the autosave the engine would have written, canals as land. */
+// The Options screen reads the frequency straight from the user setting, so while it is held the slider showed the
+// player's value plus 1000. The option is built when the screen first opens (core/ui/options/options.js adds it
+// through Options.addOption); it is wrapped as it is added, so it shows the player's own value, and a value the
+// player picks there is their new setting, held again at once.
+const AUTOSAVE_OPTION = "option-autosavefrequency";
+function wrapAutosaveOption(info) {
+  if (!info || info.canalsWrapped) return;
+  const init = info.initListener; const update = info.updateListener;
+  info.initListener = (o) => {
+    if (init) init(o);
+    const f = safe(() => user().autoSaveFrequency, 0);
+    if (f >= AUTOSAVE_HELD) { o.currentValue = f - AUTOSAVE_HELD; o.formattedValue = `${f - AUTOSAVE_HELD}`; }
+  };
+  info.updateListener = (o, value) => { if (update) update(o, value); holdEngineAutosave(); };
+  info.canalsWrapped = true;
+}
+async function wrapOptionsScreen() {
+  try {
+    const { Options } = await import("/core/ui/options/model-options.js");
+    if (!Options || typeof Options.addOption !== "function") { log("Options model not found; the Options screen shows the held frequency"); return; }
+    const add = Options.addOption;
+    Options.addOption = function (info) {
+      if (info && info.id === AUTOSAVE_OPTION) wrapAutosaveOption(info);
+      return add.call(this, info);
+    };
+    if (state.originals) state.originals.addOption = { host: Options, add };
+    const live = safe(() => Options.data.get(AUTOSAVE_OPTION), null);
+    if (live) { wrapAutosaveOption(live); live.initListener(live); }
+  } catch (e) { log("Options screen not wrapped: " + e); }
+}
+
+/** The engine's own name for an autosave, AutoSave_<age>_<turn> (AutoSave_01_0072: Exploration, turn 72), so the
+ * mod's autosaves carry on the game's series in the Autosaves tab and under Continue. */
+function autosaveName(turn) {
+  const age = safe(() => GameInfo.Ages.lookup(Game.age).ChronologyIndex, 0);
+  return `AutoSave_${String(age).padStart(2, "0")}_${String(turn).padStart(4, "0")}`;
+}
+function autosaveParams(name) {
+  return { Location: SaveLocations.LOCAL_STORAGE, LocationCategories: SaveLocationCategories.AUTOSAVE,
+    Type: SaveTypes.SINGLE_PLAYER, ContentType: SaveFileTypes.GAME_STATE, FileName: name };
+}
+
+/** The player's turn has begun: write the autosave the engine would have written, canals as land. The one that
+ * falls past the player's keep count is deleted once the new one is written, as the engine does with its own. */
 function writeAutosave() {
   if (!state.enabled || state.multiplayer || !loadOpen().length) return;
   if (safe(() => user().autoSaveFrequency, 0) < AUTOSAVE_HELD) return; // not held: the engine wrote its own
   const turn = safe(() => Game.turn, 0); const every = playerAutosaveEvery();
   if (turn % every !== 0) return;
   const keep = Math.max(1, safe(() => user().autoSaveKeepCount, 10));
-  const slot = String(Math.floor(turn / every) % keep).padStart(2, "0");
-  const params = { Location: SaveLocations.LOCAL_STORAGE, LocationCategories: SaveLocationCategories.AUTOSAVE,
-    Type: SaveTypes.SINGLE_PLAYER, ContentType: SaveFileTypes.GAME_STATE, FileName: `AutoSave_Canals_${slot}`,
-    Overwrite: true };
-  const ok = safe(() => Network.saveGame(params), false);
-  log(`autosave: turn ${turn} to slot ${slot} ${ok ? "sent" : "refused"}`);
+  const name = autosaveName(turn);
+  state.prune = turn - keep * every > 0 ? autosaveName(turn - keep * every) : null;
+  const ok = safe(() => Network.saveGame({ ...autosaveParams(name), Overwrite: true }), false);
+  if (!ok) state.prune = null;
+  log(`autosave: turn ${turn} as ${name} ${ok ? "sent" : "refused"}`);
+}
+
+/** After the mod's autosave is written: delete the one it pushed past the keep count. */
+function pruneAutosave() {
+  const name = state.prune; state.prune = null;
+  if (!name) return;
+  const ok = safe(() => Network.deleteGame(autosaveParams(name)), false);
+  log(`autosave: ${name} ${ok ? "deleted" : "not deleted"} (keep count)`);
 }
 
 // The local player as the game was loaded: GameContext.localPlayerID does not read it while Autoplay runs (c76).
@@ -911,7 +1002,13 @@ const LOAD_QUIET_MS = 3000;
 /** After a load: canals that came in as land are drawn as land this session, and turn Coast once the game is up. */
 function keepLandLook() {
   state.loading = true; state.hold = true;
-  for (const e of loadOpen()) if (terrainOf(locOf(e.plot)) !== "TERRAIN_COAST") state.landMesh.add(e.plot);
+  // A save that holds a canal as Coast was written by Canals 1.0.0, which kept canals as water in saves. The load
+  // has already drawn it as open sea, and no retype redraws a hex in play (c99), but turned to land at once it is
+  // land in every save from here on, the one the game writes as it starts included; see offerReload.
+  const stale = retypeCanals("land");
+  if (stale.length) log(`load: ${stale.length} canal tile(s) saved as Coast (an older save), turned to land`);
+  for (const e of loadOpen()) if (!stale.includes(e.plot) && terrainOf(locOf(e.plot)) !== "TERRAIN_COAST") state.landMesh.add(e.plot);
+  state.staleLoad = stale;
   const t0 = Date.now(); let quietSince = 0;
   const up = () => UI.getGameLoadingState() === UIGameLoadingState.GameStarted;
   const started = () => safe(up, Date.now() - t0 > 15000);
@@ -1017,6 +1114,43 @@ function isThisAgesCanal(d) {
   return !!d && (!age || !d.Age || String(d.Age) === age);
 }
 
+/** The tech that unlocks this Canal in the age being played (data/canals-<age>.xml), or null. */
+function unlockNode(def) {
+  return safe(() => {
+    const row = GameInfo.ProgressionTreeNodeUnlocks.find((r) => String(r.TargetType) === String(def.ConstructibleType));
+    return row ? String(row.ProgressionTreeNodeType) : null;
+  }, null);
+}
+
+/**
+ * A Canal the engine keeps locked although its owner has researched its tech. An unlock fires when its tech is
+ * researched and never afterwards (engine-closed.md), so in a game the mod was added to after that point, the
+ * engine keeps this age's Canal locked until the age ends; the tech is honoured by the mod instead. The mod cannot
+ * unlock a building (no script call does), so such a Canal is sold for gold and placed by the mod: production
+ * cannot build a locked building.
+ */
+function unlockedByMod(pid, def, res) {
+  if (!def || !res || res.Success || res.AlreadyExists || res.InQueue || res.InsufficientFunds) return false;
+  const node = unlockNode(def);
+  if (!node) return false;
+  const needed = res.NeededUnlock != null && res.NeededUnlock !== -1
+    ? safe(() => String(GameInfo.ProgressionTreeNodes.lookup(res.NeededUnlock).ProgressionTreeNodeType), null) : null;
+  if (needed && needed !== node) return false;
+  // On a save the mod was added to, the refusal names no tech and gives no reason at all: {Success: false} (c101).
+  // Callers pass only this age's Canal, so a refusal with no reason is the missing unlock, not the wrong age.
+  if (!needed && !res.Locked && (res.FailureReasons || []).length) return false;
+  return !!safe(() => Players.get(pid).Techs.isNodeUnlocked(node), false);
+}
+function cityOwner(cityID) { return safe(() => Cities.get(cityID).owner, -1); }
+
+/** The engine's gold price for the building in this settlement, and whether its owner is short of it. */
+function modPrice(cityID, def) {
+  const price = () => Cities.get(cityID).Gold.getBuildingPurchaseCost(YieldTypes.YIELD_GOLD, def.ConstructibleType);
+  const cost = Math.round(safe(price, 0));
+  const gold = safe(() => Players.get(cityOwner(cityID)).Treasury.goldBalance, 0);
+  return { cost, short: !(cost > 0) || gold < cost };
+}
+
 /**
  * Wraps a canStart that places a building: Game.CityOperations BUILD (production) or Game.CityCommands PURCHASE
  * (gold; a town's only way to get a building). For a Canal the offered plots are the canal sites and nothing else,
@@ -1037,24 +1171,35 @@ function keepOffCanals(res, args) {
   return { ...res, Plots: strip(res.Plots), ExpandUrbanPlots: strip(res.ExpandUrbanPlots) };
 }
 
-function wrapCanStart(oCan, placeType) {
+function wrapCanStart(oCan, placeType, purchase) {
   return function (cityID, type, args, ...rest) {
     const res = oCan(cityID, type, args, ...rest);
     if (!state.enabled || type !== placeType || !args) return res;
-    if (!canalDef(args.ConstructibleType)) return args.ConstructibleType != null ? keepOffCanals(res, args) : res;
-    if (!isThisAgesCanal(canalDef(args.ConstructibleType))) return res;
-    if (state.multiplayer) return { ...res, Success: false, Plots: [], ExpandUrbanPlots: [], FailureReasons: ["LOC_CANAL_NOT_ISTHMUS"] };
+    const def = canalDef(args.ConstructibleType);
+    if (!def) return args.ConstructibleType != null ? keepOffCanals(res, args) : res;
+    if (!isThisAgesCanal(def)) return res;
+    if (state.multiplayer) return { ...res, Success: false, Plots: [], ExpandUrbanPlots: [], FailureReasons: ["LOC_CANAL_MULTIPLAYER"] };
     const loc = plotOf(args);
     if (loc) {
       if (!isIsthmus(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_NOT_ISTHMUS"] };
       if (hasResource(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_RESOURCE"] };
-      const general = oCan(cityID, type, { ConstructibleType: args.ConstructibleType }, ...rest);
-      if (engineSaysNo(general)) return { ...general, Plots: [], ExpandUrbanPlots: [] };
-      return { ...res, Success: true, FailureReasons: [] };
     }
-    if (engineSaysNo(res)) return { ...res, Plots: [], ExpandUrbanPlots: [] };
+    const general = loc ? oCan(cityID, type, { ConstructibleType: args.ConstructibleType }, ...rest) : res;
+    let sold = null;
+    if (engineSaysNo(general)) {
+      if (!purchase || !unlockedByMod(cityOwner(cityID), def, general))
+        return { ...general, Plots: [], ExpandUrbanPlots: [] };
+      sold = modPrice(cityID, def);
+    }
+    // a Canal the mod sells itself (see unlockedByMod) reads as unlocked, priced, and short of gold when it is
+    const open = sold ? { Locked: false, NeededUnlock: -1, Cost: sold.cost, InsufficientFunds: sold.short } : {};
+    if (loc) {
+      if (sold && sold.short) return { ...res, ...open, Success: false, FailureReasons: ["LOC_CITY_PURCHASE_INSUFFICIENT_FUNDS"] };
+      return { ...res, ...open, Success: true, FailureReasons: [] };
+    }
     const plots = eligiblePlots(cityID);
-    return { ...res, Plots: plots, ExpandUrbanPlots: [], MountainPlots: [], Success: plots.length > 0, FailureReasons: plots.length ? [] : ["LOC_BUILDING_CONSTRUCT_NO_SUITABLE_LOCATION"] };
+    const ok = plots.length > 0 && !(sold && sold.short);
+    return { ...res, ...open, Plots: plots, ExpandUrbanPlots: [], MountainPlots: [], Success: ok, FailureReasons: plots.length ? [] : ["LOC_BUILDING_CONSTRUCT_NO_SUITABLE_LOCATION"] };
   };
 }
 
@@ -1077,7 +1222,9 @@ function wrapCanStartQuery(oQuery, host, placeType) {
       if (!verdict) continue;
       const entry = res.find((e) => e && e.index === d.$index);
       if (entry) entry.result = verdict;
-      else if (verdict.Success) res.push({ index: d.$index, result: verdict });
+      // short of gold still lists it, greyed with its price, as the game lists any building it cannot afford
+      else if (verdict.Success || (verdict.InsufficientFunds && (verdict.Plots || []).length))
+        res.push({ index: d.$index, result: verdict });
     }
     return res;
   };
@@ -1089,6 +1236,7 @@ function wrapCanStartQuery(oQuery, host, placeType) {
  * canal is opened here.
  */
 async function districtThenBuild(cityID, loc, ctype, forward, path) {
+  const soldFor = path.soldFor;
   const local = GameContext.localPlayerID;
   const plot = idx(loc);
   const hadDistrict = districtAt(loc) === "DISTRICT_URBAN";
@@ -1104,8 +1252,11 @@ async function districtThenBuild(cityID, loc, ctype, forward, path) {
   }
   // The engine needs a moment before a new district counts as a site (watched: a BUILD sent 200 ms after the
   // district landed was dropped; one sent 3 s later was taken). Wait for its own per-plot verdict.
-  for (let k = 0; k < 50 && !engineAccepts(); k++) await sleep(100);
-  if (!engineAccepts()) log(`engine verdict on the Canal at ${loc.x},${loc.y}: ${J(safe(() => path.oCan.call(path.host, cityID, path.type, { ConstructibleType: ctype, X: loc.x, Y: loc.y }, false), null))}`);
+  // (A Canal the mod sells itself is placed by the mod, not the engine, so there is no verdict to wait for.)
+  if (soldFor == null) {
+    for (let k = 0; k < 50 && !engineAccepts(); k++) await sleep(100);
+    if (!engineAccepts()) log(`engine verdict on the Canal at ${loc.x},${loc.y}: ${J(safe(() => path.oCan.call(path.host, cityID, path.type, { ConstructibleType: ctype, X: loc.x, Y: loc.y }, false), null))}`);
+  }
   remember(plot);
   forward();
   const t0 = Date.now();
@@ -1113,6 +1264,10 @@ async function districtThenBuild(cityID, loc, ctype, forward, path) {
     await sleep(100);
     const c = canalOn(loc);
     if (!c) continue;
+    if (soldFor != null) {
+      safe(() => Players.grantYield(local, YieldTypes.YIELD_GOLD, -soldFor));
+      log(`Canal sold by the mod at ${loc.x},${loc.y} for ${soldFor} gold (its tech was researched before the mod was added)`);
+    }
     log(`Canal ${path.purchase ? "bought" : "queued"} at ${loc.x},${loc.y}`);
     if (path.purchase && c.complete) setTimeout(() => openCanal(loc, local), SETTLE_MS);
     return;
@@ -1145,6 +1300,17 @@ function wrapSendRequest(oSend, path) {
     // never prepare a resource tile: the engine will refuse the building, and the district would already have
     // replaced whatever improvement stood there
     if (!loc || !isIsthmus(loc) || hasResource(loc)) return oSend(cityID, type, args, ...rest);
+    const def = canalDef(args.ConstructibleType);
+    const general = safe(() => path.oCan.call(path.host, cityID, path.type,
+      { ConstructibleType: args.ConstructibleType }, false), null);
+    if (path.purchase && engineSaysNo(general) && unlockedByMod(cityOwner(cityID), def, general)) {
+      const price = modPrice(cityID, def);
+      if (price.short) { log(`not enough gold for the Canal at ${loc.x},${loc.y} (${price.cost})`); return false; }
+      const place = () => safe(() => Game.PlayerOperations.sendRequest(GameContext.localPlayerID, "CREATE_ELEMENT",
+        { Kind: "CONSTRUCTIBLE", Type: def.ConstructibleType, Location: { x: loc.x, y: loc.y }, Owner: cityOwner(cityID) }));
+      districtThenBuild(cityID, loc, args.ConstructibleType, place, { ...path, soldFor: price.cost });
+      return true;
+    }
     districtThenBuild(cityID, loc, args.ConstructibleType, () => oSend(cityID, type, args, ...rest), path);
     return true;
   };
@@ -1155,7 +1321,7 @@ function wrapHost(host, type, purchase) {
   if (!host || typeof host.canStart !== "function" || typeof host.sendRequest !== "function") return null;
   const saved = { host, canStart: host.canStart, sendRequest: host.sendRequest };
   const path = { host, type, purchase, oCan: saved.canStart };
-  host.canStart = wrapCanStart(saved.canStart.bind(host), type);
+  host.canStart = wrapCanStart(saved.canStart.bind(host), type, purchase);
   host.sendRequest = wrapSendRequest(saved.sendRequest.bind(host), path);
   if (typeof host.canStartQuery === "function") {
     saved.canStartQuery = host.canStartQuery;
@@ -1213,8 +1379,10 @@ function aiCanalSite(pid, def) {
     // Judged on BUILD, not PURCHASE: a purchase verdict refuses on gold alone, which dropped every site (c92).
     const args = { ConstructibleType: def.$index };
     const can = safe(() => Game.CityOperations.canStart(city.id, CityOperationTypes.BUILD, args, false), null);
-    if (!can || !Array.isArray(can.Plots) || !can.Plots.length) continue;
-    for (const p of can.Plots) {
+    let plots = can && Array.isArray(can.Plots) ? can.Plots : [];
+    // the mod places an AI's Canal itself, so a Canal locked only because the mod came after its tech is open too
+    if (!plots.length && unlockedByMod(pid, def, can)) plots = eligiblePlots(city.id);
+    for (const p of plots) {
       const loc = locOf(p);
       if (districtAt(loc) === "DISTRICT_RURAL" && waterAreas(loc).size >= 2) return { city, loc };
     }
@@ -1282,7 +1450,7 @@ function aiSiteHolds(pid, cityId, loc) {
 
 /** One turn of AI canal planning: work every Canal under way, start new ones, open at most one. */
 async function aiPlan() {
-  if (!state.enabled || state.multiplayer || state.aiRunning) return null;
+  if (!state.enabled || state.multiplayer || state.aiRunning || ageIsOver()) return null;
   if (state.hold || state.saving || state.loading) { setTimeout(aiPlan, 1000); return null; }
   state.aiRunning = true;
   try { return await aiPlanTurn(); } finally { state.aiRunning = false; }
@@ -1328,6 +1496,96 @@ async function aiPlanTurn() {
   return opened;
 }
 
+// --- telling the player ------------------------------------------------------------------------------
+
+/**
+ * The dialog box sets its body as one centred run of text-base type with no width of its own, so a message of a few
+ * sentences drew one long line across a wide box. The body of the mod's box is given a reading width and the next
+ * type size up, found by its text once the box is on screen.
+ */
+function styleDialogBody(text) {
+  const want = String(Locale.compose(text)).replace(/\[N\]/g, "").slice(0, 40);
+  let tries = 0;
+  const find = () => {
+    const el = Array.from(document.querySelectorAll('[role="paragraph"]')).find((p) => (p.textContent || "").startsWith(want));
+    if (!el) { if (++tries < 40) setTimeout(find, 100); return; }
+    el.classList.remove("text-base"); el.classList.add("text-lg");
+    el.style.maxWidth = "34rem"; el.style.marginLeft = "auto"; el.style.marginRight = "auto";
+    el.style.lineHeight = "1.4";
+  };
+  find();
+}
+
+/** A message box, once per game; in a network game (whose settings belong to the host) once per session. */
+async function tellOnce(key, body) {
+  if (state.multiplayer) {
+    if (state.told.has(key)) return;
+    state.told.add(key);
+  } else {
+    if (safe(() => Configuration.getGame().getValue(key), null)) return;
+    safe(() => Configuration.editGame().setValue(key, "1"));
+  }
+  try {
+    const { DialogBoxManager } = await import("/core/ui/dialog-box/manager-dialog-box.js");
+    DialogBoxManager.createDialog_Confirm({ title: "LOC_CANALS_MOD_NAME", body });
+    styleDialogBody(body);
+    log(`told the player: ${key}`);
+  } catch (e) { log("message not shown: " + e); }
+}
+
+/**
+ * A save from Canals 1.0.0 holds its canals as Coast, so the load drew them as open sea, and that look stays for the
+ * session (watched, c99: the hex kept its sea mesh after the retype to land). One save and load draws them as canals
+ * again, since every save now holds them as land. The mod offers to do both: this turn's autosave is written through
+ * the wrapped save call and then loaded. Declined, the look comes right after the player's own next save and load.
+ */
+async function offerReload() {
+  try {
+    const { DialogBoxManager } = await import("/core/ui/dialog-box/manager-dialog-box.js");
+    DialogBoxManager.createDialog_MultiOption({
+      title: "LOC_CANALS_MOD_NAME", body: "LOC_CANALS_NOTICE_OLD_SAVE", canClose: false,
+      options: [
+        { actions: ["accept"], label: "LOC_CANALS_RELOAD_NOW", callback: reloadThroughSave },
+        { actions: ["cancel", "keyboard-escape"], label: "LOC_CANALS_RELOAD_LATER", callback: () => log("reload declined") },
+      ],
+    });
+    styleDialogBody("LOC_CANALS_NOTICE_OLD_SAVE");
+    log(`offered a reload for ${state.staleLoad.length} canal(s) saved as Coast`);
+  } catch (e) { log("reload offer not shown: " + e); }
+}
+function reloadThroughSave() {
+  const name = autosaveName(safe(() => Game.turn, 0));
+  state.reloadFrom = name;
+  const ok = safe(() => Network.saveGame({ ...autosaveParams(name), Overwrite: true }), false);
+  if (!ok) state.reloadFrom = null;
+  log(`reload: writing ${name} ${ok ? "sent" : "refused"}`);
+}
+
+/** Once the game is up: what the player cannot tell from the lists alone. */
+function notices() {
+  if (state.multiplayer) { tellOnce("Canals_Told_Multiplayer", "LOC_CANALS_NOTICE_MULTIPLAYER"); return; }
+  if (state.staleLoad.length) offerReload();
+  const def = thisAgesCanal();
+  const city = safe(() => Players.get(state.localId).Cities.getCities()[0], null);
+  const build = state.originals && state.originals.hosts[0];
+  if (!def || !city || !build) return;
+  const general = safe(() => build.canStart.call(build.host, city.id, CityOperationTypes.BUILD,
+    { ConstructibleType: def.$index }, false), null);
+  if (!unlockedByMod(state.localId, def, general)) return;
+  const tech = safe(() => GameInfo.ProgressionTreeNodes.lookup(unlockNode(def)).Name, "");
+  tellOnce("Canals_Told_SoldByMod_" + def.ConstructibleType, Locale.compose("LOC_CANALS_NOTICE_SOLD_BY_MOD", def.Name, tech));
+}
+
+/** Run fn a few seconds after the game has started (the loading screen gone). */
+function whenStarted(fn, delay) {
+  const t0 = Date.now();
+  const poll = () => {
+    const up = safe(() => UI.getGameLoadingState() === UIGameLoadingState.GameStarted, Date.now() - t0 > 15000);
+    if (up) setTimeout(fn, delay); else setTimeout(poll, 500);
+  };
+  poll();
+}
+
 // --- install ---------------------------------------------------------------------------------------
 
 function install() {
@@ -1352,8 +1610,11 @@ function install() {
   const net = safe(() => Network, null);
   if (net && typeof net.saveGame === "function") state.originals.saveGame = wrapSaveGame(net);
   else log("Network.saveGame not wrappable; a save made from the menu reloads canals as open water");
-  if (!state.multiplayer) { keepLandLook(); holdEngineAutosave(); }
+  if (!state.multiplayer) { keepLandLook(); holdEngineAutosave(); wrapOptionsScreen(); }
   safe(() => engine.on("PlayerTurnActivated", onTurnActivated));
+  safe(() => engine.on("GameAgeEnded", onAgeEnded));
+  safe(() => engine.on("BeforeAgeTransition", onAgeEnded));
+  whenStarted(notices, 5000);
   const uhost = safe(() => Game.UnitOperations, null);
   if (uhost && typeof uhost.sendRequest === "function") { state.originals.unitSend = uhost.sendRequest; uhost.sendRequest = wrapUnitSend(uhost.sendRequest.bind(uhost)); }
   log(`active${state.multiplayer ? " (network game: canals not offered)" : ""}: Canal placement limited to isthmus tiles`);
@@ -1371,8 +1632,12 @@ function uninstall() {
   safe(() => engine.off("SaveComplete", onSaveDone));
   safe(() => engine.off("PlayerTurnDeactivated", onTurnDeactivated));
   safe(() => engine.off("PlayerTurnActivated", onTurnActivated));
+  safe(() => engine.off("GameAgeEnded", onAgeEnded));
+  safe(() => engine.off("BeforeAgeTransition", onAgeEnded));
   const net = safe(() => Network, null);
   if (net && state.originals && state.originals.saveGame) net.saveGame = state.originals.saveGame;
+  const opt = state.originals && state.originals.addOption;
+  if (opt) opt.host.addOption = opt.add;
   state.enabled = false;
   log("uninstalled");
 }
@@ -1384,7 +1649,8 @@ if (!G[KEY]) {
     get enabled() { return state.enabled; },
     uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen,
     drawOverlay, clearOverlay, redrawNeighbours, hasResource,
-    aiPlan, aiCanalSite, aiMajors, thisAgesCanal, aiBuyCanal, aiPlaceCanal, aiState, waterAreas,
+    aiPlan, aiCanalSite, aiMajors, thisAgesCanal, aiBuyCanal, aiPlaceCanal, aiState, waterAreas, reloadThroughSave,
+    get staleLoad() { return state.staleLoad.slice(); },
     channelArms: (loc) => ({ water: waterSideIndexes(loc), arms: runArms(runOf(loc)).get(idx(loc)) || [] }),
   };
   install();
