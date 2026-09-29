@@ -3,6 +3,12 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.2.0 | 2026-09-29 | src 132fa393c0c2 | gen 75138f3a0cdb ====
+[b]Version 1.2.0 · 29 September 2026[/b]
+• AI players build Canals themselves, as they build any building, and only on real canal sites. The mod marks, for each AI, every tile of its settlements where a canal is worth digging: where it saves a ship at least six tiles of sailing round, or opens a lake or sea of ten tiles or more. The game offers an AI the Canal on those tiles and nowhere else, and the AI decides when to build it, with production or gold. Its canals open and are drawn like yours. Before, the mod dug AI canals itself, on the first site it found, and the game's own AI could also put a Canal on any tile it owned, where it stayed a building and opened nothing.
+• The Canal needs a canal site on its tile, a marker the mod places. Your build and purchase lists work as before: ordering a Canal marks its tile. A marked tile yields what it did. On an AI site that held woods or wetland the marker takes their place until the site is dropped, when they come back.
+• Also in this update (1.1.1): National Park land is never offered as a Canal site, and a Canal ordered onto it is refused before the tile is touched, whichever of the two mods loads first.
+
 ==== 1.1.1 | 2026-09-29 | src b2fe6d2b4e6f | gen 0e806fcb3da3 ====
 [b]Version 1.1.1 · 29 September 2026[/b]
 • National Park land is never offered as a Canal site, and a Canal ordered onto it is refused before the tile is touched, whichever of the two mods loads first. Before, when Canals' script loaded after National Park's, a park tile could be listed and bought, and the Canal was dug through the park.

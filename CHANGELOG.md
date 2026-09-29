@@ -4,6 +4,18 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.2.0] - 2026-09-29
+
+- AI players build Canals themselves, as they build any building, and only on real canal sites. The mod marks, for
+  each AI, every tile of its settlements where a canal is worth digging: where it saves a ship at least six tiles of
+  sailing round, or opens a lake or sea of ten tiles or more. The game offers an AI the Canal on those tiles and
+  nowhere else, and the AI decides when to build it, with production or gold. Its canals open and are drawn like
+  yours. Before, the mod dug AI canals itself, on the first site it found, and the game's own AI could also put a
+  Canal on any tile it owned, where it stayed a building and opened nothing.
+- The Canal needs a canal site on its tile, a marker the mod places. Your build and purchase lists work as before:
+  ordering a Canal marks its tile. A marked tile yields what it did. On an AI site that held woods or wetland the
+  marker takes their place until the site is dropped, when they come back.
+
 ## [1.1.1] - 2026-09-29
 
 - National Park land is never offered as a Canal site, and a Canal ordered onto it is refused before the tile is

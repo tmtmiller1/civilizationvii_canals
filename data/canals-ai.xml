@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  How much the game's own AI values a Canal. The engine lets the AI build one only on a site ui/canals.js marked as
+  worth digging (data/canals-sites.xml), so the value can be raised safely: it acts only where the canal pays. Weighed
+  unraised, the AI considered a Canal at its marked sites 26 times each in 25 turns and never chose it; at 400 its score
+  rose fivefold (121 to 606, s2b) and still lost to the 3,300-7,300 of what the AI did build. Value V multiplies the
+  AI's score by 1 + V/100 (engine-closed.md, AI data).
+-->
+<Database>
+    <AiListTypes>
+        <Row ListType="Canals Site Priority"/>
+    </AiListTypes>
+    <AiLists>
+        <Row ListType="Canals Site Priority" LeaderType="TRAIT_LEADER_MAJOR_CIV" System="ConstructibleBiases"/>
+    </AiLists>
+    <AiFavoredItems>
+        <Row ListType="Canals Site Priority" Item="BUILDING_CANAL_ANTIQUITY" Value="3000"/>
+        <Row ListType="Canals Site Priority" Item="BUILDING_CANAL_EXPLORATION" Value="3000"/>
+        <Row ListType="Canals Site Priority" Item="BUILDING_CANAL_MODERN" Value="3000"/>
+    </AiFavoredItems>
+</Database>

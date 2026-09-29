@@ -14,7 +14,7 @@ Cut a ship channel through a narrow neck of land. Build the Canal on a land tile
 [*][b]Drawn for its age.[/b] A channel between its shores, one branch into any other body of water it touches, moored boats at the mouths, and an Antiquity harbor and quay, Exploration houses and a wharf, or Modern buildings and a harbor along the banks. Three looks per age.
 [/list]
 [h2]AI canals[/h2]
-An AI player with the Canal unlocked digs one on a tile it works that joins two separate bodies of water. Its city builds the Canal with its production, or buys it outright when it has gold to spare. AI canals open and are drawn like yours, and AI units sail through them. Each AI waits eight turns between canals.
+AI players build Canals themselves, as they build any building, and only on a canal site: the mod marks, for each AI, every tile of its settlements where a canal saves a ship at least six tiles of sailing round or opens a lake or sea of ten tiles or more, and the game offers the Canal there and nowhere else. The AI decides when to build it, with production or gold. AI canals open and are drawn like yours, and AI units sail through them.
 [h2]Settlement centers[/h2]
 A city or town center counts as a canal end, so a canal can run from the settlement's own tile out to the sea or a river.
 [h2]Cliffs[/h2]
