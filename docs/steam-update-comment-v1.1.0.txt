@@ -1,5 +1,25 @@
-Canals 1.1.0 is up. A canal now stays a canal: after a save and reload it is still a channel cut through land, with its ships still sailing through.
-AI players dig canals too. An AI builds one where a tile it works joins two bodies of water, pays for it with its city's production, and sails its units through it.
-Towns can have canals: a town buys the Canal from its purchase list and it opens at once, and a canal can run on from one settlement's land into another's. Each age's Canal has its own name and icon, resource tiles are no longer offered, and a canal is drawn as one channel between its shores.
-Canals now come through an age transition as canals. While a canal is open the mod writes the autosave at the start of your turn, in the game's usual autosave series and on your usual frequency. If you load a save from 1.0.0, its canals show as open sea at first; the mod offers to reload once, which draws them as canals again.
+===== comment 1 of 3 (post first) =====
+Canals 1.1.0 is up. Part 1 of 3, new:
+• Saves no longer wipe out canals. In 1.0.0 a canal reloaded as open sea, a plain strait with no channel or quays. Saves now store the tile as land and the mod reopens it after the load, drawn as a canal.
+• Canals carry over to the next age. They are set to land when the age ends and reopened once the new age has loaded.
+• The AI builds canals, on a tile it works that joins two separate bodies of water, paid with city production (or gold when it has a fifth more than the price), and its units sail through them.
+• Towns can buy a Canal from their purchase list, and it opens immediately.
+• A canal can continue from one settlement's tiles into a neighbor's.
+• Ancient, Medieval and Modern Canal each have their own name and icon.
+===== comment 2 of 3 =====
+Canals 1.1.0, part 2 of 3, fixed:
+• Towns were not offered the Canal at all.
+• Canals from other ages, and Canals whose tech was not yet researched, appeared in the build lists.
+• Founding a settlement next to a neck of land removed that neck as a canal site.
+• Tiles holding a resource were offered as sites, and then the order was refused.
+• A Garden or Harbor could be built on a finished canal tile.
+• A tile touching water on several sides got a channel to every side, like a star. It now gets one channel between its two shores, plus a branch into any separate lake or sea it touches.
+• Where two canals met, locks were drawn at the junction. Locks now appear only where a channel meets a cliff shore.
+===== comment 3 of 3 =====
+Canals 1.1.0, part 3 of 3, good to know:
+• While you have a canal, the mod handles autosaving. Your autosave settings still apply.
+• Canals in saves from 1.0.0 show as open sea at first. Accept the reload offer when you load to fix them.
+• Added the mod to a game after researching the Canal's tech? Buy the Canal with gold from the purchase list.
+• Single player only.
+• Move ships out of your canals before removing the mod.
 Full notes and screenshots: github.com/tmtmiller1/civilizationvii_canals/releases

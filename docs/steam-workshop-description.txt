@@ -1,5 +1,5 @@
 [h1]Canals[/h1]
-[b]Version 1.1.0. For Civilization VII 1.5.0.[/b]
+[b]Version 1.1.1. For Civilization VII 1.5.0.[/b]
 Cut a ship channel through a narrow neck of land. Build the Canal on a land tile between two shores; when it is finished the tile becomes water, ships sail through it, and it is drawn as a canal for its age, with a harbor, houses and boats along the banks. AI players dig canals and sail through them too.
 [h2]Mechanics[/h2]
 [list]
@@ -27,13 +27,15 @@ While a canal is open, the mod writes the autosave at the start of your turn, on
 [*][b]A save loads with or without Canals enabled.[/b] Without it, a dug canal is a plain land tile of the city, and a ship left in it is stranded: move your ships out of the canals before you remove the mod.
 [*][b]Added to a game under way[/b] after the Canal's tech was researched, the game keeps that age's Canal locked; the mod sells it for gold in each settlement's purchase list instead.
 [*][b]Saves from Canals 1.0.0[/b] hold their canals as open water and load drawn as open sea. The mod offers to reload at once, which draws them as canals again.
+[*][b]Works with [url=https://github.com/tmtmiller1/civilizationvii_national-parks]National Park[/url].[/b] Park land is never offered as a Canal site, whichever of the two mods loads first.
+[*][b]Works with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3810140802]Dams[/url].[/b] A Dam cannot be built on an opened canal, and a Canal is never offered on a tile that holds a Dam.
 [*][b]Single-player games only.[/b] In a multiplayer game no Canal can be built, and the mod says so when the game starts.
 [*][b]English only.[/b]
 [/list]
 [h2]Source and documentation[/h2]
 [list]
 [*]Open source on GitHub: [url=https://github.com/tmtmiller1/civilizationvii_canals]source and full documentation[/url], and the [url=https://github.com/tmtmiller1/civilizationvii_canals/releases]release notes[/url].
-[*]This version on GitHub: [url=https://github.com/tmtmiller1/civilizationvii_canals/releases/tag/v1.1.0]Canals 1.1.0[/url], with the zip for a manual install.
+[*]This version on GitHub: [url=https://github.com/tmtmiller1/civilizationvii_canals/releases/tag/v1.1.1]Canals 1.1.1[/url], with the zip for a manual install.
 [/list]
 [h2]Credits[/h2]
 [list]

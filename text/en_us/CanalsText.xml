@@ -29,6 +29,9 @@
         <Row Tag="LOC_CANAL_RESOURCE">
             <Text>A Canal cannot be dug through a tile that holds a resource.</Text>
         </Row>
+        <Row Tag="LOC_CANAL_PARKLAND">
+            <Text>A Canal cannot be dug through a National Park.</Text>
+        </Row>
         <Row Tag="LOC_CANAL_TILE_TAKEN">
             <Text>Nothing else can be built on a canal.</Text>
         </Row>

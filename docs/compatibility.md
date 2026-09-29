@@ -33,7 +33,7 @@ Everything a conflict could come through. If another mod touches none of these, 
 | Kind of mod | Result | Status |
 | --- | --- | --- |
 | Gives every building a placement adjacency (ring or compact-city mods) | Canal offered, then refused; the tile can lose its improvement | Read from code |
-| National Park | Works together in either load order: park land is never a Canal site | Tested offline, not in a game |
+| National Park | Works together in either load order: park land is never a Canal site | Watched in game, both orders |
 | Another script that restricts where buildings go | Depends on which script wraps last | Read from code |
 | Dams | Works together | Read from code |
 | Saves or archives games through `Network.saveGame` | Works; those saves hold canals as land like any other | Read from code |
@@ -105,17 +105,41 @@ rural tile anyway, and its refusal has to be told apart from the other mod's.
 
 ### 2a. National Park
 
-Status: tested offline in both wrap orders (`mod_ideas_tested/canals/devtools/np-order-test.mjs`, which lifts the
-real wrappers of both mods); not yet run with both in a game.
+Status: watched in game on 1.5.0, 2026-09-29, both wrap orders, with a control run on 1.1.0. Harness:
+`mod_ideas_tested/canals/devtools/harness/canalh-game-np1.js` (runs `np1-fix`, `np1-control`, `np2-reverse`; Modern
+Age, seed 9001). Offline test of the same wrappers: `mod_ideas_tested/canals/devtools/np-order-test.mjs`.
 
 Canals asks National Park for its park tiles at the moment it builds a list or judges a site
 (`globalThis.__towerNationalPark.parks()`), so load order no longer matters. Park land is left out of the Canal
 list, a Canal on it is refused with "A Canal cannot be dug through a National Park.", a build request for it is
 passed on untouched (nothing is cleared), and an AI's Canal under way on a tile that becomes park land is
-abandoned. Against 1.1.0 the same test fails when Canals wraps last: the park tile is listed, accepted, and cleared.
+abandoned.
 
-The other direction needed no change: a park cannot take a canal tile, because the Canal building on it bars the
-tile from joining a park, and a queued Canal's urban district does the same.
+How the game test ran: a city beside a natural wonder and an isthmus; Natural History completed; a real park bought
+through the city's purchase list on the tile beside the wonder; an expansion bought and the isthmus taken through
+National Park's picker (its farm stripped, a park marker placed). Then, in each order, the Canal lists
+(production, purchase, the list query, the AI's site choice), the per-plot verdicts, the purchase screen, and a
+purchase and a build sent at the park tile.
+
+- National Park wraps last by default (its LoadOrder 9999 against Canals' 150): all four calls were National
+  Park's outermost wrapper in every run. The other order was made in game by taking both mods down and putting
+  them back with Canals last.
+- With the fix, both orders: before the park, the isthmus is offered and the Canal row is in the purchase list;
+  after it, the row is gone, every list leaves the tile out, the AI does not pick it, both per-plot verdicts refuse
+  it, and a purchase and a build sent at it change nothing (marker, district, owner, park record, gold).
+- 1.1.0 control, National Park last: the player sees the same as with the fix (no row, refused, nothing changed);
+  only Canals' own site list still held the tile. Canals last: the Canal row came back in the purchase list with
+  the park tile as its site, the purchase went through, and the Canal was dug through the park (the park marker
+  replaced by the Canal and a fishing boat, the tile dropped from the park). The AI's site choice also picked the
+  park's founding tile. So the failure in that order was worse than predicted above: not a cleared tile, but a
+  canal through the park.
+- A Canal on a free isthmus still opens with both mods loaded (bought, charged once, Coast).
+
+The other direction needed no change, and was watched: with a canal already open on the isthmus, a park founded
+beside it was not offered the canal tile, a park aimed at it is refused ("Nothing else can be built on a canal"),
+and the park's expansion list left it out. The Canal building bars the tile from joining a park, and a queued
+Canal's urban district does the same. Not watched: a click on the canal tile inside the open picker (the list the
+picker lights was read instead).
 
 ### 3. Dams
 
