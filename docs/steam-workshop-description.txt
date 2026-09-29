@@ -20,13 +20,14 @@ A city or town center counts as a canal end, so a canal can run from the settlem
 [h2]Cliffs[/h2]
 A canal can be cut through a tile with cliffs, and ships cross every edge once it opens. Where the channel meets a shore that was a cliff, it steps down through a lock: a stone chamber with gates, a gatehouse and a water wheel.
 [h2]Autosaves[/h2]
-While a canal is open, autosaves are written at the start of your turn, on your autosave frequency and keep count, as AutoSave_Canals_01 and onward. During such a game the Options screen shows the autosave frequency plus 1000; it reads normally again at the main menu.
+While a canal is open, the mod writes the autosave at the start of your turn, on your autosave frequency and keep count. The files carry on the game's own autosave series, so the newest is at the top of the Autosaves tab and is the one Continue loads.
 [h2]Compatibility[/h2]
 [list]
 [*][b]Civilization VII 1.5.0.[/b] No base-game files are replaced and no base-game rows change; three buildings and their tech unlocks are added.
-[*][b]A save loads with or without Canals enabled.[/b] Without it, a dug canal is a plain land tile of the city, and a ship left in it is stranded.
-[*][b]Start a new game with Canals enabled.[/b] In a game already under way, a Canal whose tech was researched earlier is not available, to you or to the AI.
-[*][b]Single player.[/b] In a network game the Canal is not offered.
+[*][b]A save loads with or without Canals enabled.[/b] Without it, a dug canal is a plain land tile of the city, and a ship left in it is stranded: move your ships out of the canals before you remove the mod.
+[*][b]Added to a game under way[/b] after the Canal's tech was researched, the game keeps that age's Canal locked; the mod sells it for gold in each settlement's purchase list instead.
+[*][b]Saves from Canals 1.0.0[/b] hold their canals as open water and load drawn as open sea. The mod offers to reload at once, which draws them as canals again.
+[*][b]Single-player games only.[/b] In a multiplayer game no Canal can be built, and the mod says so when the game starts.
 [*][b]English only.[/b]
 [/list]
 [h2]Source and documentation[/h2]

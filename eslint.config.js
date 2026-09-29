@@ -44,6 +44,7 @@ const ENGINE_GLOBALS = {
   SaveLocations: "readonly",
   SaveLocationCategories: "readonly",
   SaveTypes: "readonly",
+  ServerType: "readonly",
   SaveFileTypes: "readonly",
   YieldTypes: "readonly"
 };

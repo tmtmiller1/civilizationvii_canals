@@ -15,9 +15,23 @@ were tried before this design, the probes and the harness runs live in the autho
   gold with a fifth to spare. The canal opens and is drawn like a player's. Each AI has one Canal under way at a time
   and waits eight turns between canals.
 - Canals are water through every AI turn, so AI units sail through them.
-- While a canal is open, autosaves are written at the start of your turn, on your own autosave frequency and keep
-  count, as AutoSave_Canals_NN. The game's own autosave is held for that time and your setting is put back whenever
-  the main menu loads; during such a game the Options screen shows the frequency plus 1000.
+- While a canal is open, the mod writes the autosave itself at the start of your turn, on your own autosave
+  frequency and keep count. The files carry on the game's own series (AutoSave_01_0072 and onward) and the oldest
+  past your keep count is deleted, so the newest autosave is at the top of the Autosaves tab and is the one Continue
+  loads. The game's own autosave is held for that time; the Options screen shows your own frequency, a value set
+  there becomes your setting, and your setting is put back whenever the main menu loads.
+- A save from Canals 1.0.0 held its canals as open water, so they load drawn as open sea. The mod now says so on
+  loading such a save and offers to fix it at once: Reload now writes this turn's autosave, with the canals saved as
+  land, and loads it. Otherwise they are drawn as canals after your next save and load.
+- A canal keeps its look across an age transition. The next age is built from the map the old one leaves, so a
+  canal still water at that point came into the new age as open sea. The canals now turn to land as the age ends and
+  open again once the new age has loaded; with one more turn chosen instead, they are water again for it.
+- In a game Canals was added to after the Canal's tech was researched, the game keeps that Canal locked for the rest
+  of the age: its unlock only happens at the moment the tech is researched. The mod now sells it for gold in each
+  settlement's purchase list and places it itself, and says so once when the game loads. The AI planner treats
+  such a Canal as open too.
+- In a multiplayer game the mod says at the start that no Canal can be built there, and a Canal asked for directly is
+  refused with the same reason. The mod's description in Additional Content says it is for single-player games.
 - Nothing else can be built on a canal tile. A Garden or a Harbor was offered the tile as a place to expand onto.
 - Where canals meet, the junction is drawn as one open basin, and locks appear only where a channel meets a natural
   shore that was a cliff.
@@ -42,7 +56,6 @@ were tried before this design, the probes and the harness runs live in the autho
   the cut, one branch opens into it from a single tile, so it is plain that ships can come in that way.
 - The three Canals are named for their age: Ancient Canal, Medieval Canal and Modern Canal.
 - Each Canal has its own building icon.
-- The compatibility notes now say to start a new game with the mod enabled.
 
 ## [1.0.0] - 2026-09-25
 

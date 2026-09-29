@@ -118,6 +118,13 @@ the [README](../README.md); this file is the evidence behind it.
 | `c91`-`c96` | Unaided AI canals over 40 to 90 autoplayed turns. | Gold alone never fired (AI treasuries 20 to 1,000 against 1,736 to 2,000). With production, AIs started canals on their own (AI 2 at turn 21, AI 1 later) and one opened (`c93`). Sites judged on `PURCHASE` were refused for want of gold (`c92`); a bare unworked tile took no district of either kind (`c94`, `c95`). An age transition ran with the mod on (`c96`). |
 | `c97`, `c98` | Two AIs handed a paid Canal on worked two-body sites. | Placed straight after the improvement was destroyed: refused (`c97`). Waiting for the improvement to go: both opened first try (`c98`), and AI 2's embarked units moved through its canal on three turns. |
 | `c99` | `c58` replayed on the 1.1.0 release build: a two-tile cut, one city building with production, one buying. | The same verdict as `c58`: both opened, the ship's route crossed both and arrived. |
+| `c99b` | A save holding its canal as Coast (what Canals 1.0.0 wrote), the canal retyped to land while the game loads; the Options screen's autosave slider. | The retype landed while the game loaded, and the hex was still drawn as open shallows: the load had already drawn it, and a retype does not redraw a hex. The slider showed 1 with the setting held at 1001; picking 4 stored 1004 and showed 4. |
+| `c102` | The mod's autosaves over four turns with a keep count of 2; the reload offer on the same save. | The files carried on the game's series (`AutoSave_01_0002` to `_0006`), headed the `AUTOSAVE` list newest first and were the newest save of all, which is what Continue loads; each new one deleted the one past the keep count. "Reload now" wrote the turn's autosave with the canal as land and loaded it; nothing was left marked as saved as Coast. |
+| `c103` | The message boxes as the player reads them. | Body type one size up, a reading width, paragraphs (watched by the user). |
+| `c104` | The reload offer again, with no Autoplay to move the camera. | Before: the hex drawn as open shallows. After "Reload now": grass either side and the channel cut through, the land look of `c77`. |
+| `c100` | Age transition with a canal open: a player canal at 31,38 on `c95`'s Exploration save, autoplayed from turn 121 into the Modern age. | At turn 140 `BeforeAgeTransition` came first, then `GameAgeEnded`; the mod set the canal to land on the first. The Modern age attached with it as land (hill) and its record kept, turned it Coast once the load settled, and drew the channel through the city's land. The canal's area id in the new age is a land area, as a canal's is. |
+| `galr-mod16` | The Modern cycle: `g16-mod`'s five canals dug through the real build path and saved through the mod, reloaded. | All five water after the load, drawn as branching channels through grassland with quays and boats. |
+| `c101`, `c101b` | Canals added to `AugustusAnt99` (saved without the mod, Engineering researched), no unlock grant. | The engine refuses the Canal with a bare `{Success: false}`, no tech named and no reason (`c101`, so the first check, which needed one, saw nothing). With that read as the missing unlock (`c101b`): the one-time message shown, a town's purchase list priced the Canal at 960 and marked it short of gold, and after gold was granted the order was placed by the mod, charged once (2,175 to 1,215), and the canal opened with its rural district and fishing boat. The AIs with Engineering had no worked two-body site in that save. |
 
 ## Design decisions from the runs
 
@@ -154,5 +161,8 @@ the [README](../README.md); this file is the evidence behind it.
   (`c98`).
 - AI canal placement under Autoplay with the improvement wait (`c97` failed before it; `c98` ran on the player's
   own turn).
-- The age transition with a canal on the map (`c96` ran one with no canal open).
-- Multiplayer: the retype is a local call, so the mod does not offer the Canal in a network game.
+- The age transition through the game's own end-of-age screens: `c100` crossed it under Autoplay.
+- A ship's path through a canal after an age transition (`c100`'s canal had one plain sea side).
+- An AI digging a Canal whose tech it had researched before the mod was added (`c101b` found no AI site).
+- Multiplayer: the retype is a local call, so the mod does not offer the Canal in a network game, and says so at the
+  start of one. Not run: no network game was started.

@@ -6,7 +6,7 @@
             <Text>Canals</Text>
         </Row>
         <Row Tag="LOC_CANALS_MOD_DESCRIPTION">
-            <Text>Adds a Canal building to each age. Build it on a land tile that separates two bodies of water; when it is finished the tile becomes a coast tile with a quay on it, and ships sail through. Unlocked by Engineering, Shipbuilding and Industrialization.</Text>
+            <Text>Adds a Canal building to each age. Build it on a land tile that separates two bodies of water; when it is finished the tile becomes a coast tile with a quay on it, and ships sail through. Unlocked by Engineering, Shipbuilding and Industrialization. Single-player games only.</Text>
         </Row>
         <Row Tag="LOC_BUILDING_CANAL_ANTIQUITY_NAME">
             <Text>Ancient Canal</Text>
@@ -31,6 +31,24 @@
         </Row>
         <Row Tag="LOC_CANAL_TILE_TAKEN">
             <Text>Nothing else can be built on a canal.</Text>
+        </Row>
+        <Row Tag="LOC_CANAL_MULTIPLAYER">
+            <Text>Canals cannot be dug in a multiplayer game.</Text>
+        </Row>
+        <Row Tag="LOC_CANALS_NOTICE_MULTIPLAYER">
+            <Text>Canals is for single-player games.[N][N]Digging a canal turns a tile of land into water, and in a multiplayer game that change would not reach the other players' games, so no Canal can be built in this one.</Text>
+        </Row>
+        <Row Tag="LOC_CANALS_NOTICE_OLD_SAVE">
+            <Text>This save was made with an earlier version of Canals, which saved canals as open water, so this time they are drawn as open sea. They still work as canals.[N][N]To draw them as canals again, the game saves and loads once: Reload now writes this turn's autosave and loads it.[N][N]Otherwise they look right after your next save and load.</Text>
+        </Row>
+        <Row Tag="LOC_CANALS_RELOAD_NOW">
+            <Text>Reload now</Text>
+        </Row>
+        <Row Tag="LOC_CANALS_RELOAD_LATER">
+            <Text>Later</Text>
+        </Row>
+        <Row Tag="LOC_CANALS_NOTICE_SOLD_BY_MOD">
+            <Text>Canals was added to this game after {2_Tech} was researched, so the game keeps the {1_Canal} locked for the rest of this age.[N][N]It is sold for gold in each settlement's purchase list instead of being built with production.</Text>
         </Row>
     </EnglishText>
 </Database>
