@@ -155,13 +155,19 @@ beyond the gates. This is cosmetic only.
 
 *Another AI canal, cut through the houses of a town from the river down to its harbor.*
 
-An AI player with the Canal unlocked digs one on a tile it works that joins two separate bodies of water. Its
-city builds the Canal with its production, or buys it outright when it has gold to spare, and the AI's units sail
-through it. Each AI waits eight turns between canals.
+AI players build Canals themselves, as they build any building, and only on a canal site. For each AI the mod marks
+every tile of its settlements where a canal is worth digging: where it saves a ship at least six tiles of sailing
+round, or opens a lake or sea of ten tiles or more. The game offers an AI the Canal on those tiles and nowhere else,
+and the AI decides when to build it, with production or gold. Its canals open and are drawn like yours, and its units
+sail through them.
 
 ## Compatibility
 
-- Adds three buildings and their tech unlocks, changes no base-game rows, replaces no base-game files.
+- Adds three buildings and their tech unlocks, and a canal-site marker: a map feature with no look and no yield of its
+  own, which the mod places on the tiles where a Canal may go. Changes no base-game rows, replaces no base-game files.
+  Saves keep the markers; a save loaded without the mod simply has none.
+- How much the AI values a Canal is read when a game is created, so it holds in games started with this version. In a
+  game already under way the AI can still build on its canal sites, but chooses to less often.
 - A save loads with the mod on or off. Saves hold each canal as the land it was cut from, and the mod turns it back
   to water when the game is loaded with the mod on. Without the mod a dug canal is a plain land tile of the city: its
   fishing boat and district stay, the Canal building and its yields go, and a ship left in the canal is stranded on
@@ -223,10 +229,13 @@ run that proved each one is in [docs/verification-runs.md](docs/verification-run
    pieces at any shore that was a cliff. Three looks per age, chosen by plot number so a canal keeps its look
    across reloads.
    The opened canals are kept in the save and redrawn on load and at the start of every turn.
-6. **AI canals.** At the start of each of your turns an AI with the Canal unlocked looks for a tile it works that
-   joins two separate bodies of water. When it finds one, the city builds a Canal there with its production, as
-   yours do, or buys it outright if it has the gold with a fifth to spare. The canal then opens as yours do, and AI
-   units sail through it. Each AI waits eight turns between canals.
+6. **Canal sites and AI canals.** The canal rule is the mod's own; the game's data cannot express it, and the
+   game's AI obeys only the data. So each Canal requires a canal site on its tile, a map feature with no look and no
+   yield of its own that the mod places. At the start of each of your turns the mod marks, for every AI, each tile
+   of its settlements where a canal is worth digging, and your own order marks its tile as you place it. The game
+   then offers an AI the Canal on its sites alone, and the AI builds it there when it chooses, like any building; the
+   AI values a Canal highly, which is safe because it can build one only where one pays. The canal opens as yours
+   do, and AI units sail through it.
 7. **Saving.** A load draws each hex from the terrain in the save, and a coast hex comes out as open sea, so every
    save holds the canals as land. The terrain must change before a save starts, never during one: a retype while
    the game is writing a save crashes it. Every save goes through the game's save call, which the mod wraps: the
@@ -254,16 +263,19 @@ was watched in the lists a player reads it from, named and with its own icon: th
 purchase tab and a town's purchase list, in games of all three ages. Also on 2026-09-28, on a canal opened through
 the real build path: the autosave, a script save and a quicksave through the game's own save model each wrote the
 canal as land, with no crash; the script save and the mod's own autosave each reloaded with the canal drawn through
-land and a ship pathing through it, and the canal was water through every AI turn. AI players started canals on
-their own in autoplayed games, paid for them with their cities' production and opened them; two AI canals placed
-by the planner opened for their owners on a turn-66 map, and the AI's embarked units moved through one on three
-turns. A two-tile cut held by two cities, one built with production and one bought, still carried a ship through
+land and a ship pathing through it, and the canal was water through every AI turn. The AI's embarked units moved
+through an AI canal on three turns. A two-tile cut held by two cities, one built with production and one bought, still carried a ship through
 on the release build. An age transition with the mod running went through without a crash, and on 2026-09-28 one
 with a canal open: the canal crossed into the Modern age as land, kept its record, and was drawn as a canal through
 the land once the new age loaded. Five Modern canals dug through the real build path reloaded drawn as canals. A save
 holding a canal as water (from Canals 1.0.0) was offered a reload, and after it the canal was drawn through land. The
 mod's autosaves carried on the game's own series and were what the load list and Continue showed first. In a game the
 mod was added to after Engineering, a town bought the Canal from the mod for gold, charged once, and it opened.
+
+Canal sites, 2026-09-29, in Exploration games: with the Canal requiring a site, the game's own AI weighed it only on
+marked tiles and never put one anywhere else over 49 turns, although every AI had the tech. An AI chose a Canal on
+its own marked site, built it and the canal opened. Your own Canals, built and bought, marked their tiles and
+opened as before, and a marked tile yielded exactly what it did unmarked, through a save and reload.
 
 Not watched:
 
@@ -275,12 +287,17 @@ Not watched:
 - An AI warship crossing between two seas through a canal: the AI units seen in canals were embarked land units.
 - The age transition through the game's own end-of-age screens: the watched one ran under Autoplay.
 - A ship's path through a canal after an age transition.
-- An AI digging a Canal whose tech it researched before the mod was added.
+- Canal sites in an Antiquity or a Modern game. The same site rule covers all three ages' Canals; the AI's own
+  canals were watched in Exploration games.
 
 Known limits:
 
 - Multiplayer: the retype is a local call, so the mod does not offer the Canal in a network game.
 - A save from Canals 1.0.0 draws its canals as open sea until it is saved and loaded once more.
+- In a game Canals was added to after the Canal's tech was researched, the game keeps that Canal locked for the AI
+  until the next age: the mod sells it to you for gold, but the AI builds only what the game unlocks for it.
+- The AI builds a Canal only where its city could put a building: an urban tile, or a rural tile its urban core can
+  grow onto. A marked site further out waits until the city grows toward it.
 
 ## Layout
 

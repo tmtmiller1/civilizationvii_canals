@@ -26,6 +26,12 @@
         <Row Tag="LOC_CANAL_NOT_ISTHMUS">
             <Text>A Canal must be built on a land tile that separates two bodies of water.</Text>
         </Row>
+        <Row Tag="LOC_FEATURE_CANALS_SITE_NAME">
+            <Text>Canal Site</Text>
+        </Row>
+        <Row Tag="LOC_FEATURE_CANALS_SITE_TOOLTIP">
+            <Text>A strip of land where a Canal can be cut. Yields as the land beneath it.</Text>
+        </Row>
         <Row Tag="LOC_CANAL_RESOURCE">
             <Text>A Canal cannot be dug through a tile that holds a resource.</Text>
         </Row>

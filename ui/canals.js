@@ -6,7 +6,8 @@
 //      and Game.CityCommands PURCHASE (gold, the only way a town gets a building). For a Canal, the offered plots
 //      are the city's land tiles with water on at least two separate sides (a strip of land between coasts, the
 //      same sea or not), and the per-plot check refuses anything else. The same verdict is written into
-//      canStartQuery, which is what the production and purchase lists are built from.
+//      canStartQuery, which is what the production and purchase lists are built from. The engine itself takes a Canal
+//      only on a tile holding the site marker (data/canals-sites.xml), which the order places: see "canal sites".
 //   2. Commit. A Canal BUILD or PURCHASE on an isthmus without an urban district first gets one (CREATE_ELEMENT
 //      DISTRICT), then the order is forwarded; if the engine refuses it the district is removed again. The tile is
 //      remembered in the save (GameConfiguration key) so a reload mid-construction still finishes the job. A
@@ -172,7 +173,8 @@ function isParkland(loc) {
 let wonderFeatures = null;
 function clearableFeature(loc) {
   const f = featureOf(loc);
-  if (!f) return true;
+  // a site marker (this mod's, or Dams' on a river tile) is only a marker
+  if (!f || f === SITE_FEATURE || f === "FEATURE_DAMS_SITE") return true;
   if (!wonderFeatures) {
     const rows = safe(() => Array.from(GameInfo.Feature_NaturalWonders), []);
     wonderFeatures = new Set(rows.map((r) => String(r.FeatureType)));
@@ -300,7 +302,7 @@ const state = {
   // canals opened in this session: their cliff faces are still drawn (a load redraws the hex without them)
   openedHere: new Set(),
   // canals whose hex is drawn as land this session: opened in it, or loaded as land (see keepLandLook)
-  landMesh: new Set(), saving: false, hold: false, loading: false, pendingSave: false, aiRunning: false, localId: -1,
+  landMesh: new Set(), saving: false, hold: false, loading: false, pendingSave: false, syncing: false, localId: -1,
   multiplayer: false, paidTurn: -1, transits: new Map(), transitTurn: -1,
   // the age has ended (GameAgeEnded); the canals stay land for the transition
   ageEnded: false,
@@ -343,8 +345,11 @@ async function openCanal(loc, owner) {
     if (!canal || !canal.complete) return;
     if (terrainOf(loc) === "TERRAIN_COAST") return; // already a canal (the Canal building stays on the finished tile)
     if (state.saving || loadOpen().some((e) => e.plot === plot)) return; // an open canal, land only while a save runs
-    if (occupants(loc).some((o) => o.type !== canal.type && !isImprovement(o.type))) { log(`Canal at ${loc.x},${loc.y} shares its tile with other buildings; left as a building`); forget(plot); return; }
-    if (!isIsthmus(loc)) { log(`Canal at ${loc.x},${loc.y} is not on a canal site; left as a building`); forget(plot); return; }
+    const shared = occupants(loc).some((o) => o.type !== canal.type && !isImprovement(o.type));
+    if (shared || !isIsthmus(loc)) {
+      log(`Canal at ${loc.x},${loc.y} ${shared ? "shares its tile with other buildings" : "is not on a canal site"}; left as a building`);
+      forget(plot); return;
+    }
     const who = owner != null ? owner : canal.owner;
     const local = GameContext.localPlayerID;
     const cityId = safe(() => {
@@ -1004,7 +1009,7 @@ function onTurnActivated(d) {
   holdEngineAutosave();
   writeAutosave();
   setTimeout(sweep, SETTLE_MS);
-  setTimeout(aiPlan, 3000); // after the autosave and the sweep
+  setTimeout(syncSites, 3000); // after the autosave and the sweep
 }
 
 // Loading an autosave makes the engine save again as the game starts (c78; c79: StartSaveRequest 55 ms after
@@ -1033,6 +1038,7 @@ function keepLandLook() {
     const n = coastAgain().length;
     if (n) log(`load: ${n} canal tile(s) back to Coast, drawn over the land`);
     setTimeout(sweep, 1000); // the overlay is drawn on tiles that read Coast, a beat after the retype
+    setTimeout(syncSites, 2000); // a game begun with the mod, or with a new site since the save: mark it now
   };
   poll();
 }
@@ -1056,7 +1062,8 @@ function sweep() {
     const loc = { x, y }; const plot = idx(loc);
     if (seen.has(plot)) continue;
     const c = canalOn(loc);
-    if (c && c.complete && !opened.has(plot) && terrainOf(loc) !== "TERRAIN_COAST" && isIsthmus(loc)) openCanal(loc, c.owner);
+    if (!c || !c.complete || opened.has(plot) || terrainOf(loc) === "TERRAIN_COAST") continue;
+    if (isIsthmus(loc)) openCanal(loc, c.owner);
   }
 }
 
@@ -1073,8 +1080,11 @@ function onBuildCompleted(data) {
 
 function plotOf(args) { return args && args.X != null && args.Y != null ? { x: args.X, y: args.Y } : null; }
 
-/** The city's land tiles that qualify, whether or not the engine offered them. */
-function eligiblePlots(cityID) {
+/**
+ * The city's land tiles that qualify, whether or not the engine offered them. `anyUnits` keeps a tile a unit stands
+ * on (the site marks: a unit passing through must not unmark a site for a turn).
+ */
+function eligiblePlots(cityID, anyUnits = false) {
   const city = safe(() => Cities.get(cityID), null);
   if (!city) return [];
   const out = [];
@@ -1090,7 +1100,7 @@ function eligiblePlots(cityID) {
     if (d !== "" && d !== "DISTRICT_RURAL") continue;
     if (occupants(loc).some((o) => !isImprovement(o.type))) continue;
     if (canalOn(loc) || loadPending().includes(p)) continue;
-    if (safe(() => (MapUnits.getUnits(loc.x, loc.y) || []).length, 0) > 0) continue;
+    if (!anyUnits && safe(() => (MapUnits.getUnits(loc.x, loc.y) || []).length, 0) > 0) continue;
     out.push(p);
   }
   return out;
@@ -1244,6 +1254,15 @@ function wrapCanStartQuery(oQuery, host, placeType) {
   };
 }
 
+/** Whether the city's build queue holds a Canal of this type (given as its index or its type hash). */
+function inQueue(cityID, ctype) {
+  const def = canalDef(ctype);
+  if (!def) return false;
+  const hash = safe(() => GameInfo.Types.lookup(def.ConstructibleType).Hash, null);
+  const items = safe(() => Cities.get(cityID).BuildQueue.getQueue() || [], []);
+  return items.some((i) => [i.constructibleType, i.type].some((t) => t != null && (t === def.$index || t === hash)));
+}
+
 /**
  * A Canal BUILD or PURCHASE on a tile without an urban district: create one, then forward; undo the district on
  * refusal. A purchased Canal lands complete and the engine sends no completion event for it (watched, c36), so the
@@ -1264,6 +1283,8 @@ async function districtThenBuild(cityID, loc, ctype, forward, path) {
     for (let k = 0; k < 20 && districtAt(loc) !== "DISTRICT_URBAN"; k++) await sleep(100);
     if (districtAt(loc) !== "DISTRICT_URBAN") { log(`no urban district could be created at ${loc.x},${loc.y}; build not sent`); return; }
   }
+  // the engine takes a Canal only on a marked site (data/canals-sites.xml); a Canal the mod sells itself needs none
+  if (soldFor == null && !await markSite(loc)) log(`the site marker did not land at ${loc.x},${loc.y}`);
   // The engine needs a moment before a new district counts as a site (watched: a BUILD sent 200 ms after the
   // district landed was dropped; one sent 3 s later was taken). Wait for its own per-plot verdict.
   // (A Canal the mod sells itself is placed by the mod, not the engine, so there is no verdict to wait for.)
@@ -1277,6 +1298,8 @@ async function districtThenBuild(cityID, loc, ctype, forward, path) {
   while (Date.now() - t0 < BUILD_LAND_MS) {
     await sleep(100);
     const c = canalOn(loc);
+    // a production order goes into the queue and reaches the map only later (s1): it is taken all the same
+    if (!c && !path.purchase && inQueue(cityID, ctype)) { log(`Canal queued at ${loc.x},${loc.y}`); return; }
     if (!c) continue;
     if (soldFor != null) {
       safe(() => Players.grantYield(local, YieldTypes.YIELD_GOLD, -soldFor));
@@ -1288,6 +1311,7 @@ async function districtThenBuild(cityID, loc, ctype, forward, path) {
   }
   log(`the engine did not take the Canal at ${loc.x},${loc.y}; putting the tile back`);
   forget(plot);
+  if (plot in loadSites() && !aiSites().has(plot)) await unmarkSite(loc);
   if (!hadDistrict) {
     const did = districtIdAt(loc);
     if (did) safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "DISTRICT", Owner: did.owner, LocalID: did.id }));
@@ -1344,28 +1368,22 @@ function wrapHost(host, type, purchase) {
   return saved;
 }
 
-// --- AI canals -------------------------------------------------------------------------------------
+// --- canal sites ---------------------------------------------------------------------------------------
 //
-// The AI places buildings by the engine's own rules and never sees a canal site, so the mod plans canals for it. At
-// the start of each of the player's turns, an AI major that has this age's Canal unlocked and holds a site in one of
-// its cities that joins two separate bodies of water starts a Canal there, and the city builds it as the player's
-// cities do: each turn its production goes to the Canal (taken from whatever it was building, city.BuildQueue
-// .addProgress, which moves any city's production: watched 2026-09-18) until the Canal's cost is paid, and the canal
-// opens through the same path as the player's. An AI rich enough buys it outright at the engine's purchase price
-// instead (c90). An AI gold route alone never fired: over 40 autoplayed turns no AI held the ~1,700-2,000 gold (c91).
-// Each AI has one Canal under way at a time and waits AI_COOLDOWN_TURNS after one opens; one opens per turn in all.
-
-const AI_KEY = "Canals_AI_v2";
-const AI_COOLDOWN_TURNS = 8;
-// an AI buys outright only with a fifth of the price again in hand (c90: AI treasuries 119-2656 against a 2000 price)
-const AI_GOLD_RESERVE = 1.2;
-
-function aiState() {
-  const read = () => { const v = Configuration.getGame().getValue(AI_KEY); return v ? JSON.parse(String(v)) : null; };
-  const s = safe(read, null);
-  return s && typeof s === "object" ? { last: s.last || {}, projects: s.projects || {} } : { last: {}, projects: {} };
-}
-function aiSave(s) { safe(() => Configuration.editGame().setValue(AI_KEY, JSON.stringify(s))); }
+// The Canal requires a site marker on its tile (data/canals-sites.xml, Constructible_RequiredFeatures), so the engine
+// offers it, to the game's own AI as to the player, only on a tile this script has marked. The canal rule itself (a
+// strip of land between two shores, each age's chain rule) is the script's: the engine's data cannot express it, and
+// the game's AI obeys only the data. Runs m1-m7 (2026-09-29): with the marker required, the AI weighed and built the
+// building on marked tiles only, over 12 turns and through a save; growth still offers a marked tile; the marker holds
+// no yield of its own, so the tile yields what it did.
+// The script marks:
+//   - for each AI player, every tile of its settlements where a canal is worth digging (canalWorth). The game's own
+//     AI then decides for itself whether and when to build the Canal there, with production or gold, as it does any
+//     building; a Canal it finishes opens like the player's;
+//   - for the player, the tile of each Canal order, as the order is placed (the player's list is this script's own).
+// A marker put on a tile that held vegetation, wetland or a floodplain replaces it; that feature is kept (SITES_KEY)
+// and put back when the tile stops being a site with no Canal begun on it. Loaded without the mod, a save simply has
+// no markers (m6b).
 
 function aiMajors() {
   const out = [];
@@ -1386,128 +1404,181 @@ function thisAgesCanal() {
   return null;
 }
 
-/** A site worth a canal to this AI: a city tile that qualifies and joins two separate bodies of water. */
-function aiCanalSite(pid, def) {
-  for (const city of safe(() => Players.get(pid).Cities.getCities() || [], [])) {
-    // the engine's verdict on whether this city may build the Canal at all (locked or not), with the mod's sites.
-    // Judged on BUILD, not PURCHASE: a purchase verdict refuses on gold alone, which dropped every site (c92).
-    const args = { ConstructibleType: def.$index };
-    const can = safe(() => Game.CityOperations.canStart(city.id, CityOperationTypes.BUILD, args, false), null);
-    let plots = can && Array.isArray(can.Plots) ? can.Plots : [];
-    // the mod places an AI's Canal itself, so a Canal locked only because the mod came after its tech is open too
-    if (!plots.length && unlockedByMod(pid, def, can)) plots = eligiblePlots(city.id);
-    for (const p of plots) {
-      const loc = locOf(p);
-      if (districtAt(loc) === "DISTRICT_RURAL" && waterAreas(loc).size >= 2) return { city, loc };
-    }
-  }
-  return null;
-}
+const SITE_FEATURE = "FEATURE_CANALS_SITE";
+const SITES_KEY = "Canals_Sites_v1";
 
-const unitsOnTile = (loc) => safe(() => (MapUnits.getUnits(loc.x, loc.y) || []).length, 0);
+function siteIndex() { return safe(() => GameInfo.Features.lookup(SITE_FEATURE).$index, null); }
+function isMarked(loc) { return featureOf(loc) === SITE_FEATURE; }
+/** Marked plots, each with the feature the marker replaced ("" for none). */
+function loadSites() {
+  const s = safe(() => JSON.parse(String(Configuration.getGame().getValue(SITES_KEY))), null);
+  return s && typeof s === "object" ? s : {};
+}
+function saveSites(s) { safe(() => Configuration.editGame().setValue(SITES_KEY, JSON.stringify(s))); }
 
 /**
- * Put a finished Canal for an AI on the site and open it. A unit on the tile makes it wait: nothing is touched.
- * The site must be a tile the AI works: on an owned tile with no district at all, neither an urban nor a rural
- * district can be created by script (c94, c95: both refused every turn, the tile left bare), while a worked tile took
- * the Canal at once (c90). aiCanalSite offers only worked tiles; if the AI stops working one, the Canal waits.
+ * Set a tile's feature (an index, or FeatureTypes.NO_FEATURE) and wait for it to read back. One feature cannot replace
+ * another in a single call: the old one goes and nothing comes in its place (m8, five tiles of five); cleared first,
+ * the new one lands. True once the tile reads as asked.
  */
-async function aiPlaceCanal(pid, loc, def) {
-  const local = state.localId; const plot = idx(loc);
-  if (unitsOnTile(loc) > 0) { log(`AI ${pid}: a unit stands on ${loc.x},${loc.y}; the Canal waits`); return false; }
-  const create = (kind, type) => safe(() => Game.PlayerOperations.sendRequest(local, "CREATE_ELEMENT",
-    { Kind: kind, Type: type, Location: { x: loc.x, y: loc.y }, Owner: pid }));
-  const landed = () => { const c = canalOn(loc); return !!(c && c.complete); };
-  const waitFor = async (ok) => { for (let k = 0; k < 50 && !ok(); k++) await sleep(100); return ok(); };
-  if (districtAt(loc) === "") { log(`AI ${pid}: ${loc.x},${loc.y} is not worked now; the Canal waits`); return false; }
-  remember(plot);
-  for (const o of occupants(loc)) safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: o.owner, LocalID: o.id }));
-  // the improvement must be gone before the Canal goes on (c97: sent straight after, the woodcutter was still there
-  // and both placements were refused; c90 waited on a district in between and took)
-  await waitFor(() => occupants(loc).length === 0);
-  create("CONSTRUCTIBLE", def.ConstructibleType);
-  if (!await waitFor(landed)) {
-    // the player's path puts the Canal on an urban district; try that before giving up
-    create("DISTRICT", "DISTRICT_URBAN"); await waitFor(() => districtAt(loc) === "DISTRICT_URBAN");
-    create("CONSTRUCTIBLE", def.ConstructibleType); await waitFor(landed);
+async function putFeature(loc, f) {
+  const want = f === FeatureTypes.NO_FEATURE ? "" : safe(() => String(GameInfo.Features.lookup(f).FeatureType), "?");
+  const at = { x: loc.x, y: loc.y };
+  if (featureOf(loc) && featureOf(loc) !== want) {
+    safe(() => WorldBuilder.MapPlots.setFeature(FeatureTypes.NO_FEATURE, at));
+    for (let k = 0; k < 30 && featureOf(loc); k++) await sleep(100);
   }
-  if (!landed()) {
-    const why = { district: districtAt(loc), owner: safe(() => GameplayMap.getOwner(loc.x, loc.y)),
-      units: unitsOnTile(loc), resource: hasResource(loc), built: occupants(loc).map((o) => o.type),
-      terrain: terrainOf(loc) };
-    log(`AI ${pid}: the Canal at ${loc.x},${loc.y} did not land ${J(why)}`);
-    forget(plot);
-    return false;
+  if (want && featureOf(loc) !== want) {
+    safe(() => WorldBuilder.MapPlots.setFeature(f, at));
+    for (let k = 0; k < 30 && featureOf(loc) !== want; k++) await sleep(100);
   }
-  await openCanal(loc, pid);
-  return true;
+  return featureOf(loc) === want;
 }
 
-/** Buy outright, if the AI can afford it with gold to spare. */
-async function aiBuyCanal(pid, city, loc, def) {
-  const cost = safe(() => city.Gold.getBuildingPurchaseCost(YieldTypes.YIELD_GOLD, def.ConstructibleType), 0);
-  const gold = safe(() => Players.get(pid).Treasury.goldBalance, 0);
-  if (!(cost > 0) || gold < cost * AI_GOLD_RESERVE) return false;
-  if (!await aiPlaceCanal(pid, loc, def)) return false;
-  safe(() => Players.grantYield(pid, YieldTypes.YIELD_GOLD, -cost));
-  log(`AI ${pid} bought a Canal at ${loc.x},${loc.y} for ${Math.round(cost)} gold (had ${Math.round(gold)})`);
-  return true;
+/** Put the marker on a tile, keeping the feature it replaces. True once it reads back. */
+async function markSite(loc) {
+  if (isMarked(loc)) return true;
+  const f = siteIndex();
+  if (f == null || isWater(loc) || !clearableFeature(loc)) return false;
+  const sites = loadSites(); const plot = idx(loc);
+  if (!(plot in sites)) { sites[plot] = featureOf(loc); saveSites(sites); }
+  return putFeature(loc, f);
 }
 
-/** The site is still one this city can dig. */
-function aiSiteHolds(pid, cityId, loc) {
-  const city = safe(() => Cities.get(cityId), null);
-  if (!city || safe(() => city.owner, -1) !== pid) return false;
-  if (safe(() => GameplayMap.getOwner(loc.x, loc.y), -1) !== pid) return false;
-  return !canalOn(loc) && isIsthmus(loc) && !hasResource(loc) && !isParkland(loc);
+/** Take the marker off and put back the feature it replaced. */
+async function unmarkSite(loc) {
+  const sites = loadSites(); const plot = idx(loc);
+  const was = sites[plot] ? safe(() => GameInfo.Features.lookup(sites[plot]).$index, null) : null;
+  delete sites[plot]; saveSites(sites);
+  if (isMarked(loc)) await putFeature(loc, was != null ? was : FeatureTypes.NO_FEATURE);
 }
 
-/** One turn of AI canal planning: work every Canal under way, start new ones, open at most one. */
-async function aiPlan() {
-  if (!state.enabled || state.multiplayer || state.aiRunning || ageIsOver()) return null;
-  if (state.hold || state.saving || state.loading) { setTimeout(aiPlan, 1000); return null; }
-  state.aiRunning = true;
-  try { return await aiPlanTurn(); } finally { state.aiRunning = false; }
-}
-async function aiPlanTurn() {
-  const def = thisAgesCanal(); if (!def) return null;
-  const turn = safe(() => Game.turn, 0); const s = aiState(); let opened = null;
+/** Every tile where a canal is worth it to the AI player that owns it, with its worth. */
+function aiSites() {
+  const out = new Map();
   for (const pid of aiMajors()) {
-    const pr = s.projects[pid];
-    if (pr) {
-      const loc = locOf(pr.plot);
-      if (pr.type !== def.ConstructibleType || !aiSiteHolds(pid, pr.cityId, loc)) {
-        log(`AI ${pid}: Canal at ${loc.x},${loc.y} abandoned (site or age changed)`); delete s.projects[pid]; continue;
+    for (const city of safe(() => Players.get(pid).Cities.getCities() || [], [])) {
+      for (const p of eligiblePlots(city.id, true)) {
+        const w = canalWorth(locOf(p));
+        if (w.worth > 0) out.set(p, { pid, why: w.why });
       }
-      const city = Cities.get(pr.cityId);
-      const take = Math.max(0, Math.round(safe(() => city.Yields.getNetYield(YieldTypes.YIELD_PRODUCTION), 0)));
-      if (take > 0) { safe(() => city.BuildQueue.addProgress(-take)); pr.paid += take; }
-      if (pr.paid >= pr.need && !opened) {
-        if (await aiPlaceCanal(pid, loc, def)) {
-          log(`AI ${pid} built a Canal at ${loc.x},${loc.y} (${pr.paid}/${pr.need} production)`);
-          delete s.projects[pid]; s.last[pid] = turn; opened = { pid, at: loc };
-        } else if (districtAt(loc) === "" && (pr.idle = (pr.idle || 0) + 1) >= 10) {
-          log(`AI ${pid}: Canal at ${loc.x},${loc.y} abandoned, the tile not worked for ${pr.idle} turns`);
-          delete s.projects[pid]; s.last[pid] = turn;
-        } else if (unitsOnTile(loc) === 0 && districtAt(loc) !== "" && (pr.fails = (pr.fails || 0) + 1) >= 3) {
-          log(`AI ${pid}: Canal at ${loc.x},${loc.y} abandoned after ${pr.fails} failed placements`);
-          delete s.projects[pid]; s.last[pid] = turn;
-        }
-      }
-      continue;
     }
-    if (s.last[pid] != null && turn - s.last[pid] < AI_COOLDOWN_TURNS) continue;
-    const site = aiCanalSite(pid, def); if (!site) continue;
-    if (!opened && await aiBuyCanal(pid, site.city, site.loc, def)) {
-      s.last[pid] = turn; opened = { pid, at: site.loc }; continue;
-    }
-    const need = Number(def.Cost) || 500;
-    s.projects[pid] = { plot: idx(site.loc), cityId: site.city.id, type: def.ConstructibleType, need, paid: 0 };
-    log(`AI ${pid} started a Canal at ${site.loc.x},${site.loc.y} (${s.projects[pid].need} production)`);
   }
-  aiSave(s);
-  if (turn % 10 === 0) log(`AI canals turn ${turn}: ${Object.keys(s.projects).length} under way ${J(s.projects)}`);
-  return opened;
+  return out;
+}
+
+/** Marks every wanted tile not yet marked. Returns how many were marked. */
+async function markWanted(want) {
+  let added = 0;
+  for (const [p, w] of want) {
+    const loc = locOf(p);
+    if (isMarked(loc) || !await markSite(loc)) continue;
+    added++;
+    if (w.why !== "ordered") log(`site marked for AI ${w.pid} at ${loc.x},${loc.y} (${w.why})`);
+  }
+  return added;
+}
+
+/** Unmarks every tile the script marked that is no longer wanted, unless a Canal stands on it. A tile turned to water
+ * is dropped from the list, its marker cleared. Returns how many were unmarked. */
+async function unmarkStale(want) {
+  let removed = 0;
+  for (const key of Object.keys(loadSites())) {
+    const p = Number(key); const loc = locOf(p);
+    if (isWater(loc)) {
+      // an opened canal: the marker has no place on water (s2 found one left on 28,38)
+      if (isMarked(loc)) await putFeature(loc, FeatureTypes.NO_FEATURE);
+      const s = loadSites(); delete s[p]; saveSites(s); continue;
+    }
+    if (want.has(p) || canalOn(loc)) continue;
+    await unmarkSite(loc); removed++;
+  }
+  return removed;
+}
+
+/** Marks every AI site and every tile of a Canal order, and unmarks the rest. */
+async function syncSites() {
+  if (!state.enabled || state.multiplayer || state.syncing || siteIndex() == null) return;
+  state.syncing = true;
+  try {
+    const want = aiSites();
+    for (const p of loadPending()) if (!want.has(p)) want.set(p, { pid: state.localId, why: "ordered" });
+    const added = await markWanted(want);
+    const removed = await unmarkStale(want);
+    if (added || removed) log(`sites: ${added} marked, ${removed} unmarked, ${want.size} held`);
+  } finally { state.syncing = false; }
+}
+
+// What a canal is worth, in tiles of sailing. Two shores of the same sea: the tiles a ship saves by cutting through
+// instead of sailing round. Two separate bodies of water: the size of the smaller one, since that is what the cut
+// opens up. A search that goes AI_WORTH_REACH tiles without meeting the far shore counts as that far round.
+const AI_MIN_SAVING = 6;
+const AI_MIN_BODY = 10;
+const AI_WORTH_REACH = 30;
+
+/** The runs of open water around the hex, in ring order, each a list of its water tiles. */
+function waterSides(loc) {
+  const ring = RING.map((d) => neighborIn(loc, d));
+  const water = ring.map((n) => !!(n && isOpenWater(n)));
+  if (water.every(Boolean)) return [ring];
+  const start = water.findIndex((w) => !w);
+  const sides = []; let cur = null;
+  for (let k = 1; k <= 6; k++) {
+    const i = (start + k) % 6;
+    if (water[i]) { if (!cur) sides.push(cur = []); cur.push(ring[i]); } else cur = null;
+  }
+  return sides;
+}
+
+/** Breadth-first over open water from the given tiles (never through `avoid`): distance by plot, and whether the
+ * search ran out of water before `reach`. */
+function sailFrom(tiles, avoid, reach) {
+  const dist = new Map(); let frontier = [];
+  for (const t of tiles) { const p = idx(t); if (!dist.has(p)) { dist.set(p, 0); frontier.push(t); } }
+  for (let d = 1; d <= reach && frontier.length; d++) {
+    const next = [];
+    for (const t of frontier) {
+      for (const n of neighbors(t)) {
+        const p = idx(n);
+        if (p === avoid || dist.has(p) || !isOpenWater(n)) continue;
+        dist.set(p, d); next.push(n);
+      }
+    }
+    frontier = next;
+  }
+  return { dist, closed: frontier.length === 0 };
+}
+
+/** The worth of joining shore B to the water already searched from shore A (`from`), with the reason. */
+function pairWorth(from, sideB, me) {
+  const hit = sideB.map((t) => from.dist.get(idx(t))).filter((d) => d != null);
+  if (hit.length) {
+    // shore to shore round the water, against two steps through the cut
+    const saves = Math.min(...hit) - 2;
+    return { worth: saves >= AI_MIN_SAVING ? saves : 0, why: `saves ${saves}` };
+  }
+  const far = sailFrom(sideB, me, AI_WORTH_REACH);
+  const small = Math.min(from.closed ? from.dist.size : Infinity, far.closed ? far.dist.size : Infinity);
+  if (small === Infinity) return { worth: AI_WORTH_REACH, why: "far round" };
+  return { worth: small >= AI_MIN_BODY ? Math.min(small, AI_WORTH_REACH) : 0, why: `joins a body of ${small}` };
+}
+
+/**
+ * The best worth of a cut here over every pair of its shores, with the reason. 0 when no pair is worth digging: a
+ * pond, or two shores already a short sail apart.
+ */
+function canalWorth(loc) {
+  const sides = waterSides(loc);
+  if (sides.length < 2) return { worth: 0, why: "one shore" };
+  const me = idx(loc); let best = null;
+  for (let a = 0; a < sides.length - 1; a++) {
+    const from = sailFrom(sides[a], me, AI_WORTH_REACH);
+    for (let b = a + 1; b < sides.length; b++) {
+      const w = pairWorth(from, sides[b], me);
+      if (!best || w.worth > best.worth) best = w;
+    }
+  }
+  return best;
 }
 
 // --- telling the player ------------------------------------------------------------------------------
@@ -1658,12 +1729,13 @@ function uninstall() {
 
 if (!G[KEY]) {
   G[KEY] = {
-    version: "1.1.1",
+    version: "1.2.0",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
     uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen,
     drawOverlay, clearOverlay, redrawNeighbours, hasResource,
-    aiPlan, aiCanalSite, aiMajors, thisAgesCanal, aiBuyCanal, aiPlaceCanal, aiState, waterAreas, reloadThroughSave,
+    aiMajors, thisAgesCanal, waterAreas, reloadThroughSave, canalWorth, waterSides, syncSites, aiSites, markSite,
+    unmarkSite, loadSites,
     get staleLoad() { return state.staleLoad.slice(); },
     channelArms: (loc) => ({ water: waterSideIndexes(loc), arms: runArms(runOf(loc)).get(idx(loc)) || [] }),
   };

@@ -125,6 +125,15 @@ the [README](../README.md); this file is the evidence behind it.
 | `c100` | Age transition with a canal open: a player canal at 31,38 on `c95`'s Exploration save, autoplayed from turn 121 into the Modern age. | At turn 140 `BeforeAgeTransition` came first, then `GameAgeEnded`; the mod set the canal to land on the first. The Modern age attached with it as land (hill) and its record kept, turned it Coast once the load settled, and drew the channel through the city's land. The canal's area id in the new age is a land area, as a canal's is. |
 | `galr-mod16` | The Modern cycle: `g16-mod`'s five canals dug through the real build path and saved through the mod, reloaded. | All five water after the load, drawn as branching channels through grassland with quays and boats. |
 | `c101`, `c101b` | Canals added to `AugustusAnt99` (saved without the mod, Engineering researched), no unlock grant. | The engine refuses the Canal with a bare `{Success: false}`, no tech named and no reason (`c101`, so the first check, which needed one, saw nothing). With that read as the missing unlock (`c101b`): the one-time message shown, a town's purchase list priced the Canal at 960 and marked it short of gold, and after gold was granted the order was placed by the mod, charged once (2,175 to 1,215), and the canal opened with its rural district and fishing boat. The AIs with Engineering had no worked two-body site in that save. |
+| `w1` | AI site worth (canalWorth) and the game's own AI with a -100 bias against the Canal, seed 9001, 40 Autoplay turns. | The worth scoring passes on every candidate; the three sites the old rule took (two water areas) score 0, their waters meeting beside the tile. The game's own AI still put a Canal on 47,28 on turn 15 through a commit with no score, where it stayed a building. |
+| `w1b` | The same with -1000. | The same Canal on the same tile and turn: no bias value reaches that commit. |
+| `n1` | A net that took down stray AI Canals and refunded their cost. | Failed: the refund went into the AI's re-queued Canal, which finished again at once, nine turns running. Removed. |
+| `b1` | The Canal valid on Ocean only, the player's sites offered by the script. | The engine refused the player's own production and purchase orders on the forbidden tiles. Dropped. |
+| `g1`, `g2` | The Canal unlocked for human players only. | Worked, and was rejected: the game's AI must be able to build Canals, only never off a site. Reverted. |
+| `m1`-`m7` | A probe building requiring a script-placed feature (probe-marker). | The engine offers it on marked tiles only, to the player and the game's AI: over 12 turns the AI weighed it only on the 12 marked tiles and built it on 7 (`m3`). The feature needs biome rows to land, no class (a class shifts the owner's flat-tile bonus, `m5`), `Removable` and copied yield rows: yields matched on 8 of 8 tiles, growth still offered the tile, saves kept it, and a save loaded without the mod simply had none (`m6`, `m6b`, `m7`). |
+| `m8` | Why the marker failed on tiles holding forest or a floodplain. | One feature cannot replace another in a single call; cleared first, then set, it landed on five of five. |
+| `s1` | The shipped site marker, Exploration, seed 9001, 49 turns, every AI with the tech from turn 29. | No AI Canal anywhere and no Canal in the AI's log. The purchase opened. The production order was dropped by the mod's own six-second check (a production order reaches the map only later); fixed by reading the queue. |
+| `s2`, `s2b`, `s2c` | Sites marked in three AI cities; the AI's value raised. | The production order now queues and opens (`s2`). Markers land on wooded tiles once cleared first (`s2b`). Unraised the AI weighed the Canal 26 times per site and never chose it; at 400 its score rose fivefold and still lost; at 3,000 AI 4 committed to a Canal on its marked site at 55,7 on turn 33, the only AI Canal on the map (`s2c`). |
 
 ## Design decisions from the runs
 
@@ -148,6 +157,12 @@ the [README](../README.md); this file is the evidence behind it.
 - Transit quota: the local player's `MOVE_TO` orders through a canal are counted per turn and refused past the
   age's limit (1, 2, unlimited); AI movement is native and cannot be held.
 - Looks: three per age, chosen by plot number so a canal keeps its look across reloads.
+- AI canals: the game's own AI builds them, only on sites the script marks. The canal rule is the script's and the
+  engine's data cannot express it, so the Canal requires a site marker (`Constructible_RequiredFeatures`), which the
+  script places on each AI's worthwhile sites (canalWorth) and on the tile of each player order. The engine then
+  offers the Canal to an AI on those tiles alone, and the AI chooses when, like any building. The AI's value of the
+  Canal is raised (`AiFavoredItems` +3,000) so it builds on them at all (`s2c`). This replaced a planner that dug AI
+  canals itself, which left the game's own AI free to put Canals anywhere (`w1`).
 
 ## What is not watched
 
@@ -159,10 +174,7 @@ the [README](../README.md); this file is the evidence behind it.
   `gal-mod`).
 - An AI warship crossing between two seas through a canal: the AI units seen in canals were embarked land units
   (`c98`).
-- AI canal placement under Autoplay with the improvement wait (`c97` failed before it; `c98` ran on the player's
-  own turn).
 - The age transition through the game's own end-of-age screens: `c100` crossed it under Autoplay.
 - A ship's path through a canal after an age transition (`c100`'s canal had one plain sea side).
-- An AI digging a Canal whose tech it had researched before the mod was added (`c101b` found no AI site).
 - Multiplayer: the retype is a local call, so the mod does not offer the Canal in a network game, and says so at the
   start of one. Not run: no network game was started.

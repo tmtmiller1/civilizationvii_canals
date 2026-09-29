@@ -77,7 +77,7 @@ echo "==> Verifying zip contents against allow-list"
 ALLOW="^${MOD_DIR}/(${MODINFO//./\\.}|README\\.md|LICENSE|CHANGELOG\\.md)$"
 ALLOW="$ALLOW"'|^'"$MOD_DIR"'/ui/canals\.js$'
 ALLOW="$ALLOW"'|^'"$MOD_DIR"'/ui/canals-shell\.js$'
-ALLOW="$ALLOW"'|^'"$MOD_DIR"'/data/canals(-[a-z]+)?\.xml$'
+ALLOW="$ALLOW"'|^'"$MOD_DIR"'/data/canals(-[a-z]+)?\.(xml|sql)$'
 ALLOW="$ALLOW"'|^'"$MOD_DIR"'/text/[a-z_]+/CanalsText\.xml$'
 ALLOW="$ALLOW"'|^'"$MOD_DIR"'/icons/building_canal_(ancient|medieval|modern)_(256|128|64)\.png$'
 UNEXPECTED="$(unzip -Z1 "$ZIP_PATH" | grep -vE '/$' | grep -vE "$ALLOW" || true)"

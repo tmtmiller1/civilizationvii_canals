@@ -14,7 +14,7 @@
         <Authors>Tower</Authors>
         <Package>Canals</Package>
         <PackageSortIndex>100</PackageSortIndex>
-        <Version>1.1.1</Version>
+        <Version>1.2.0</Version>
         <AffectsSavedGames>0</AffectsSavedGames>
     </Properties>
     <Dependencies>
@@ -36,7 +36,12 @@
         <ActionGroup id="canals-game" scope="game" criteria="always">
             <Properties><LoadOrder>150</LoadOrder></Properties>
             <Actions>
-                <UpdateDatabase><Item>data/canals.xml</Item></UpdateDatabase>
+                <UpdateDatabase>
+                    <Item>data/canals.xml</Item>
+                    <Item>data/canals-sites.xml</Item>
+                    <Item>data/canals-sites.sql</Item>
+                    <Item>data/canals-ai.xml</Item>
+                </UpdateDatabase>
                 <UpdateText><Item>text/en_us/CanalsText.xml</Item></UpdateText>
                 <ImportFiles>
                     <Item>icons/building_canal_ancient_256.png</Item>

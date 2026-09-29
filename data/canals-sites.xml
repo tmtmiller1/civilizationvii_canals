@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Canal sites. The Canal requires the site marker on its tile, so the engine offers it, to the game's own AI as to the
+  player, only on a tile ui/canals.js has marked. The canal rule itself (a strip of land between two shores, the chain
+  rules of each age) is the script's; the engine's data cannot express it, and the game's AI obeys only the data
+  (runs m1-m7: without the marker the AI never weighed the building; with it, it weighed and built it on marked tiles
+  only).
+  The marker has no feature class (a class shifts the owner's flat-tile bonus, m5), gives way to other buildings
+  (Removable), and yields exactly what bare land yields (data/canals-sites.sql). No map places it (PlacementDensity 0).
+-->
+<Database>
+    <Types>
+        <Row Type="FEATURE_CANALS_SITE" Kind="KIND_FEATURE"/>
+    </Types>
+    <Features>
+        <Row FeatureType="FEATURE_CANALS_SITE" Name="LOC_FEATURE_CANALS_SITE_NAME" Tooltip="LOC_FEATURE_CANALS_SITE_TOOLTIP" PlacementClass="ONE" PlacementDensity="0" Removable="true"/>
+    </Features>
+    <Feature_ValidTerrains>
+        <Row FeatureType="FEATURE_CANALS_SITE" TerrainType="TERRAIN_FLAT"/>
+        <Row FeatureType="FEATURE_CANALS_SITE" TerrainType="TERRAIN_HILL"/>
+    </Feature_ValidTerrains>
+    <Feature_ValidBiomes>
+        <Row BiomeType="BIOME_DESERT" FeatureType="FEATURE_CANALS_SITE"/>
+        <Row BiomeType="BIOME_GRASSLAND" FeatureType="FEATURE_CANALS_SITE"/>
+        <Row BiomeType="BIOME_PLAINS" FeatureType="FEATURE_CANALS_SITE"/>
+        <Row BiomeType="BIOME_TROPICAL" FeatureType="FEATURE_CANALS_SITE"/>
+        <Row BiomeType="BIOME_TUNDRA" FeatureType="FEATURE_CANALS_SITE"/>
+    </Feature_ValidBiomes>
+    <Constructible_RequiredFeatures>
+        <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" FeatureType="FEATURE_CANALS_SITE"/>
+        <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" FeatureType="FEATURE_CANALS_SITE"/>
+        <Row ConstructibleType="BUILDING_CANAL_MODERN" FeatureType="FEATURE_CANALS_SITE"/>
+    </Constructible_RequiredFeatures>
+</Database>
