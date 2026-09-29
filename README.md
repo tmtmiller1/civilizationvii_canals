@@ -174,6 +174,10 @@ through it. Each AI waits eight turns between canals.
   whenever the main menu loads.
 - A save from Canals 1.0.0 holds its canals as open water, so they load drawn as open sea. The mod offers to reload
   at once, which draws them as canals; otherwise they look right after your next save and load.
+- Works with [National Park](https://github.com/tmtmiller1/civilizationvii_national-parks): park land is never offered as a
+  Canal site, and a Canal ordered onto it is refused, whichever of the two mods loads first.
+- Works with [Dams](https://github.com/tmtmiller1/civilizationvii_dams): a Dam cannot be built on an opened canal, and a
+  Canal is never offered on a tile that holds a Dam.
 - Single-player games only. In a multiplayer game no Canal can be built, and the mod says so when the game starts.
 - English only for now. The mod's text is a handful of strings.
 

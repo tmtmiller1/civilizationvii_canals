@@ -152,6 +152,19 @@ function hasResource(loc) {
 }
 
 /**
+ * National Park land is never a canal site. National Park also refuses buildings on its land by wrapping canStart
+ * and sendRequest, but when its wrappers sit inside these ones its filter comes too late: this mod replaces the plot
+ * list, and a build on park land would clear the park's improvement before National Park refused it. Asking the
+ * mod directly, at call time, holds whichever script wrapped the engine calls last.
+ */
+function isParkland(loc) {
+  const np = G.__towerNationalPark;
+  if (!np || typeof np.parks !== "function") return false;
+  const plot = idx(loc);
+  return safe(() => np.parks().some((p) => Array.isArray(p.tiles) && p.tiles.includes(plot)), false);
+}
+
+/**
  * Whether a canal may clear the tile's feature: vegetation, wetland and floodplain go when the tile turns to water.
  * A natural wonder is never dug away, whatever class it carries (Zhangjiajie is classed wet, the Barrier Reef
  * vegetated), and nor is anything else without one of those classes (a volcano, ice).
@@ -1071,7 +1084,7 @@ function eligiblePlots(cityID) {
     // Only tiles the city can build on: within its ring (watched: a purchased tile 12 plots out is refused).
     if (centre && safe(() => GameplayMap.getPlotDistance(centre.x, centre.y, loc.x, loc.y), 99) > BUILD_RADIUS)
       continue;
-    if (!isIsthmus(loc) || hasResource(loc)) continue;
+    if (!isIsthmus(loc) || hasResource(loc) || isParkland(loc)) continue;
     // never a tile that holds buildings: the canal removes whatever stands on it
     const d = districtAt(loc);
     if (d !== "" && d !== "DISTRICT_RURAL") continue;
@@ -1183,6 +1196,7 @@ function wrapCanStart(oCan, placeType, purchase) {
     if (loc) {
       if (!isIsthmus(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_NOT_ISTHMUS"] };
       if (hasResource(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_RESOURCE"] };
+      if (isParkland(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_PARKLAND"] };
     }
     const general = loc ? oCan(cityID, type, { ConstructibleType: args.ConstructibleType }, ...rest) : res;
     let sold = null;
@@ -1297,9 +1311,9 @@ function wrapSendRequest(oSend, path) {
     if (!state.enabled || state.multiplayer || type !== path.type || !args
       || !canalIndex(args.ConstructibleType)) return oSend(cityID, type, args, ...rest);
     const loc = plotOf(args);
-    // never prepare a resource tile: the engine will refuse the building, and the district would already have
+    // never prepare a resource tile or park land: the building will be refused, and the district would already have
     // replaced whatever improvement stood there
-    if (!loc || !isIsthmus(loc) || hasResource(loc)) return oSend(cityID, type, args, ...rest);
+    if (!loc || !isIsthmus(loc) || hasResource(loc) || isParkland(loc)) return oSend(cityID, type, args, ...rest);
     const def = canalDef(args.ConstructibleType);
     const general = safe(() => path.oCan.call(path.host, cityID, path.type,
       { ConstructibleType: args.ConstructibleType }, false), null);
@@ -1445,7 +1459,7 @@ function aiSiteHolds(pid, cityId, loc) {
   const city = safe(() => Cities.get(cityId), null);
   if (!city || safe(() => city.owner, -1) !== pid) return false;
   if (safe(() => GameplayMap.getOwner(loc.x, loc.y), -1) !== pid) return false;
-  return !canalOn(loc) && isIsthmus(loc) && !hasResource(loc);
+  return !canalOn(loc) && isIsthmus(loc) && !hasResource(loc) && !isParkland(loc);
 }
 
 /** One turn of AI canal planning: work every Canal under way, start new ones, open at most one. */
@@ -1644,7 +1658,7 @@ function uninstall() {
 
 if (!G[KEY]) {
   G[KEY] = {
-    version: "1.1.0",
+    version: "1.1.1",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
     uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen,

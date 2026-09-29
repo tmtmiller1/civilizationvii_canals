@@ -4,6 +4,12 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.1.1] - 2026-09-29
+
+- National Park land is never offered as a Canal site, and a Canal ordered onto it is refused before the tile is
+  touched, whichever of the two mods loads first. Before, when Canals' script loaded after National Park's, a park
+  tile could be listed and bought, and the Canal was dug through the park.
+
 ## [1.1.0] - 2026-09-28
 
 - A canal keeps its look across a save and reload. A coast tile loads as open sea, so a canal reloaded as an open
