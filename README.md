@@ -98,7 +98,8 @@ counts as a canal end, so a city or town can open its center to the water.*
 
 - flat or hill land the city owns, within the city's build ring, not a navigable river tile;
 - at least two separate ways in for a ship: sea, lake or navigable river on separate sides of the hex, in any
-  combination (the same sea on both sides counts), ice not counted; two different bodies of water around it also
+  combination (the same sea on both sides counts); water nothing can enter is not a way in: ice, or a natural
+  wonder standing in the sea, such as Thera; two different bodies of water around it also
   qualify, even where they meet in one stretch; a settlement's own center beside the tile is a way in of its own,
   so a city or town can dig a canal from its center out to the sea or a river, and a longer run may start or end
   at the center. A center counts apart from the water rather than as a piece of it, so a settlement standing next
