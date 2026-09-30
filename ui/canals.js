@@ -81,7 +81,7 @@ function waterAreas(loc) {
   const walk = (from, depth) => {
     for (const w of neighbors(from)) {
       const p = idx(w);
-      if (visited.has(p) || !isWater(w) || featureOf(w) === "FEATURE_ICE") continue;
+      if (visited.has(p) || !isWater(w) || impassableFeature(w)) continue;
       visited.add(p);
       const a = areaOf(w);
       if (landAreas.has(a)) { if (depth < 4) walk(w, depth + 1); continue; }
@@ -98,8 +98,25 @@ const RING = ["DIRECTION_EAST", "DIRECTION_SOUTHEAST", "DIRECTION_SOUTHWEST", "D
  * from its own tile to the sea or a river, and a run may start or finish at the center). The center itself is
    never dug. */
 function isSettlementCentre(loc) { return districtAt(loc) === "DISTRICT_CITY_CENTER"; }
-/** Water a ship can sail: sea, lake, or a navigable river tile (which the engine's water flag does not cover). */
-function isOpenWater(loc) { return (isWater(loc) || safe(() => GameplayMap.isNavigableRiver(loc.x, loc.y), false)) && featureOf(loc) !== "FEATURE_ICE"; }
+/**
+ * The tile's feature lets nothing through (Features.Impassable): ice, and the natural wonders that stand in the sea,
+ * Thera and Seongsan Ilchulbong. No ship enters such a tile, so it is no shore: a canal dug to it would open onto a
+ * wall. Read once per feature type.
+ */
+const impassableFeatures = new Map();
+function impassableFeature(loc) {
+  return safe(() => {
+    const f = GameplayMap.getFeatureType(loc.x, loc.y);
+    if (f === FeatureTypes.NO_FEATURE) return false;
+    if (!impassableFeatures.has(f)) impassableFeatures.set(f, !!GameInfo.Features.lookup(f).Impassable);
+    return impassableFeatures.get(f);
+  }, false);
+}
+/** Water a ship can sail: sea, lake, or a navigable river tile (which the engine's water flag does not cover),
+ * with nothing impassable on it. */
+function isOpenWater(loc) {
+  return (isWater(loc) || safe(() => GameplayMap.isNavigableRiver(loc.x, loc.y), false)) && !impassableFeature(loc);
+}
 /** The same, plus a settlement center, which is a canal end too. */
 function isShipWater(loc) { return isOpenWater(loc) || isSettlementCentre(loc); }
 
@@ -318,17 +335,33 @@ const state = {
 
 function canalIndex(v) { return state.canalIndexes.has(v); }
 
-/** Retype a land tile to Coast; resolves true when the read confirms it. */
+/** A save is being written, or is about to be: the save thread reads the map, and no map write may meet it. */
+function saveInFlight() { return state.saving || state.pendingSave; }
+
+/**
+ * Map edits in one WorldBuilder block. The block is closed whatever fn does: left open by a throw, every later edit
+ * of the session would sit inside it.
+ */
+function withBlock(fn) {
+  let open = false;
+  try { WorldBuilder.startBlock(); open = true; fn(); } finally { if (open) safe(() => WorldBuilder.endBlock()); }
+}
+
+/** Retype a land tile to Coast; resolves true when the read confirms it. Never while a save runs (see keeping the
+ * land look): the canal then waits for the next sweep. */
 async function flipToCoast(loc) {
   const coast = safe(() => GameInfo.Terrains.lookup("TERRAIN_COAST").$index, -1);
   if (coast < 0) return false;
+  if (saveInFlight()) { log(`Canal at ${loc.x},${loc.y}: a save is being written; the canal opens at the next sweep`); return false; }
   try {
-    WorldBuilder.startBlock();
-    if (featureOf(loc)) WorldBuilder.MapPlots.setFeature(FeatureTypes.NO_FEATURE, loc);
-    WorldBuilder.MapPlots.setTerrain(coast, loc);
-    WorldBuilder.endBlock();
+    withBlock(() => {
+      if (featureOf(loc)) WorldBuilder.MapPlots.setFeature(FeatureTypes.NO_FEATURE, loc);
+      WorldBuilder.MapPlots.setTerrain(coast, loc);
+    });
   } catch (e) { log("setTerrain threw " + e); return false; }
-  for (let k = 0; k < 30; k++) { await sleep(100); if (terrainOf(loc) === "TERRAIN_COAST") return true; }
+  // The engine applies the edit on its own tick: usually within 200 ms, but an owned tile has taken seconds (fx2,
+  // 2026-09-30: over 3 s twice, then 220 ms once the game was idle). A late edit is adopted by openCanal.
+  for (let k = 0; k < 100; k++) { await sleep(100); if (terrainOf(loc) === "TERRAIN_COAST") return true; }
   return false;
 }
 
@@ -343,8 +376,13 @@ async function openCanal(loc, owner) {
   try {
     const canal = canalOn(loc);
     if (!canal || !canal.complete) return;
-    if (terrainOf(loc) === "TERRAIN_COAST") return; // already a canal (the Canal building stays on the finished tile)
-    if (state.saving || loadOpen().some((e) => e.plot === plot)) return; // an open canal, land only while a save runs
+    const onRecord = loadOpen().some((e) => e.plot === plot);
+    // Coast already: an open canal (the Canal building stays on the finished tile), or a flip that landed after its
+    // wait ran out, which left a Coast tile with an urban Canal and no record; that one is taken up from here.
+    const alreadyWater = terrainOf(loc) === "TERRAIN_COAST";
+    if (alreadyWater && onRecord) return;
+    if (state.saving || onRecord) return; // an open canal, land only while a save runs
+    if (alreadyWater) log(`Canal at ${loc.x},${loc.y}: water already, no record; opened from here`);
     const shared = occupants(loc).some((o) => o.type !== canal.type && !isImprovement(o.type));
     if (shared || !isIsthmus(loc)) {
       log(`Canal at ${loc.x},${loc.y} ${shared ? "shares its tile with other buildings" : "is not on a canal site"}; left as a building`);
@@ -359,9 +397,14 @@ async function openCanal(loc, owner) {
     // The retype clears the plot's cliff flags but leaves the rock faces drawn; remember which shores were cliffs
     // so the overlay can dress them as locks.
     const cliffSides = cliffSideIndexes(loc);
-    const landType = terrainOf(loc);
-    const flipped = await flipToCoast(loc);
+    const landType = alreadyWater ? "TERRAIN_FLAT" : terrainOf(loc);
+    const age = canal.type === "BUILDING_CANAL_MODERN" ? "AGE_MODERN" : canal.type === "BUILDING_CANAL_EXPLORATION" ? "AGE_EXPLORATION" : "AGE_ANTIQUITY";
+    const flipped = alreadyWater || await flipToCoast(loc);
     if (!flipped) { log(`Canal at ${loc.x},${loc.y}: terrain did not change; left as a building`); return; }
+    // On record the moment it is water. The rest of this is seconds of engine requests; a save that starts in that
+    // time lands this canal with the others (wrapSaveGame) and the load knows it as a canal, not as open sea with
+    // no record of its own.
+    rememberOpen(plot, age, cliffSides, landType);
     // The Canal and its urban district go: an urban district draws a block of houses over the hex, which hides the
     // canal (watched, run c14). The citizen the Canal housed comes back as a pending point and is placed on the
     // finished canal with the game's own expand order, which makes it a worked rural fishing tile (watched, c23);
@@ -377,9 +420,7 @@ async function openCanal(loc, owner) {
       await sleep(1500);
     }
     forget(plot);
-    const age = canal.type === "BUILDING_CANAL_MODERN" ? "AGE_MODERN" : canal.type === "BUILDING_CANAL_EXPLORATION" ? "AGE_EXPLORATION" : "AGE_ANTIQUITY";
     await settleCanalTile(loc, cityId, who, canal.type);
-    rememberOpen(plot, age, cliffSides, landType);
     state.openedHere.add(plot); state.landMesh.add(plot);
     const drawn = drawOverlay(loc, age, cliffSides);
     const redrawn = redrawNeighbours(loc);
@@ -796,6 +837,9 @@ async function settleCanalTile(loc, cityId, owner, canalType) {
   }
   if (districtAt(loc) === "") { safe(() => Game.PlayerOperations.sendRequest(local, "CREATE_ELEMENT", { Kind: "DISTRICT", Type: "DISTRICT_RURAL", Location: { x: loc.x, y: loc.y }, Owner: owner })); for (let i = 0; i < 30 && districtAt(loc) === ""; i++) await sleep(100); }
   if (!occupants(loc).some((o) => o.type === canalType)) { safe(() => Game.PlayerOperations.sendRequest(local, "CREATE_ELEMENT", { Kind: "CONSTRUCTIBLE", Type: canalType, Location: { x: loc.x, y: loc.y }, Owner: owner })); await sleep(1500); }
+  // The Canal requires the site marker on its tile: the opened tile keeps one under its Canal, as the engine expects
+  // of any tile that holds the building. Put last, so neither the fishing boat nor the Canal has to be placed over it.
+  await markCanalTile(loc);
 }
 
 // --- keeping the land look across loads --------------------------------------------------------------
@@ -815,20 +859,23 @@ async function settleCanalTile(loc, cityId, owner, canalType) {
 // The canals are Coast through every AI turn, so AI ships use them. Nothing retypes a plot while state.hold is set,
 // so a Canal finished in that window opens at the next sweep.
 
+/** How long a save waits for a canal that is opening (the whole opening takes under ten seconds). */
+const OPENING_WAIT_MS = 15000;
+
 /** Retype the opened canals: "land" turns each Coast one back to the terrain it was cut from, "coast" the reverse. */
 function retypeCanals(to) {
   const changed = [];
   try {
-    WorldBuilder.startBlock();
-    for (const e of loadOpen()) {
-      const loc = locOf(e.plot); const now = terrainOf(loc);
-      if ((to === "land") !== (now === "TERRAIN_COAST")) continue;
-      const want = to === "land" ? (e.land || "TERRAIN_FLAT") : "TERRAIN_COAST";
-      const t = safe(() => GameInfo.Terrains.lookup(want).$index, -1);
-      if (t < 0) continue;
-      WorldBuilder.MapPlots.setTerrain(t, loc); changed.push(e.plot);
-    }
-    WorldBuilder.endBlock();
+    withBlock(() => {
+      for (const e of loadOpen()) {
+        const loc = locOf(e.plot); const now = terrainOf(loc);
+        if ((to === "land") !== (now === "TERRAIN_COAST")) continue;
+        const want = to === "land" ? (e.land || "TERRAIN_FLAT") : "TERRAIN_COAST";
+        const t = safe(() => GameInfo.Terrains.lookup(want).$index, -1);
+        if (t < 0) continue;
+        WorldBuilder.MapPlots.setTerrain(t, loc); changed.push(e.plot);
+      }
+    });
   } catch (err) { log("retype to " + to + " threw " + err); }
   return changed;
 }
@@ -899,10 +946,13 @@ function wrapSaveGame(host) {
   host.saveGame = function (params) {
     if (!state.enabled || state.multiplayer || state.saving || !loadOpen().length) return original.call(host, params);
     state.pendingSave = true;
-    landAhead("save");
-    const t0 = Date.now();
+    const t0 = Date.now(); let landed = false;
     const send = () => {
-      if (!readsLand() && Date.now() - t0 < 3000) { setTimeout(send, 50); return; }
+      // A canal opening now (its tile water and on record, its district, boat and building still to come) finishes
+      // first: a save taken half-way through held the tile bare, and it reloaded as water with no Canal on it (fx4).
+      if (state.busy.size && Date.now() - t0 < OPENING_WAIT_MS) { setTimeout(send, 100); return; }
+      if (!landed) { landed = true; landAhead("save"); }
+      if (!readsLand() && Date.now() - t0 < OPENING_WAIT_MS + 3000) { setTimeout(send, 50); return; }
       // one more beat after the read, so the retype is settled before the save thread starts
       setTimeout(() => {
         const ok = safe(() => original.call(host, params), false);
@@ -1380,7 +1430,9 @@ function wrapHost(host, type, purchase) {
 //   - for each AI player, every tile of its settlements where a canal is worth digging (canalWorth). The game's own
 //     AI then decides for itself whether and when to build the Canal there, with production or gold, as it does any
 //     building; a Canal it finishes opens like the player's;
-//   - for the player, the tile of each Canal order, as the order is placed (the player's list is this script's own).
+//   - for the player, the tile of each Canal order, as the order is placed (the player's list is this script's own);
+//   - every tile with a Canal in any settlement's build queue, until the order is done with (queuedCanalPlots);
+//   - every opened canal, under its Canal building (markCanalTile).
 // A marker put on a tile that held vegetation, wetland or a floodplain replaces it; that feature is kept (SITES_KEY)
 // and put back when the tile stops being a site with no Canal begun on it. Loaded without the mod, a save simply has
 // no markers (m6b).
@@ -1424,6 +1476,10 @@ function saveSites(s) { safe(() => Configuration.editGame().setValue(SITES_KEY, 
 async function putFeature(loc, f) {
   const want = f === FeatureTypes.NO_FEATURE ? "" : safe(() => String(GameInfo.Features.lookup(f).FeatureType), "?");
   const at = { x: loc.x, y: loc.y };
+  // never while a save is written: the save thread reads the map. Wait it out; a save that runs on is left alone.
+  // (Only the write itself: a save that is waiting for an opening to finish must not hold up the opening's marker.)
+  for (let k = 0; k < 50 && state.saving; k++) await sleep(100);
+  if (state.saving) return false;
   if (featureOf(loc) && featureOf(loc) !== want) {
     safe(() => WorldBuilder.MapPlots.setFeature(FeatureTypes.NO_FEATURE, at));
     for (let k = 0; k < 30 && featureOf(loc); k++) await sleep(100);
@@ -1443,6 +1499,52 @@ async function markSite(loc) {
   const sites = loadSites(); const plot = idx(loc);
   if (!(plot in sites)) { sites[plot] = featureOf(loc); saveSites(sites); }
   return putFeature(loc, f);
+}
+
+/**
+ * The marker under an opened canal's Canal building, recorded like a site (it goes with the rest should the tile
+ * ever hold no canal). The marker is valid on coast for this (data/canals-sites.xml) and yields what bare coast does.
+ */
+async function markCanalTile(loc) {
+  const f = siteIndex();
+  if (f == null) return false;
+  const sites = loadSites(); const plot = idx(loc);
+  // Whatever the marker replaced when the tile was ordered went with the flip, for good: the record holds nothing,
+  // or the woods would come back onto the water and take the fishing boat with them (fx6).
+  if (sites[plot] !== "") { sites[plot] = ""; saveSites(sites); }
+  const ok = isMarked(loc) || await putFeature(loc, f);
+  if (!ok) log(`canal at ${loc.x},${loc.y}: the site marker did not land on the opened tile`);
+  return ok;
+}
+
+/**
+ * Plots with a Canal in a settlement's build queue, the AI's included. The engine holds such an order until the
+ * building lands, and it may hold it only where the marker is (Constructible_RequiredFeatures): an AI's queued Canal
+ * whose site is no longer worth marking must keep its marker until the order is done with, or the engine is left
+ * with a build it can no longer place. The player's own orders are kept the same way through loadPending.
+ */
+function queuedCanalPlots() {
+  const types = new Set();
+  for (const t of CANAL_TYPES) {
+    const d = safe(() => GameInfo.Constructibles.lookup(t), null);
+    if (!d) continue;
+    types.add(d.$index);
+    const h = safe(() => GameInfo.Types.lookup(t).Hash, null);
+    if (h != null) types.add(h);
+  }
+  const out = new Map();
+  const players = aiMajors(); if (state.localId >= 0) players.push(state.localId);
+  for (const pid of players) {
+    for (const city of safe(() => Players.get(pid).Cities.getCities() || [], [])) {
+      for (const it of safe(() => city.BuildQueue.getQueue() || [], [])) {
+        if (![it.constructibleType, it.type].some((t) => t != null && types.has(t))) continue;
+        const l = it.location;
+        if (!l || l.x == null || l.x < 0) continue;
+        out.set(idx({ x: l.x, y: l.y }), pid);
+      }
+    }
+  }
+  return out;
 }
 
 /** Take the marker off and put back the feature it replaced. */
@@ -1479,14 +1581,15 @@ async function markWanted(want) {
   return added;
 }
 
-/** Unmarks every tile the script marked that is no longer wanted, unless a Canal stands on it. A tile turned to water
- * is dropped from the list, its marker cleared. Returns how many were unmarked. */
+/** Unmarks every tile the script marked that is no longer wanted, unless a Canal stands on it. An opened canal (water
+ * with its Canal) keeps the marker under the building; water with no canal is dropped from the list, its marker
+ * cleared. Returns how many were unmarked. */
 async function unmarkStale(want) {
   let removed = 0;
   for (const key of Object.keys(loadSites())) {
     const p = Number(key); const loc = locOf(p);
     if (isWater(loc)) {
-      // an opened canal: the marker has no place on water (s2 found one left on 28,38)
+      if (canalOn(loc)) { if (!isMarked(loc)) await markCanalTile(loc); continue; }
       if (isMarked(loc)) await putFeature(loc, FeatureTypes.NO_FEATURE);
       const s = loadSites(); delete s[p]; saveSites(s); continue;
     }
@@ -1496,15 +1599,21 @@ async function unmarkStale(want) {
   return removed;
 }
 
-/** Marks every AI site and every tile of a Canal order, and unmarks the rest. */
+/** Marks every AI site, every tile of a Canal order or queued Canal, and the opened canals; unmarks the rest. */
 async function syncSites() {
   if (!state.enabled || state.multiplayer || state.syncing || siteIndex() == null) return;
   state.syncing = true;
   try {
     const want = aiSites();
     for (const p of loadPending()) if (!want.has(p)) want.set(p, { pid: state.localId, why: "ordered" });
+    for (const [p, pid] of queuedCanalPlots()) if (!want.has(p)) want.set(p, { pid, why: "queued" });
     const added = await markWanted(want);
     const removed = await unmarkStale(want);
+    // canals opened before the marker was kept on the tile (Canals 1.2.0 saves), and any that lost it
+    for (const e of loadOpen()) {
+      const l = locOf(e.plot);
+      if (isWater(l) && canalOn(l) && !isMarked(l)) await markCanalTile(l);
+    }
     if (added || removed) log(`sites: ${added} marked, ${removed} unmarked, ${want.size} held`);
   } finally { state.syncing = false; }
 }
@@ -1729,13 +1838,13 @@ function uninstall() {
 
 if (!G[KEY]) {
   G[KEY] = {
-    version: "1.2.0",
+    version: "1.2.1",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
     uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen,
     drawOverlay, clearOverlay, redrawNeighbours, hasResource,
     aiMajors, thisAgesCanal, waterAreas, reloadThroughSave, canalWorth, waterSides, syncSites, aiSites, markSite,
-    unmarkSite, loadSites,
+    unmarkSite, loadSites, queuedCanalPlots, markCanalTile,
     get staleLoad() { return state.staleLoad.slice(); },
     channelArms: (loc) => ({ water: waterSideIndexes(loc), arms: runArms(runOf(loc)).get(idx(loc)) || [] }),
   };

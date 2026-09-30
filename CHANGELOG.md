@@ -4,6 +4,24 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.2.1] - 2026-09-30
+
+- A tile is no canal site when one of its shores is water nothing can enter: ice, or a natural wonder that stands
+  in the sea (Thera, Seongsan Ilchulbong). Before, such a tile beside Thera was offered and could be bought, and the
+  canal opened onto the wonder, which no ship crosses; the AI's site worth read it the same way.
+- A Canal in any settlement's build queue, an AI's included, keeps the canal site on its tile until the order is
+  done with. Before, an AI site that stopped being worth marking lost its marker with the AI's Canal still queued
+  on it, and the engine was left holding an order it could no longer place.
+- An opened canal keeps the canal site under its Canal building, as the building requires; the site yields what
+  bare coast does, so the tile's yields do not change. Canals opened by 1.2.0 get theirs at the next turn start.
+- A canal is on record the moment its tile is water, before the rest of its opening, and a save that starts in
+  those seconds waits for the opening to finish, then lands the canal with the others and holds it whole. Before,
+  such a save carried the tile as open sea with no record.
+- No map edit is made while a save is being written: a Canal that completes during one opens at the next turn
+  start, and site markers wait for the save to finish. A map edit that fails no longer leaves the edit block open.
+- A canal whose tile the game turns to water late (it can take a few seconds on a busy turn) still opens. Before,
+  the mod stopped waiting after three seconds and the Canal stayed a building on a water tile.
+
 ## [1.2.0] - 2026-09-29
 
 - AI players build Canals themselves, as they build any building, and only on real canal sites. The mod marks, for

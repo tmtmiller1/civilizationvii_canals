@@ -5,7 +5,7 @@ Cut a ship channel through a narrow neck of land. Build the Canal on a land tile
 [list]
 [*][b]A Canal for each age[/b]: the Ancient, Medieval and Modern Canal, in the ordinary production list, unlocked by Engineering, Shipbuilding and Industrialization, at 300, 500 and 800 production. A settlement can dig as many canals as it has sites for.
 [*][b]Towns too.[/b] A town buys its Canal with gold from its purchase list, like any other building; a bought Canal opens at once.
-[*][b]Canal sites only.[/b] The placement screen offers a land tile the city owns, within its build ring, with sea, lake or navigable river on at least two separate sides. A canal can join a river to the sea or two reaches of a river. A tile that holds a resource takes no building and is not offered.
+[*][b]Canal sites only.[/b] The placement screen offers a land tile the city owns, within its build ring, with sea, lake or navigable river on at least two separate sides. Water nothing can enter does not count: ice, or a natural wonder in the sea such as Thera. A canal can join a river to the sea or two reaches of a river. A tile that holds a resource takes no building and is not offered.
 [*][b]Ships go through the same turn.[/b] When the Canal completes the tile becomes water and any ship can path through it at once.
 [*][b]Canals last.[/b] A canal is still a channel cut through land after a save and reload.
 [*][b]Longer canals.[/b] From the Exploration age a second Canal in a straight line with the first cuts a two-tile passage; in the Modern age runs of up to five tiles may bend and branch. Neighboring canals join into one waterway, and a canal may run on from one city's or town's land into another's.

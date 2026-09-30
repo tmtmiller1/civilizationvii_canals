@@ -7,6 +7,8 @@
   only).
   The marker has no feature class (a class shifts the owner's flat-tile bonus, m5), gives way to other buildings
   (Removable), and yields exactly what bare land yields (data/canals-sites.sql). No map places it (PlacementDensity 0).
+  An opened canal is coast with its Canal building still on it, and the building requires the marker: the marker is
+  valid on coast as well, and yields what bare coast does.
 -->
 <Database>
     <Types>
@@ -18,8 +20,10 @@
     <Feature_ValidTerrains>
         <Row FeatureType="FEATURE_CANALS_SITE" TerrainType="TERRAIN_FLAT"/>
         <Row FeatureType="FEATURE_CANALS_SITE" TerrainType="TERRAIN_HILL"/>
+        <Row FeatureType="FEATURE_CANALS_SITE" TerrainType="TERRAIN_COAST"/>
     </Feature_ValidTerrains>
     <Feature_ValidBiomes>
+        <Row BiomeType="BIOME_MARINE" FeatureType="FEATURE_CANALS_SITE"/>
         <Row BiomeType="BIOME_DESERT" FeatureType="FEATURE_CANALS_SITE"/>
         <Row BiomeType="BIOME_GRASSLAND" FeatureType="FEATURE_CANALS_SITE"/>
         <Row BiomeType="BIOME_PLAINS" FeatureType="FEATURE_CANALS_SITE"/>
