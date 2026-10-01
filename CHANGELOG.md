@@ -4,6 +4,19 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.2.2] - 2026-09-30
+
+- Fixes a crash on ending the turn. An opened canal's tile holds a rural district, and for every AI canal (and a
+  player's canal the city did not settle itself) the mod made that district without a city. That did no harm while
+  the canal was water, but the tile is land in every save, in the next age, and for good once Canals is turned off,
+  and the first time an AI put an urban building on it the game crashed. Every district the mod makes now belongs to
+  the city that owns the tile, and one that does not is taken off rather than left.
+- Games already affected are repaired: after a load and at each turn start, an opened canal or a Canal site whose
+  district belongs to no city has it rebuilt for its city, with the Canal building and fishing boat as before. Load
+  the save once with Canals 1.2.2 enabled; its saves are then safe with the mod on or off.
+- A canal tile whose district had no city gave its city nothing; held by the city, the tile's food and gold reach it
+  again (2 food 2 gold on a fished canal).
+
 ## [1.2.1] - 2026-09-30
 
 - A tile is no canal site when one of its shores is water nothing can enter: ice, or a natural wonder that stands

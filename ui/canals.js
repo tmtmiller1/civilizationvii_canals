@@ -322,7 +322,7 @@ const state = {
   landMesh: new Set(), saving: false, hold: false, loading: false, pendingSave: false, syncing: false, localId: -1,
   multiplayer: false, paidTurn: -1, transits: new Map(), transitTurn: -1,
   // the age has ended (GameAgeEnded); the canals stay land for the transition
-  ageEnded: false,
+  ageEnded: false, repairing: false,
   // the autosave the mod's newest one pushes past the player's keep count, deleted once the new one is written
   prune: null,
   // canals a save held as Coast (Canals 1.0.0), turned to land as the game loaded
@@ -815,10 +815,119 @@ function wrapUnitSend(oSend) {
  * expand order does not offer the tile, a rural district is created directly and the citizen stays pending for the
  * player to place.
  */
-async function settleCanalTile(loc, cityId, owner, canalType) {
+// --- districts that belong to no city -------------------------------------------------------------
+//
+// CREATE_ELEMENT makes a district for a player, and for a city only when the request names it as Parent. Without
+// one the district has cityId null and is missing from the city's own district list. On a water canal nothing builds
+// there, but the tile is land in every save, in the next age, and for good once Canals is turned off, and the first
+// urban building the AI puts on it then crashes the game in native code (watched on a player's save, runs hx-c1 to
+// hx-c12: the same Bazaar commit crashed over a fishing boat, a farm and a bare tile, and went through once the
+// district without a city was gone). Canals 1.2.1 and earlier made every AI canal's district that way.
+
+/** The district on a tile, with the city that holds it (null when it holds none); null when there is no district. */
+function districtHolder(loc) {
+  return safe(() => {
+    const d = Districts.getAtLocation(loc);
+    if (!d) return null;
+    const c = d.cityId;
+    return { id: districtIdAt(loc), city: c && c.id != null && c.id !== -1 ? c : null };
+  }, null);
+}
+function owningCity(loc) {
+  return safe(() => {
+    const c = GameplayMap.getOwningCityFromXY(loc.x, loc.y);
+    return c && c.id !== -1 ? c : null;
+  }, null);
+}
+async function destroyDistrict(loc) {
+  const did = districtIdAt(loc);
+  if (!did) return true;
+  safe(() => Game.PlayerOperations.sendRequest(GameContext.localPlayerID, "DESTROY_ELEMENT", { Kind: "DISTRICT", Owner: did.owner, LocalID: did.id }));
+  for (let i = 0; i < 30 && districtAt(loc) !== ""; i++) await sleep(100);
+  return districtAt(loc) === "";
+}
+/**
+ * A rural district on the tile, held by the city that owns it. One that lands without a city is taken off again: a
+ * tile with no district is safe (it reads as plain owned land), one with a cityless district is not.
+ */
+async function createRuralDistrict(loc, cityId, owner) {
+  const parent = cityId || owningCity(loc);
+  if (!parent) { log(`canal at ${loc.x},${loc.y}: no city owns the tile; no district placed`); return false; }
+  safe(() => Game.PlayerOperations.sendRequest(GameContext.localPlayerID, "CREATE_ELEMENT",
+    { Kind: "DISTRICT", Type: "DISTRICT_RURAL", Location: { x: loc.x, y: loc.y }, Parent: parent, Owner: owner }));
+  for (let i = 0; i < 30 && districtAt(loc) === ""; i++) await sleep(100);
+  const h = districtHolder(loc);
+  if (!h) { log(`canal at ${loc.x},${loc.y}: the rural district did not land`); return false; }
+  if (h.city) return true;
+  const gone = await destroyDistrict(loc);
+  log(`canal at ${loc.x},${loc.y}: the rural district landed without a city; ${gone ? "removed" : "COULD NOT be removed"}`);
+  return false;
+}
+const CANAL_OF_AGE = { AGE_ANTIQUITY: "BUILDING_CANAL_ANTIQUITY", AGE_EXPLORATION: "BUILDING_CANAL_EXPLORATION", AGE_MODERN: "BUILDING_CANAL_MODERN" };
+/**
+ * Rebuild any opened canal's district that belongs to no city (every AI canal made by 1.2.1 or earlier): take it
+ * off, give the plot back to its city (removing a district releases the plot), and settle the tile again with the
+ * city as Parent. Only on a Coast tile, between saves; a save that starts mid-way waits on state.busy.
+ */
+async function repairCitylessDistricts() {
+  if (!state.enabled || state.multiplayer || state.saving || state.loading || state.hold || state.repairing) return;
+  state.repairing = true;
+  try {
+    for (const e of loadOpen()) {
+      if (state.saving || state.hold) return;
+      const loc = locOf(e.plot); const h = districtHolder(loc);
+      if (!h || h.city || state.busy.has(e.plot) || terrainOf(loc) !== "TERRAIN_COAST") continue;
+      state.busy.add(e.plot);
+      try { await repairCanalTile(loc, e.age); } finally { state.busy.delete(e.plot); }
+    }
+    // A Canal ordered on a tile without an urban district got one made for it (districtThenBuild), which 1.2.1 and
+    // earlier made without a city too; it stands on land for the whole build, and for good if the build is dropped.
+    for (const plot of loadPending()) {
+      if (state.saving || state.hold) return;
+      const loc = locOf(plot); const h = districtHolder(loc);
+      if (!h || h.city || state.busy.has(plot)) continue;
+      state.busy.add(plot);
+      try { await repairPendingTile(loc); } finally { state.busy.delete(plot); }
+    }
+  } finally { state.repairing = false; }
+}
+async function repairPendingTile(loc) {
+  const ownerOf = () => safe(() => GameplayMap.getOwner(loc.x, loc.y), -1);
+  const owner = ownerOf(); const city = owningCity(loc); const type = districtAt(loc);
+  if (!(await destroyDistrict(loc))) { log(`site at ${loc.x},${loc.y}: district without a city COULD NOT be removed`); return; }
+  if (!city || owner < 0) { log(`site at ${loc.x},${loc.y}: district without a city removed; no city owns the tile`); return; }
+  if (ownerOf() !== owner) {
+    safe(() => Cities.get(city).purchasePlot({ x: loc.x, y: loc.y }));
+    for (let i = 0; i < 40 && ownerOf() !== owner; i++) await sleep(100);
+  }
+  safe(() => Game.PlayerOperations.sendRequest(GameContext.localPlayerID, "CREATE_ELEMENT",
+    { Kind: "DISTRICT", Type: type, Location: { x: loc.x, y: loc.y }, Parent: city, Owner: owner }));
+  for (let i = 0; i < 30 && districtAt(loc) === ""; i++) await sleep(100);
+  const after = districtHolder(loc);
+  if (after && !after.city) await destroyDistrict(loc);
+  log(`site at ${loc.x},${loc.y}: district without a city rebuilt as ${type}: ` +
+    `${after ? (after.city ? "held by its city" : "STILL NO CITY, removed") : "did not land"}`);
+}
+async function repairCanalTile(loc, age) {
+  const ownerOf = () => safe(() => GameplayMap.getOwner(loc.x, loc.y), -1);
+  const owner = ownerOf(); const city = owningCity(loc);
+  const canalType = (canalOn(loc) || {}).type || CANAL_OF_AGE[age] || CANAL_TYPES[0];
+  if (!(await destroyDistrict(loc))) { log(`canal at ${loc.x},${loc.y}: district without a city COULD NOT be removed`); return; }
+  if (city && owner >= 0 && ownerOf() !== owner) {
+    safe(() => Cities.get(city).purchasePlot({ x: loc.x, y: loc.y }));
+    for (let i = 0; i < 40 && ownerOf() !== owner; i++) await sleep(100);
+  }
+  if (city && owner >= 0) await settleCanalTile(loc, city, owner, canalType, { repair: true });
+  const after = districtHolder(loc);
+  const held = after ? (after.city ? "held by its city" : "STILL NO CITY") : "no district";
+  log(`canal at ${loc.x},${loc.y}: district without a city rebuilt for player ${owner}: ${held}; ` +
+    `${occupants(loc).map((o) => o.type).join(",") || "nothing on it"}`);
+}
+
+async function settleCanalTile(loc, cityId, owner, canalType, opts) {
   const local = GameContext.localPlayerID;
   const plot = idx(loc);
-  if (cityId && owner === local) {
+  if (cityId && owner === local && !(opts && opts.repair)) {
     const city = safe(() => Cities.get(cityId), null);
     if (city) {
       safe(() => city.addRuralPopulation(1));
@@ -835,7 +944,7 @@ async function settleCanalTile(loc, cityId, owner, canalType) {
       }
     }
   }
-  if (districtAt(loc) === "") { safe(() => Game.PlayerOperations.sendRequest(local, "CREATE_ELEMENT", { Kind: "DISTRICT", Type: "DISTRICT_RURAL", Location: { x: loc.x, y: loc.y }, Owner: owner })); for (let i = 0; i < 30 && districtAt(loc) === ""; i++) await sleep(100); }
+  if (districtAt(loc) === "" && !(await createRuralDistrict(loc, cityId, owner))) return;
   if (!occupants(loc).some((o) => o.type === canalType)) { safe(() => Game.PlayerOperations.sendRequest(local, "CREATE_ELEMENT", { Kind: "CONSTRUCTIBLE", Type: canalType, Location: { x: loc.x, y: loc.y }, Owner: owner })); await sleep(1500); }
   // The Canal requires the site marker on its tile: the opened tile keeps one under its Canal, as the engine expects
   // of any tile that holds the building. Put last, so neither the fishing boat nor the Canal has to be placed over it.
@@ -1115,6 +1224,7 @@ function sweep() {
     if (!c || !c.complete || opened.has(plot) || terrainOf(loc) === "TERRAIN_COAST") continue;
     if (isIsthmus(loc)) openCanal(loc, c.owner);
   }
+  repairCitylessDistricts();
 }
 
 function onBuildCompleted(data) {
@@ -1329,9 +1439,16 @@ async function districtThenBuild(cityID, loc, ctype, forward, path) {
   }, false);
   if (!hadDistrict) {
     for (const o of occupants(loc)) safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: o.owner, LocalID: o.id }));
-    safe(() => Game.PlayerOperations.sendRequest(local, "CREATE_ELEMENT", { Kind: "DISTRICT", Type: "DISTRICT_URBAN", Location: { x: loc.x, y: loc.y }, Owner: local }));
+    // Parent ties the district to the city; without it the district belongs to no city (see districtHolder).
+    safe(() => Game.PlayerOperations.sendRequest(local, "CREATE_ELEMENT",
+      { Kind: "DISTRICT", Type: "DISTRICT_URBAN", Location: { x: loc.x, y: loc.y }, Parent: cityID, Owner: local }));
     for (let k = 0; k < 20 && districtAt(loc) !== "DISTRICT_URBAN"; k++) await sleep(100);
     if (districtAt(loc) !== "DISTRICT_URBAN") { log(`no urban district could be created at ${loc.x},${loc.y}; build not sent`); return; }
+    if (!(districtHolder(loc) || {}).city) {
+      await destroyDistrict(loc);
+      log(`the urban district at ${loc.x},${loc.y} landed without a city; removed, build not sent`);
+      return;
+    }
   }
   // the engine takes a Canal only on a marked site (data/canals-sites.xml); a Canal the mod sells itself needs none
   if (soldFor == null && !await markSite(loc)) log(`the site marker did not land at ${loc.x},${loc.y}`);
@@ -1838,10 +1955,11 @@ function uninstall() {
 
 if (!G[KEY]) {
   G[KEY] = {
-    version: "1.2.1",
+    version: "1.2.2",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
     uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen,
+    districtHolder, repairCitylessDistricts,
     drawOverlay, clearOverlay, redrawNeighbours, hasResource,
     aiMajors, thisAgesCanal, waterAreas, reloadThroughSave, canalWorth, waterSides, syncSites, aiSites, markSite,
     unmarkSite, loadSites, queuedCanalPlots, markCanalTile,
