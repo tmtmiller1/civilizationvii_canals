@@ -3,6 +3,11 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.3.0 | 2026-10-01 | src afd9ed9e3a44 | gen 1906fb66b22e ====
+[b]Version 1.3.0 · 1 October 2026[/b]
+• A Canals group in the Civilopedia's Game Concepts section: what a Canal is and each age's Canal, which tiles qualify, longer canals, and ship traffic and yields.
+• Translated into German, Spanish, French, Italian, Japanese, Korean, Polish, Brazilian Portuguese, Russian, and Simplified and Traditional Chinese: the mod's name and description, the building names, the placement messages, the notices and the Civilopedia pages. Game terms use the game's own translations.
+
 ==== 1.2.2 | 2026-09-30 | src 95c8df961280 | gen 34039923e7b0 ====
 [b]Version 1.2.2 · 30 September 2026[/b]
 • Fixes a crash on ending the turn. An opened canal's tile holds a rural district, and for every AI canal (and a player's canal the city did not settle itself) the mod made that district without a city. That did no harm while the canal was water, but the tile is land in every save, in the next age, and for good once Canals is turned off, and the first time an AI put an urban building on it the game crashed. Every district the mod makes now belongs to the city that owns the tile, and one that does not is taken off rather than left.
