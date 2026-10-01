@@ -4,6 +4,14 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.3.0] - 2026-10-01
+
+- A Canals group in the Civilopedia's Game Concepts section: what a Canal is and each age's Canal, which tiles
+  qualify, longer canals, and ship traffic and yields.
+- Translated into German, Spanish, French, Italian, Japanese, Korean, Polish, Brazilian Portuguese, Russian, and
+  Simplified and Traditional Chinese: the mod's name and description, the building names, the placement messages,
+  the notices and the Civilopedia pages. Game terms use the game's own translations.
+
 ## [1.2.2] - 2026-09-30
 
 - Fixes a crash on ending the turn. An opened canal's tile holds a rural district, and for every AI canal (and a

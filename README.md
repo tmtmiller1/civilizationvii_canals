@@ -94,6 +94,11 @@ counts as a canal end, so a city or town can open its center to the water.*
 
 *The same canal after a save and reload: the quay, the boats and the channel through the land are all still there.*
 
+## Civilopedia
+
+The Civilopedia's Game Concepts section has a Canals group with four pages: Canals (what a Canal is, each age's
+Canal, building one and what happens when it opens), Canal Sites, Longer Canals, and Ships and Yields.
+
 ## Which tiles qualify
 
 - flat or hill land the city owns, within the city's build ring, not a navigable river tile;
@@ -186,7 +191,8 @@ sail through them.
 - Works with [Dams](https://github.com/tmtmiller1/civilizationvii_dams): a Dam cannot be built on an opened canal, and a
   Canal is never offered on a tile that holds a Dam.
 - Single-player games only. In a multiplayer game no Canal can be built, and the mod says so when the game starts.
-- English only for now. The mod's text is a handful of strings.
+- Translated into German, Spanish, French, Italian, Japanese, Korean, Polish, Brazilian Portuguese, Russian, and
+  Simplified and Traditional Chinese. The translations are machine-made; corrections are welcome.
 
 ## Installation
 
@@ -308,10 +314,15 @@ data/canals.xml                     the three Canal buildings: cost, citizen, yi
 data/canals-antiquity.xml           each age's tech unlock, loaded only while that age is in use
 data/canals-exploration.xml
 data/canals-modern.xml
+data/canals-civilopedia.xml         the Canals pages in the Civilopedia's Game Concepts section
 ui/canals.js                        the mod: placement, commit, completion, looks, locks,
                                     ship limit, saving, AI canals, safety sweep
 ui/canals-shell.js                  main menu: puts the player's autosave frequency back
-text/en_us/CanalsText.xml           name, description and the placement message
+text/en_us/CanalsText.xml           name, description, placement messages and the Civilopedia text
+text/<lang>/CanalsText.xml          the same text in each of 11 other languages (see text/README.md)
+tests/pedia-pages.test.mjs          checks every Civilopedia page has text to draw (npm run pedia)
+tests/i18n.test.mjs                 checks every translation has every tag, placeholder and markup (npm run i18n)
+devtools/gen-glossary.py            pulls the game's own translations of game terms into devtools/glossary/
 docs/verification-runs.md           every step and the run that proved it
 docs/steam-workshop-description.txt the Workshop page text
 docs/workshop-preview.png           the mod icon and Workshop preview (rendered from workshop-preview.svg)
