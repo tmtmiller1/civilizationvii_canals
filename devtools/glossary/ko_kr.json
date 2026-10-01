@@ -1,0 +1,131 @@
+{
+ "Antiquity": [
+  "고대",
+  "고대 시대"
+ ],
+ "Autosaves": [
+  "자동 저장"
+ ],
+ "Basics": [
+  "기본"
+ ],
+ "Building": [
+  "건물"
+ ],
+ "Buildings": [
+  "건물"
+ ],
+ "City": [
+  "도시"
+ ],
+ "City Center": [
+  "도심부"
+ ],
+ "Civilopedia": [
+  "문명 백과사전"
+ ],
+ "Coast": [
+  "해안"
+ ],
+ "District": [
+  "특수지구"
+ ],
+ "Embark": [
+  "승선"
+ ],
+ "Engineering": [
+  "공학"
+ ],
+ "Exploration": [
+  "대항해시대",
+  "대항해"
+ ],
+ "Fishing Boat": [
+  "어선"
+ ],
+ "Flat": [
+  "평지"
+ ],
+ "Food": [
+  "식량"
+ ],
+ "Gold": [
+  "금"
+ ],
+ "Ice": [
+  "빙하"
+ ],
+ "Improvement": [
+  "시설"
+ ],
+ "Improvements": [
+  "시설"
+ ],
+ "Industrialization": [
+  "산업화"
+ ],
+ "Lake": [
+  "호수"
+ ],
+ "Modern": [
+  "근대",
+  "근대 시대"
+ ],
+ "Multiplayer": [
+  "멀티플레이"
+ ],
+ "Natural Wonder": [
+  "자연경관"
+ ],
+ "Navigable River": [
+  "깊은 강"
+ ],
+ "Ocean": [
+  "대양"
+ ],
+ "Placement": [
+  "배치"
+ ],
+ "Population": [
+  "인구"
+ ],
+ "Production": [
+  "생산력"
+ ],
+ "Production Queue": [
+  "생산 대기열"
+ ],
+ "Purchase": [
+  "구매"
+ ],
+ "Resource": [
+  "자원"
+ ],
+ "Resources": [
+  "자원"
+ ],
+ "River": [
+  "강"
+ ],
+ "Sea": [
+  "바다"
+ ],
+ "Settlement": [
+  "정착지"
+ ],
+ "Settlements": [
+  "정착지"
+ ],
+ "Shipbuilding": [
+  "조선"
+ ],
+ "Thera": [
+  "테라"
+ ],
+ "Town": [
+  "마을"
+ ],
+ "Yields": [
+  "생산량"
+ ]
+}

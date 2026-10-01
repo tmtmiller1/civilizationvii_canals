@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Civilopedia: a Canals group in the base game's Game Concepts section, beside the three Canal building pages the
+  Buildings section already generates. Chapter text resolves by key convention (base-standard model-civilopedia.js):
+  LOC_PEDIA_CONCEPTS_PAGE_<page>_CHAPTER_<chapter>_TITLE and ..._PARA_1, _PARA_2, ... until the first gap; the text is
+  in text/en_us/CanalsText.xml. Layouts come first: pages and layout chapters have a foreign key onto them.
+  The canal-site marker needs no exclude: the base game lists no removable features in the Civilopedia.
+-->
+<Database>
+    <CivilopediaPageGroups>
+        <Row SectionID="CONCEPTS" PageGroupID="CANALS" Name="LOC_PEDIA_CANALS_TITLE" SortIndex="920"/>
+    </CivilopediaPageGroups>
+
+    <CivilopediaPageLayouts>
+        <Row PageLayoutID="CANALS_OVERVIEW" UseSidebar="false"/>
+        <Row PageLayoutID="CANALS_SITES" UseSidebar="false"/>
+        <Row PageLayoutID="CANALS_RUNS" UseSidebar="false"/>
+        <Row PageLayoutID="CANALS_SHIPPING" UseSidebar="false"/>
+    </CivilopediaPageLayouts>
+
+    <CivilopediaPageLayoutChapters>
+        <Row PageLayoutID="CANALS_OVERVIEW" ChapterID="CONTENT" SortIndex="10"/>
+        <Row PageLayoutID="CANALS_OVERVIEW" ChapterID="AGES" SortIndex="20"/>
+        <Row PageLayoutID="CANALS_OVERVIEW" ChapterID="BUILD" SortIndex="30"/>
+        <Row PageLayoutID="CANALS_OVERVIEW" ChapterID="OPEN" SortIndex="40"/>
+        <Row PageLayoutID="CANALS_OVERVIEW" ChapterID="AI" SortIndex="50"/>
+        <Row PageLayoutID="CANALS_OVERVIEW" ChapterID="MULTIPLAYER" SortIndex="60"/>
+        <Row PageLayoutID="CANALS_SITES" ChapterID="CONTENT" SortIndex="10"/>
+        <Row PageLayoutID="CANALS_SITES" ChapterID="RULES" SortIndex="20"/>
+        <Row PageLayoutID="CANALS_SITES" ChapterID="CENTER" SortIndex="30"/>
+        <Row PageLayoutID="CANALS_RUNS" ChapterID="CONTENT" SortIndex="10"/>
+        <Row PageLayoutID="CANALS_RUNS" ChapterID="AGES" SortIndex="20"/>
+        <Row PageLayoutID="CANALS_RUNS" ChapterID="BORDERS" SortIndex="30"/>
+        <Row PageLayoutID="CANALS_RUNS" ChapterID="LOCKS" SortIndex="40"/>
+        <Row PageLayoutID="CANALS_SHIPPING" ChapterID="CONTENT" SortIndex="10"/>
+        <Row PageLayoutID="CANALS_SHIPPING" ChapterID="LIMIT" SortIndex="20"/>
+        <Row PageLayoutID="CANALS_SHIPPING" ChapterID="YIELDS" SortIndex="30"/>
+    </CivilopediaPageLayoutChapters>
+
+    <CivilopediaPages>
+        <Row SectionID="CONCEPTS" PageID="CANALS_OVERVIEW" PageGroupID="CANALS" PageLayoutID="CANALS_OVERVIEW" Name="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_TITLE" SortIndex="10"/>
+        <Row SectionID="CONCEPTS" PageID="CANALS_SITES" PageGroupID="CANALS" PageLayoutID="CANALS_SITES" Name="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_TITLE" SortIndex="20"/>
+        <Row SectionID="CONCEPTS" PageID="CANALS_RUNS" PageGroupID="CANALS" PageLayoutID="CANALS_RUNS" Name="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_TITLE" SortIndex="30"/>
+        <Row SectionID="CONCEPTS" PageID="CANALS_SHIPPING" PageGroupID="CANALS" PageLayoutID="CANALS_SHIPPING" Name="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_TITLE" SortIndex="40"/>
+    </CivilopediaPages>
+
+    <CivilopediaPageSearchTerms>
+        <Row SectionID="CONCEPTS" PageID="CANALS_OVERVIEW" Term="LOC_PEDIA_CANALS_TERM_CANAL"/>
+        <Row SectionID="CONCEPTS" PageID="CANALS_SITES" Term="LOC_PEDIA_CANALS_TERM_ISTHMUS"/>
+        <Row SectionID="CONCEPTS" PageID="CANALS_RUNS" Term="LOC_PEDIA_CANALS_TERM_LOCK"/>
+    </CivilopediaPageSearchTerms>
+</Database>

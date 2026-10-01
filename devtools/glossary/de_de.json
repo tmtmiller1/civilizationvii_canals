@@ -1,0 +1,144 @@
+{
+ "Antiquity": [
+  "Antike",
+  "Antike|Antike|Antike|Antike|Antike"
+ ],
+ "Autosaves": [
+  "Automatisch gespeichert",
+  "Automatisch gespeicherte Spielstände"
+ ],
+ "Basics": [
+  "Grundlagen"
+ ],
+ "Building": [
+  "Gebäude"
+ ],
+ "Buildings": [
+  "Gebäude"
+ ],
+ "City": [
+  "Stadt"
+ ],
+ "City Center": [
+  "Stadtzentrum|Stadtzentrum|Stadtzentrum|Stadtzentrums|Stadtzentrum"
+ ],
+ "Civilopedia": [
+  "Zivilopädie"
+ ],
+ "Coast": [
+  "Küste",
+  "KÜSTE"
+ ],
+ "District": [
+  "Bezirk",
+  "Bezirk|Bezirk|Bezirk|Bezirks|Bezirk"
+ ],
+ "Embark": [
+  "Wassern"
+ ],
+ "Engineering": [
+  "Maschinenbau|Maschinenbau|Maschinenbau|Maschinenbaus|Maschinenbau"
+ ],
+ "Exploration": [
+  "Erkundung",
+  "Erkundung|Erkundung|Erkundung|Erkundung|Erkundung"
+ ],
+ "Fishing Boat": [
+  "Fischerboot|Fischerboot|Fischerboot|Fischerboots|Fischerboot"
+ ],
+ "Flat": [
+  "Ebenes Gelände|Ebene Gelände|Ebenen Gelände|Ebenen Geländes|Ebene Gelände"
+ ],
+ "Food": [
+  "Nahrung",
+  "Nahrung|Nahrung|Nahrung|Nahrung|Nahrung"
+ ],
+ "Gold": [
+  "Gold",
+  "Gold|Gold|Gold|Gold|Gold",
+  "Gold|Gold|Gold|Goldes|Gold"
+ ],
+ "Ice": [
+  "Eis|Eis|Eis|Eises|Eis"
+ ],
+ "Improvement": [
+  "Modernisierung"
+ ],
+ "Improvements": [
+  "Modernisierungen"
+ ],
+ "Industrialization": [
+  "Industrialisierung|Industrialisierung|Industrialisierung|Industrialisierung|Industrialisierung"
+ ],
+ "Lake": [
+  "See",
+  "SEE"
+ ],
+ "Modern": [
+  "Moderne",
+  "Moderne|Moderne|Moderne|Moderne|Moderne"
+ ],
+ "Multiplayer": [
+  "MULTIPLAYER",
+  "Multiplayer"
+ ],
+ "Natural Wonder": [
+  "Naturwunder"
+ ],
+ "Navigable River": [
+  "Schiffbarer Fluss|Schiffbaren Fluss|Schiffbaren Fluss|Schiffbaren Flusses|Schiffbare Fluss",
+  "Schiffbarer Fluss"
+ ],
+ "Ocean": [
+  "Ozean",
+  "Meer"
+ ],
+ "Placement": [
+  "Platzierung"
+ ],
+ "Population": [
+  "Bevölkerung"
+ ],
+ "Production": [
+  "Produktion",
+  "Produktion|Produktion|Produktion|Produktion|Produktion"
+ ],
+ "Production Queue": [
+  "Produktionsliste"
+ ],
+ "Purchase": [
+  "Kauf"
+ ],
+ "Resource": [
+  "Ressource"
+ ],
+ "Resources": [
+  "Ressourcen",
+  "RESSOURCEN"
+ ],
+ "River": [
+  "Fluss"
+ ],
+ "Sea": [
+  "Meer"
+ ],
+ "Settlement": [
+  "Siedlung"
+ ],
+ "Settlements": [
+  "Siedlungen"
+ ],
+ "Shipbuilding": [
+  "Schiffsbau|Schiffsbau|Schiffsbau|Schiffsbaus|Schiffsbau"
+ ],
+ "Thera": [
+  "Thera",
+  "Thera|Thera|Thera|Theras|Thera"
+ ],
+ "Town": [
+  "Gemeinde"
+ ],
+ "Yields": [
+  "Erträge"
+ ]
+}

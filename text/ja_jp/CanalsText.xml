@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+    <LocalizedText>
+        <Replace Tag="LOC_CANALS_MOD_NAME" Language="ja_JP"><Text>運河</Text></Replace>
+        <Replace Tag="LOC_CANALS_MOD_DESCRIPTION" Language="ja_JP"><Text>各時代に運河の建造物を追加します。2つの水域を隔てる陸地タイルに建設すると、完成時にそのタイルは岸壁のある沿岸タイルになり、船が通り抜けられるようになります。工学、造船、工業化でアンロック。シングルプレイヤー専用。</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_ANTIQUITY_NAME" Language="ja_JP"><Text>古代運河</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_EXPLORATION_NAME" Language="ja_JP"><Text>中世運河</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_MODERN_NAME" Language="ja_JP"><Text>近代運河</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_DESCRIPTION" Language="ja_JP"><Text>狭い陸地を切り開いて船の通り道を作る。2つの水域を隔てる陸地タイルにのみ建設できる。完成するとそのタイルは岸壁のある沿岸タイルになり、船が通り抜けられるようになる。</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_TOOLTIP" Language="ja_JP"><Text>完成すると、2つの水域の間にある陸地タイルを航行可能な水路に変える。</Text></Replace>
+        <Replace Tag="LOC_CANAL_NOT_ISTHMUS" Language="ja_JP"><Text>運河は2つの水域を隔てる陸地タイルに建設する必要がある。</Text></Replace>
+        <Replace Tag="LOC_FEATURE_CANALS_SITE_NAME" Language="ja_JP"><Text>運河建設地</Text></Replace>
+        <Replace Tag="LOC_FEATURE_CANALS_SITE_TOOLTIP" Language="ja_JP"><Text>運河を掘ることができる細長い陸地。下にある土地と同じ産出をもたらす。</Text></Replace>
+        <Replace Tag="LOC_CANAL_RESOURCE" Language="ja_JP"><Text>資源のあるタイルには運河を掘れない。</Text></Replace>
+        <Replace Tag="LOC_CANAL_PARKLAND" Language="ja_JP"><Text>国立公園には運河を掘れない。</Text></Replace>
+        <Replace Tag="LOC_CANAL_TILE_TAKEN" Language="ja_JP"><Text>運河の上には他に何も建設できない。</Text></Replace>
+        <Replace Tag="LOC_CANAL_MULTIPLAYER" Language="ja_JP"><Text>マルチプレイヤーゲームでは運河を掘れない。</Text></Replace>
+        <Replace Tag="LOC_CANALS_NOTICE_MULTIPLAYER" Language="ja_JP"><Text>「運河」はシングルプレイヤーゲーム用のMODです。[N][N]運河を掘ると陸地のタイルが水域に変わりますが、マルチプレイヤーゲームではこの変化が他のプレイヤーのゲームに反映されないため、このゲームでは運河を建設できません。</Text></Replace>
+        <Replace Tag="LOC_CANALS_NOTICE_OLD_SAVE" Language="ja_JP"><Text>このセーブデータは以前のバージョンの「運河」で作成されました。そのバージョンでは運河を通常の水域として保存していたため、今回は外海として描かれます。運河としての機能は変わりません。[N][N]運河として描き直すには、ゲームを一度セーブしてロードする必要があります。「今すぐ再読み込み」を押すと、このターンのオートセーブを書き出して読み込みます。[N][N]そうしない場合は、次にセーブしてロードした後に正しく表示されます。</Text></Replace>
+        <Replace Tag="LOC_CANALS_RELOAD_NOW" Language="ja_JP"><Text>今すぐ再読み込み</Text></Replace>
+        <Replace Tag="LOC_CANALS_RELOAD_LATER" Language="ja_JP"><Text>後で</Text></Replace>
+        <Replace Tag="LOC_CANALS_NOTICE_SOLD_BY_MOD" Language="ja_JP"><Text>{2_Tech}の研究後に「運河」がこのゲームに追加されたため、この時代の終わりまで{1_Canal}はロックされたままになります。[N][N]代わりに、生産力で建設するのではなく、各居住地の購入リストでゴールドを使って購入できます。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CANALS_TITLE" Language="ja_JP"><Text>運河</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CANALS_TERM_CANAL" Language="ja_JP"><Text>運河</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CANALS_TERM_ISTHMUS" Language="ja_JP"><Text>地峡</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CANALS_TERM_LOCK" Language="ja_JP"><Text>閘門</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_TITLE" Language="ja_JP"><Text>運河</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_TITLE" Language="ja_JP"><Text>基本</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_PARA_1" Language="ja_JP"><Text>運河は、2つの水域の間にある細長い陸地を切り開いて船の通り道を作る建造物です。完成するとそのタイルは水域になり、船は迂回せずにまっすぐ通り抜けられます。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_PARA_2" Language="ja_JP"><Text>運河は2つの海、湖と海、河川と海、または同じ河川の2つの区間をつなぐことができます。時代ごとに専用の運河があり、[TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]居住地[/TIP]は建設地がある分だけ運河を建設できます。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_AGES_TITLE" Language="ja_JP"><Text>時代ごとの運河</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_AGES_PARA_1" Language="ja_JP"><Text>[BLIST][LI][B]古代運河[/B]（古代）: 工学でアンロック。コストは [icon:YIELD_PRODUCTION] 生産力300。[icon:YIELD_FOOD] 食料+2、[icon:YIELD_GOLD] ゴールド+2。長さは1タイルです。[LI][B]中世運河[/B]（探検の時代）: 造船でアンロック。コストは [icon:YIELD_PRODUCTION] 生産力500。[icon:YIELD_FOOD] 食料+3、[icon:YIELD_GOLD] ゴールド+4。直線で2タイルまでの長さにできます。[LI][B]近代運河[/B]（近代）: 工業化でアンロック。コストは [icon:YIELD_PRODUCTION] 生産力800。[icon:YIELD_FOOD] 食料+4、[icon:YIELD_GOLD] ゴールド+6。5タイルまでの長さにでき、曲げたり枝分かれさせたりできます。[/LIST]</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_TITLE" Language="ja_JP"><Text>運河の建設</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_PARA_1" Language="ja_JP"><Text>都市の生産リストから運河を選ぶか、都市または町の購入リストで [icon:YIELD_GOLD] ゴールドを使って購入します。配置画面には運河を掘れるタイルだけが表示されます（「運河建設地」を参照）。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_PARA_2" Language="ja_JP"><Text>選んだタイルは建設中の運河がある市街区域になり、そこにあった郊外の施設は撤去されます。他の建造物と同様に、運河は住民を1人必要とします。[icon:YIELD_GOLD] ゴールドで購入した運河はすぐに開通します。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_OPEN_TITLE" Language="ja_JP"><Text>開通すると</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_OPEN_PARA_1" Language="ja_JP"><Text>タイルは沿岸タイルになり、以後は水域のままです。船はその同じターンからこのタイルを通る経路を取れます。運河は陸地を貫く水路として描かれ、両岸にはその時代の様式の岸壁と建物が並び、外の水域とつながる場所には船が係留されています。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_OPEN_PARA_2" Language="ja_JP"><Text>運河の住民は完成した運河に移って漁場タイルとして開発し、運河の建造物は産出とともにタイルに残ります。都市がそこに住民を配置できない場合は、プレイヤーがその住民を割り当てます。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_AI_TITLE" Language="ja_JP"><Text>他の文明</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_AI_PARA_1" Language="ja_JP"><Text>AIプレイヤーは、自国の土地のうち運河を掘る価値がある場所に、生産力または [icon:YIELD_GOLD] ゴールドで運河を建設します。価値がある場所とは、船の航行距離を6タイル以上短縮できる場所か、10タイル以上の湖や海への道を開く場所です。AIのユニットも、プレイヤーと同じように自国の運河を通り抜けます。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_MULTIPLAYER_TITLE" Language="ja_JP"><Text>マルチプレイヤー</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_MULTIPLAYER_PARA_1" Language="ja_JP"><Text>マルチプレイヤーゲームでは運河を建設できません。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_TITLE" Language="ja_JP"><Text>運河建設地</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CONTENT_TITLE" Language="ja_JP"><Text>基本</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CONTENT_PARA_1" Language="ja_JP"><Text>運河を建設できるのは、船が通り道として使えるタイル、つまり別々の2つの側に水域がある細長い陸地だけです。水域がすべて片側にある岬は対象になりません。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_TITLE" Language="ja_JP"><Text>条件</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_PARA_1" Language="ja_JP"><Text>[BLIST][LI][TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]居住地[/TIP]が所有する平地または丘陵の土地で、その居住地が建造物を配置できる範囲内にあること。[LI]タイルの別々の2つ以上の側に水域があること。海、湖、航行可能な河川はどの組み合わせでもよく、両側が同じ海でもかまいません。[LI]氷や、テーラのように海中にある自然遺産は水域として扱われません。[LI]航行可能な河川のタイルではないこと。[LI]タイルに市街区域がないこと。郊外の施設はあってもよく、運河を配置すると撤去されます。[LI]タイルにユニットがいないこと。[LI]タイルに資源がないこと。[LI]完成済みか建設中かを問わず、すでに運河になっていないこと。[/LIST]</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_TITLE" Language="ja_JP"><Text>居住地の中心</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_PARA_1" Language="ja_JP"><Text>タイルに隣接する都心または町の中心は、2つの側のうちの1つとして数えられます。そのため、居住地は中心から海や河川へ運河を掘ることができます。中心は周囲の水域とは別に単独で数えられるため、居住地が隣にあることで細長い陸地が対象外になることはありません。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_TITLE" Language="ja_JP"><Text>長い運河</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_CONTENT_TITLE" Language="ja_JP"><Text>基本</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_CONTENT_PARA_1" Language="ja_JP"><Text>探検の時代以降は、運河を1タイルより長くできます。既存の運河や建設中の運河に隣接するタイルは、現在の時代で可能な場合、その運河の次のタイルとして提示されます。運河のすべてのタイルが完成すると、船が通れるようになります。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_CONTENT_PARA_2" Language="ja_JP"><Text>運河の水域だけで隣接するタイルが建設地になることはありません。運河の隣のタイルは、その運河の一部としてのみ提示されます。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_AGES_TITLE" Language="ja_JP"><Text>時代ごとの長さ</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_AGES_PARA_1" Language="ja_JP"><Text>[BLIST][LI][B]古代:[/B] 1タイル。[LI][B]探検の時代:[/B] 直線で2タイルまで。曲げたり枝分かれさせたりはできません。[LI][B]近代:[/B] 5タイルまで。すべてのタイルが運河を通じて外の水域につながっていれば、曲げたり枝分かれさせたりできます。[/LIST]</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_BORDERS_TITLE" Language="ja_JP"><Text>居住地をまたぐ運河</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_BORDERS_PARA_1" Language="ja_JP"><Text>運河は、ある[TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]居住地[/TIP]の土地から別の居住地の土地へと延ばすことができます。各タイルはそれを所有する居住地が建設または購入し、それらのタイルが合わさって1本の水路になります。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_LOCKS_TITLE" Language="ja_JP"><Text>崖と閘門</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_LOCKS_PARA_1" Language="ja_JP"><Text>縁に崖があるタイルにも運河を掘ることができ、開通後は船がそのタイルのどの縁でも越えられます。水路が崖のある岸に接する場所では、運河は閘門付きで描かれます。閘門は、門扉のある石造りの閘室、門番小屋、水車からなります。閘門は移動に影響しません。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_TITLE" Language="ja_JP"><Text>船舶と産出</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_CONTENT_TITLE" Language="ja_JP"><Text>通航</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_CONTENT_PARA_1" Language="ja_JP"><Text>海洋ユニットと乗船しているユニットは、運河が開通したターンから、運河がつなぐ水域の間を運河を通って移動できます。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_LIMIT_TITLE" Language="ja_JP"><Text>通航制限</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_LIMIT_PARA_1" Language="ja_JP"><Text>古い運河は、1ターンに自分の船を少数しか通せません。[BLIST][LI][B]古代運河:[/B] 1ターンに1隻。[LI][B]中世運河:[/B] 1ターンに2隻。[LI][B]近代運河:[/B] 制限なし。[/LIST]</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_LIMIT_PARA_2" Language="ja_JP"><Text>そのターンの上限に達した運河を経路に含む移動は実行されません。すでに運河内にいる船は数に含まれず、数は毎ターンリセットされます。この制限はプレイヤー自身の移動命令にのみ適用されます。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_TITLE" Language="ja_JP"><Text>産出</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_1" Language="ja_JP"><Text>完成した運河はその都市の水域タイルで、漁場タイルとして開発されます。運河の建造物は、運河が掘られた時代に応じて産出を追加します。古代運河は [icon:YIELD_FOOD] 食料+2と [icon:YIELD_GOLD] ゴールド+2、中世運河は [icon:YIELD_FOOD] 食料+3と [icon:YIELD_GOLD] ゴールド+4、近代運河は [icon:YIELD_FOOD] 食料+4と [icon:YIELD_GOLD] ゴールド+6です。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_2" Language="ja_JP"><Text>代償となるのは、[icon:YIELD_PRODUCTION] 生産力または [icon:YIELD_GOLD] ゴールド、陸地タイル、そしてそこにあった郊外の施設です。</Text></Replace>
+    </LocalizedText>
+</Database>

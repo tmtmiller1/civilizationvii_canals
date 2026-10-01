@@ -14,7 +14,7 @@
         <Authors>Tower</Authors>
         <Package>Canals</Package>
         <PackageSortIndex>100</PackageSortIndex>
-        <Version>1.2.2</Version>
+        <Version>1.3.0</Version>
         <AffectsSavedGames>0</AffectsSavedGames>
     </Properties>
     <Dependencies>
@@ -29,7 +29,20 @@
     <ActionGroups>
         <ActionGroup id="canals-shell" scope="shell" criteria="always">
             <Actions>
-                <UpdateText><Item>text/en_us/CanalsText.xml</Item></UpdateText>
+                <UpdateText>
+                    <Item>text/en_us/CanalsText.xml</Item>
+                    <Item locale="de_DE">text/de_de/CanalsText.xml</Item>
+                    <Item locale="es_ES">text/es_es/CanalsText.xml</Item>
+                    <Item locale="fr_FR">text/fr_fr/CanalsText.xml</Item>
+                    <Item locale="it_IT">text/it_it/CanalsText.xml</Item>
+                    <Item locale="ja_JP">text/ja_jp/CanalsText.xml</Item>
+                    <Item locale="ko_KR">text/ko_kr/CanalsText.xml</Item>
+                    <Item locale="pl_PL">text/pl_pl/CanalsText.xml</Item>
+                    <Item locale="pt_BR">text/pt_br/CanalsText.xml</Item>
+                    <Item locale="ru_RU">text/ru_ru/CanalsText.xml</Item>
+                    <Item locale="zh_Hans_CN">text/zh_cn/CanalsText.xml</Item>
+                    <Item locale="zh_Hant_HK">text/zh_hk/CanalsText.xml</Item>
+                </UpdateText>
                 <UIScripts><Item>ui/canals-shell.js</Item></UIScripts>
             </Actions>
         </ActionGroup>
@@ -41,8 +54,22 @@
                     <Item>data/canals-sites.xml</Item>
                     <Item>data/canals-sites.sql</Item>
                     <Item>data/canals-ai.xml</Item>
+                    <Item>data/canals-civilopedia.xml</Item>
                 </UpdateDatabase>
-                <UpdateText><Item>text/en_us/CanalsText.xml</Item></UpdateText>
+                <UpdateText>
+                    <Item>text/en_us/CanalsText.xml</Item>
+                    <Item locale="de_DE">text/de_de/CanalsText.xml</Item>
+                    <Item locale="es_ES">text/es_es/CanalsText.xml</Item>
+                    <Item locale="fr_FR">text/fr_fr/CanalsText.xml</Item>
+                    <Item locale="it_IT">text/it_it/CanalsText.xml</Item>
+                    <Item locale="ja_JP">text/ja_jp/CanalsText.xml</Item>
+                    <Item locale="ko_KR">text/ko_kr/CanalsText.xml</Item>
+                    <Item locale="pl_PL">text/pl_pl/CanalsText.xml</Item>
+                    <Item locale="pt_BR">text/pt_br/CanalsText.xml</Item>
+                    <Item locale="ru_RU">text/ru_ru/CanalsText.xml</Item>
+                    <Item locale="zh_Hans_CN">text/zh_cn/CanalsText.xml</Item>
+                    <Item locale="zh_Hant_HK">text/zh_hk/CanalsText.xml</Item>
+                </UpdateText>
                 <ImportFiles>
                     <Item>icons/building_canal_ancient_256.png</Item>
                     <Item>icons/building_canal_ancient_128.png</Item>
