@@ -867,7 +867,8 @@ const CANAL_OF_AGE = { AGE_ANTIQUITY: "BUILDING_CANAL_ANTIQUITY", AGE_EXPLORATIO
 /**
  * Rebuild any opened canal's district that belongs to no city (every AI canal made by 1.2.1 or earlier): take it
  * off, give the plot back to its city (removing a district releases the plot), and settle the tile again with the
- * city as Parent. Only on a Coast tile, between saves; a save that starts mid-way waits on state.busy.
+ * city as Parent. Only on a Coast tile, between saves; a save that starts mid-way waits on state.busy. Then any other
+ * urban or rural district without a city, with its buildings (healDistrict).
  */
 async function repairCitylessDistricts() {
   if (!state.enabled || state.multiplayer || state.saving || state.loading || state.hold || state.repairing) return;
@@ -880,22 +881,79 @@ async function repairCitylessDistricts() {
       state.busy.add(e.plot);
       try { await repairCanalTile(loc, e.age); } finally { state.busy.delete(e.plot); }
     }
-    // A Canal ordered on a tile without an urban district got one made for it (districtThenBuild), which 1.2.1 and
-    // earlier made without a city too; it stands on land for the whole build, and for good if the build is dropped.
+    // Any other district without a city. A Canal ordered on a tile without an urban district got one made for it
+    // (districtThenBuild), which 1.2.1 and earlier made without a city too; a build that never finished left it on
+    // the land for good, off the pending list, and buildings later put there gave the city nothing (a player's save,
+    // 2026-10-01). Pending tiles are read at every sweep. The rest of the map is read until one whole pass has gone
+    // through cleanly, then never again for this game: from 1.2.2 the mod makes no district without a city, so only a
+    // game begun with an older Canals has any, and the pass is recorded in the game (a save carries it).
+    const open = new Set(loadOpen().map((e) => e.plot));
+    const heal = async (plot) => {
+      if (open.has(plot) || state.busy.has(plot)) return true;
+      const loc = locOf(plot);
+      if (!HEALED_DISTRICTS.includes(districtAt(loc))) return true;
+      const h = districtHolder(loc);
+      if (!h || h.city) return true;
+      state.busy.add(plot);
+      try { return await healDistrict(loc); } finally { state.busy.delete(plot); }
+    };
     for (const plot of loadPending()) {
       if (state.saving || state.hold) return;
-      const loc = locOf(plot); const h = districtHolder(loc);
-      if (!h || h.city || state.busy.has(plot)) continue;
-      state.busy.add(plot);
-      try { await repairPendingTile(loc); } finally { state.busy.delete(plot); }
+      await heal(plot);
+    }
+    if (mapChecked()) return;
+    const W = safe(() => GameplayMap.getGridWidth(), 0), H = safe(() => GameplayMap.getGridHeight(), 0);
+    let clean = W * H > 0;
+    for (let plot = 0; plot < W * H; plot++) {
+      if (state.saving || state.hold) return; // cut short: the next sweep reads the map again
+      if (!(await heal(plot))) clean = false;
+    }
+    if (clean) {
+      safe(() => Configuration.editGame().setValue(CHECKED_KEY, "1"));
+      log("districts without a city: map checked, none left; not read again in this game");
     }
   } finally { state.repairing = false; }
 }
-async function repairPendingTile(loc) {
+const CHECKED_KEY = "Canals_DistrictsChecked_v1";
+/** The whole map has been read once for districts without a city, in this game. */
+function mapChecked() { return safe(() => String(Configuration.getGame().getValue(CHECKED_KEY)) === "1", false); }
+// Districts a script can leave without a city on a canal site. A city centre or a wonder district is never touched.
+const HEALED_DISTRICTS = ["DISTRICT_URBAN", "DISTRICT_RURAL"];
+/**
+ * Give a district without a city to the city that owns its tile, with what stands on it. A district cannot be moved
+ * to a city: a second CREATE_ELEMENT naming the Parent changes nothing, and the district has no setter (watched,
+ * hl2). Taking the district off removes its buildings and releases the plot, so the plot is bought back for the city,
+ * the district made again with the city as Parent, and every finished building and improvement made again on it:
+ * they come back finished, held by the city, and their yields reach it (hl2: a Bank, a Kiln and Medieval Walls).
+ * Anything still under construction there is not kept.
+ */
+async function healDistrict(loc) {
   const ownerOf = () => safe(() => GameplayMap.getOwner(loc.x, loc.y), -1);
   const owner = ownerOf(); const city = owningCity(loc); const type = districtAt(loc);
-  if (!(await destroyDistrict(loc))) { log(`site at ${loc.x},${loc.y}: district without a city COULD NOT be removed`); return; }
-  if (!city || owner < 0) { log(`site at ${loc.x},${loc.y}: district without a city removed; no city owns the tile`); return; }
+  const at = `${loc.x},${loc.y}`;
+  // Only a major's tile held by one of its own cities: a Canal is built by majors alone, and an Independent Power
+  // holds land with no city a script can see (see engine-closed.md).
+  const major = owner >= 0 && safe(() => Players.get(owner).isMajor, false);
+  if (!major) return true;
+  if (!city || safe(() => Cities.get(city).owner, -1) !== owner) {
+    if (!state.told.has("heal " + at)) { state.told.add("heal " + at); log(`${type} at ${at} belongs to no city and none of its owner's cities holds the tile; left as it is`); }
+    return true;
+  }
+  const built = occupants(loc);
+  // Newest age first: a building of this age put on a tile holding an older one of its kind replaces it (a player's
+  // save, pv4: an Ironworks placed after the Stonecutter took its place; placed before it, both stood).
+  const keep = built.filter((o) => o.complete).map((o) => o.type).sort((a, b) => ageRank(b) - ageRank(a));
+  const dropped = built.filter((o) => !o.complete).map((o) => o.type);
+  // The city builds on such a district (its lists offer the tile), but what it finishes there lands unfinished and
+  // without a city, and the queue stalls on it at 100 % (hl5 control). The rebuild drops the queued item (hl5), so
+  // the player's own orders for this tile are sent again once it is healed; an AI's city refuses a script's BUILD,
+  // and its AI chooses again.
+  // A building left unfinished there is ordered again too, at the end of the queue, if the city takes the order: put
+  // back finished it would be a gift, and left on the map it never finishes (pv1: a Grocer).
+  const mine = owner === GameContext.localPlayerID;
+  const queued = mine ? queuedHere(city, loc) : [];
+  if (mine) for (const t of dropped) if (!queued.some((q) => q.type === t)) queued.push({ type: t, at: -1 });
+  if (!(await destroyDistrict(loc))) { log(`${type} at ${at} without a city COULD NOT be removed`); return false; }
   if (ownerOf() !== owner) {
     safe(() => Cities.get(city).purchasePlot({ x: loc.x, y: loc.y }));
     for (let i = 0; i < 40 && ownerOf() !== owner; i++) await sleep(100);
@@ -904,9 +962,75 @@ async function repairPendingTile(loc) {
     { Kind: "DISTRICT", Type: type, Location: { x: loc.x, y: loc.y }, Parent: city, Owner: owner }));
   for (let i = 0; i < 30 && districtAt(loc) === ""; i++) await sleep(100);
   const after = districtHolder(loc);
-  if (after && !after.city) await destroyDistrict(loc);
-  log(`site at ${loc.x},${loc.y}: district without a city rebuilt as ${type}: ` +
-    `${after ? (after.city ? "held by its city" : "STILL NO CITY, removed") : "did not land"}`);
+  if (!after || !after.city) {
+    if (after) await destroyDistrict(loc);
+    log(`${type} at ${at} rebuilt for its city: ${after ? "STILL NO CITY, removed" : "did not land"}; lost ${keep.join(",") || "nothing"}`);
+    return false;
+  }
+  const place = async (types) => {
+    for (const t of types) {
+      safe(() => Game.PlayerOperations.sendRequest(GameContext.localPlayerID, "CREATE_ELEMENT",
+        { Kind: "CONSTRUCTIBLE", Type: t, Location: { x: loc.x, y: loc.y }, Owner: owner }));
+      await sleep(300);
+    }
+    for (let i = 0; i < 30 && occupants(loc).length < keep.length; i++) await sleep(100);
+  };
+  await place(keep);
+  const missing = () => keep.filter((t) => !occupants(loc).some((o) => o.type === t));
+  if (missing().length) await place(missing()); // once more, for any the engine had not yet taken
+  const back = occupants(loc).map((o) => o.type);
+  const lost = missing();
+  const requeued = [];
+  for (const q of queued) if (await requeue(city, loc, q)) requeued.push(q.type);
+  log(`${type} at ${at} without a city rebuilt for player ${owner}'s city: held by its city; ` +
+    `${back.join(",") || "nothing on it"}${lost.length ? `; NOT put back: ${lost.join(",")}` : ""}` +
+    `${dropped.length ? `; unfinished, not put back: ${dropped.join(",")}` : ""}` +
+    `${queued.length ? `; queued again: ${requeued.join(",") || "none"} of ${queued.map((q) => q.type).join(",")}` : ""}`);
+  return true;
+}
+const AGE_RANK = { AGE_ANTIQUITY: 1, AGE_EXPLORATION: 2, AGE_MODERN: 3 };
+/** A constructible's age as a number (0 for one of no age). */
+function ageRank(type) { return AGE_RANK[safe(() => String(GameInfo.Constructibles.lookup(type).Age), "")] || 0; }
+/** A city's queue items on a tile: type and place in the queue. */
+function queuedHere(city, loc) {
+  return safe(() => (Cities.get(city).BuildQueue.getQueue() || []).map((q, at) => ({ q, at }))
+    .filter(({ q }) => q.location && q.location.x === loc.x && q.location.y === loc.y && q.constructibleType != null)
+    .map(({ q, at }) => ({ at, type: String(GameInfo.Constructibles.lookup(q.constructibleType).ConstructibleType) })),
+  []);
+}
+/**
+ * One queued item of a healed tile, ordered again. The old entry still stands in the queue after the rebuild and is
+ * dropped unbuilt when its turn comes (hl5), and while it stands the engine takes no second order for the same
+ * building (hl5-heal4). So it is cancelled (the queue's own RemoveAt), ordered again on the tile once the engine
+ * takes the order (a district just made takes none for a moment, see districtThenBuild), and moved back to its
+ * place. Progress already put into it is not carried over.
+ */
+async function requeue(city, loc, q) {
+  const host = Game.CityOperations; const BUILD = CityOperationTypes.BUILD;
+  const ok = (args) => !!safe(() => host.canStart(city, BUILD, args, false).Success, false);
+  const send = (args) => ok(args) && (safe(() => host.sendRequest(city, BUILD, args)), true);
+  const has = () => queuedHere(city, loc).find((x) => x.type === q.type);
+  const stale = has();
+  if (stale) {
+    send({ InsertMode: CityOperationsParametersValues.RemoveAt, QueueLocation: stale.at });
+    for (let i = 0; i < 20 && has(); i++) await sleep(100);
+  }
+  const ctype = safe(() => GameInfo.Constructibles.lookup(q.type).$index, -1);
+  const order = { ConstructibleType: ctype, X: loc.x, Y: loc.y };
+  for (let i = 0; i < 60 && !ok(order); i++) await sleep(100);
+  if (!send(order)) {
+    const why = safe(() => host.canStart(city, BUILD, order, false).FailureReasons, null);
+    log(`${q.type} on ${loc.x},${loc.y} not ordered again: ${J(why) || "refused"}`);
+    return false;
+  }
+  for (let i = 0; i < 20 && !has(); i++) await sleep(100);
+  const now = has();
+  if (!now) return false;
+  const move = CityOperationsParametersValues.MoveTo;
+  if (q.at >= 0 && now.at !== q.at)
+    send({ InsertMode: move, QueueSourceLocation: now.at, QueueDestinationLocation: q.at });
+  await sleep(200);
+  return true;
 }
 async function repairCanalTile(loc, age) {
   const ownerOf = () => safe(() => GameplayMap.getOwner(loc.x, loc.y), -1);
@@ -1955,7 +2079,7 @@ function uninstall() {
 
 if (!G[KEY]) {
   G[KEY] = {
-    version: "1.3.0",
+    version: "1.3.1",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
     uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen,
