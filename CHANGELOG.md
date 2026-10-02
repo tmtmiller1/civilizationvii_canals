@@ -4,6 +4,26 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.3.1] - 2026-10-01
+
+- Repairs a tile left broken by an unfinished Canal. Before 1.2.2, ordering a Canal on a tile with no district made
+  an urban district there that belonged to no city. If the Canal never finished, that district stayed: it looked
+  like an empty urban quarter, and buildings put on it completed but were not drawn and gave their city nothing.
+  1.2.2 repaired only canals and Canal orders still in progress, so such a tile stayed broken.
+- This repairs games started with Canals 1.2.1 or earlier. Load such a save once with Canals 1.3.1 enabled: as it
+  loads, the mod reads the map once, and any urban or rural district on a major civilization's land that belongs to
+  no city is rebuilt for the city that owns the tile, with every finished building and improvement on it put back.
+  Save the game afterwards and the repair is kept; the map is not read again for that game. A game started with
+  1.2.2 or later has no such districts, and the check finds nothing.
+- The repaired buildings count for the city and are drawn, and they cost their upkeep like any of the city's
+  buildings, which can turn its happiness negative.
+- Your city's production orders for such a tile are kept: each is ordered again on the repaired tile in its old place
+  in the queue, and a building left unfinished there is ordered again at the end of the queue. Without this a
+  building finished there stayed without a city, and the queue could stall on it. Progress already put into an
+  order is not carried over.
+- The README lists a known limit: a canal cannot be pillaged, because the game never offers a raid on a water tile
+  that holds a building. A ship in an enemy canal can still Coastal Raid the tiles around it.
+
 ## [1.3.0] - 2026-10-01
 
 - A Canals group in the Civilopedia's Game Concepts section: what a Canal is and each age's Canal, which tiles
