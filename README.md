@@ -305,6 +305,9 @@ Known limits:
   until the next age: the mod sells it to you for gold, but the AI builds only what the game unlocks for it.
 - The AI builds a Canal only where its city could put a building: an urban tile, or a rural tile its urban core can
   grow onto. A marked site further out waits until the city grows toward it.
+- A canal cannot be pillaged. Ships pillage by Coastal Raid, and the game never offers a raid on a water tile that
+  holds a building; the Canal stays on the finished tile as one. A ship in an enemy canal can still Coastal Raid the
+  tiles around it, as from any coast.
 
 ## Layout
 

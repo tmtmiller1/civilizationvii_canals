@@ -33,6 +33,7 @@ const ENGINE_GLOBALS = {
   DirectionTypes: "readonly",
   PlacementMode: "readonly",
   CityOperationTypes: "readonly",
+  CityOperationsParametersValues: "readonly",
   CityCommandTypes: "readonly",
   CityQueryType: "readonly",
   ResourceTypes: "readonly",
