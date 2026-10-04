@@ -3,6 +3,10 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.4.1 | 2026-10-04 | src a3556e4055bd | gen 862f6652d91b ====
+[b]Version 1.4.1 · 4 October 2026[/b]
+• No change in game: the mod plays exactly as 1.4.0. Repository housekeeping only.
+
 ==== 1.4.0 | 2026-10-04 | src 01d62275f3e9 | gen da660ec53e81 ====
 [b]Version 1.4.0 · 4 October 2026[/b]
 • One-tile canals, an alternative set of rules chosen in Options, Add-ons, under Canals: Canal rules. “By age” is the mod as before and stays the default. “One-tile canals” replaces the three age Canals with a single Canal that is the same in every age: unlocked by Irrigation in Antiquity and needing no tech after that, 400 Production, +2 Food and +2 Gold, always one tile and never next to another canal, and no limit on how many ships pass it each turn. It is drawn in the style of the age being played, so a canal dug in Antiquity is redrawn as an Exploration canal, then a Modern one, as the game moves on.

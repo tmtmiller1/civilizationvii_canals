@@ -4,6 +4,10 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.4.1] - 2026-10-04
+
+- No change in game: the mod plays exactly as 1.4.0. Repository housekeeping only.
+
 ## [1.4.0] - 2026-10-04
 
 - One-tile canals, an alternative set of rules chosen in Options, Add-ons, under Canals: Canal rules. "By age" is the
