@@ -2207,7 +2207,7 @@ function uninstall() {
 
 if (!G[KEY]) {
   G[KEY] = {
-    version: "1.4.0",
+    version: "1.4.1",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
     uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen, localTurnActive,

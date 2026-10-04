@@ -15,7 +15,7 @@
         <Authors>Tower</Authors>
         <Package>Canals</Package>
         <PackageSortIndex>100</PackageSortIndex>
-        <Version>1.4.0</Version>
+        <Version>1.4.1</Version>
         <AffectsSavedGames>0</AffectsSavedGames>
     </Properties>
     <Dependencies>
