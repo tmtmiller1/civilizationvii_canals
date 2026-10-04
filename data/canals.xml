@@ -4,33 +4,42 @@
   watched to be unplaceable (engine-closed.md), and ui/canals.js restricts placement to isthmus tiles instead.
   Urban district only. No yields of its own: the quay that replaces it on completion carries the yields.
   Population 0 so no citizen is displaced when the tile turns to water.
+  BUILDING_CANAL_ONE_TILE is the Canal of the one-tile mode (Options > Add-ons > Canals): no Age, so it is the same
+  building in every age, with one cost and one yield; Irrigation unlocks it in Antiquity (data/canals-antiquity.xml),
+  and nothing is needed later. ui/canals.js offers it only in that mode, and the
+  three age Canals only outside it.
 -->
 <Database>
     <Types>
         <Row Type="BUILDING_CANAL_ANTIQUITY" Kind="KIND_CONSTRUCTIBLE"/>
         <Row Type="BUILDING_CANAL_EXPLORATION" Kind="KIND_CONSTRUCTIBLE"/>
         <Row Type="BUILDING_CANAL_MODERN" Kind="KIND_CONSTRUCTIBLE"/>
+        <Row Type="BUILDING_CANAL_ONE_TILE" Kind="KIND_CONSTRUCTIBLE"/>
     </Types>
     <Constructibles>
         <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" Name="LOC_BUILDING_CANAL_ANTIQUITY_NAME" Description="LOC_BUILDING_CANAL_DESCRIPTION" Tooltip="LOC_BUILDING_CANAL_TOOLTIP" ConstructibleClass="BUILDING" Cost="300" Population="1" Age="AGE_ANTIQUITY"/>
         <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" Name="LOC_BUILDING_CANAL_EXPLORATION_NAME" Description="LOC_BUILDING_CANAL_DESCRIPTION" Tooltip="LOC_BUILDING_CANAL_TOOLTIP" ConstructibleClass="BUILDING" Cost="500" Population="1" Age="AGE_EXPLORATION"/>
         <Row ConstructibleType="BUILDING_CANAL_MODERN" Name="LOC_BUILDING_CANAL_MODERN_NAME" Description="LOC_BUILDING_CANAL_DESCRIPTION" Tooltip="LOC_BUILDING_CANAL_TOOLTIP" ConstructibleClass="BUILDING" Cost="800" Population="1" Age="AGE_MODERN"/>
+        <Row ConstructibleType="BUILDING_CANAL_ONE_TILE" Name="LOC_BUILDING_CANAL_ONE_TILE_NAME" Description="LOC_BUILDING_CANAL_ONE_TILE_DESCRIPTION" Tooltip="LOC_BUILDING_CANAL_TOOLTIP" ConstructibleClass="BUILDING" Cost="400" Population="1"/>
     </Constructibles>
     <Buildings>
         <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" Movable="false" Town="true" MultiplePerCity="true"/>
         <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" Movable="false" Town="true" MultiplePerCity="true"/>
         <Row ConstructibleType="BUILDING_CANAL_MODERN" Movable="false" Town="true" MultiplePerCity="true"/>
+        <Row ConstructibleType="BUILDING_CANAL_ONE_TILE" Movable="false" Town="true" MultiplePerCity="true"/>
     </Buildings>
     <Constructible_ValidDistricts>
         <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" DistrictType="DISTRICT_URBAN"/>
         <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" DistrictType="DISTRICT_URBAN"/>
         <Row ConstructibleType="BUILDING_CANAL_MODERN" DistrictType="DISTRICT_URBAN"/>
+        <Row ConstructibleType="BUILDING_CANAL_ONE_TILE" DistrictType="DISTRICT_URBAN"/>
         <!-- The finished canal keeps its Canal building on a rural district (no housing block); see ui/canals.js. -->
         <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" DistrictType="DISTRICT_RURAL"/>
         <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" DistrictType="DISTRICT_RURAL"/>
         <Row ConstructibleType="BUILDING_CANAL_MODERN" DistrictType="DISTRICT_RURAL"/>
+        <Row ConstructibleType="BUILDING_CANAL_ONE_TILE" DistrictType="DISTRICT_RURAL"/>
     </Constructible_ValidDistricts>
-    <!-- Food and gold that grow with the age the canal was dug in. -->
+    <!-- Food and gold that grow with the age the canal was dug in; the one-tile Canal's are the same in every age. -->
     <Constructible_YieldChanges>
         <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" YieldType="YIELD_FOOD" YieldChange="2"/>
         <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" YieldType="YIELD_GOLD" YieldChange="2"/>
@@ -38,5 +47,7 @@
         <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" YieldType="YIELD_GOLD" YieldChange="4"/>
         <Row ConstructibleType="BUILDING_CANAL_MODERN" YieldType="YIELD_FOOD" YieldChange="4"/>
         <Row ConstructibleType="BUILDING_CANAL_MODERN" YieldType="YIELD_GOLD" YieldChange="6"/>
+        <Row ConstructibleType="BUILDING_CANAL_ONE_TILE" YieldType="YIELD_FOOD" YieldChange="2"/>
+        <Row ConstructibleType="BUILDING_CANAL_ONE_TILE" YieldType="YIELD_GOLD" YieldChange="2"/>
     </Constructible_YieldChanges>
 </Database>

@@ -2,7 +2,7 @@
 <Database>
     <LocalizedText>
         <Replace Tag="LOC_CANALS_MOD_NAME" Language="ja_JP"><Text>運河</Text></Replace>
-        <Replace Tag="LOC_CANALS_MOD_DESCRIPTION" Language="ja_JP"><Text>各時代に運河の建造物を追加します。2つの水域を隔てる陸地タイルに建設すると、完成時にそのタイルは岸壁のある沿岸タイルになり、船が通り抜けられるようになります。工学、造船、工業化でアンロック。シングルプレイヤー専用。</Text></Replace>
+        <Replace Tag="LOC_CANALS_MOD_DESCRIPTION" Language="ja_JP"><Text>各時代に運河の建造物を追加します。2つの水域を隔てる陸地タイルに建設すると、完成時にそのタイルは岸壁のある沿岸タイルになり、船が通り抜けられるようになります。工学、造船、工業化でアンロック。オプションの「追加コンテンツ」で、代わりに1タイル運河に切り替えられます。全時代共通の運河1種類で、古代は灌漑でアンロックされ、船の通行制限はありません。シングルプレイヤー専用。</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_ANTIQUITY_NAME" Language="ja_JP"><Text>古代運河</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_EXPLORATION_NAME" Language="ja_JP"><Text>中世運河</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_MODERN_NAME" Language="ja_JP"><Text>近代運河</Text></Replace>
@@ -66,5 +66,15 @@
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_TITLE" Language="ja_JP"><Text>産出</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_1" Language="ja_JP"><Text>完成した運河はその都市の水域タイルで、漁場タイルとして開発されます。運河の建造物は、運河が掘られた時代に応じて産出を追加します。古代運河は [icon:YIELD_FOOD] 食料+2と [icon:YIELD_GOLD] ゴールド+2、中世運河は [icon:YIELD_FOOD] 食料+3と [icon:YIELD_GOLD] ゴールド+4、近代運河は [icon:YIELD_FOOD] 食料+4と [icon:YIELD_GOLD] ゴールド+6です。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_2" Language="ja_JP"><Text>代償となるのは、[icon:YIELD_PRODUCTION] 生産力または [icon:YIELD_GOLD] ゴールド、陸地タイル、そしてそこにあった郊外の施設です。</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_ONE_TILE_NAME" Language="ja_JP"><Text>運河</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_ONE_TILE_DESCRIPTION" Language="ja_JP"><Text>狭い陸地を貫いて船の水路を開きます。2つの水域を隔てる陸地タイルにのみ建設でき、他の運河の隣には建設できません。完成するとタイルは水域になり、すべての船が通り抜けられます。1ターンに通れる数に制限はありません。全時代共通の建造物です。</Text></Replace>
+        <Replace Tag="LOC_OPTIONS_GROUP_CANALS" Language="ja_JP"><Text>運河</Text></Replace>
+        <Replace Tag="LOC_CANALS_OPTION_MODE" Language="ja_JP"><Text>運河のルール</Text></Replace>
+        <Replace Tag="LOC_CANALS_OPTION_MODE_DESCRIPTION" Language="ja_JP"><Text>時代別: 時代ごとに技術でアンロックされる運河があり、時代が進むほど運河は長くなり、通れる船も増えます。1タイル運河: 全時代共通の運河1種類で、古代は灌漑でアンロック、以降の時代は技術不要、現在の時代の様式で描かれ、常に1タイルで、1ターンに何隻でも通れます。メインメニューで選ぶと新しいゲームに、ゲーム中に選ぶとそのゲームに適用されます。掘削済みの運河は元のルールのままです。</Text></Replace>
+        <Replace Tag="LOC_CANALS_OPTION_MODE_AGES" Language="ja_JP"><Text>時代別</Text></Replace>
+        <Replace Tag="LOC_CANALS_OPTION_MODE_ONE_TILE" Language="ja_JP"><Text>1タイル運河</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_ONE_TILE_TITLE" Language="ja_JP"><Text>1タイル運河</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_ONE_TILE_PARA_1" Language="ja_JP"><Text>オプションの「追加コンテンツ」にある運河のルールは、「時代別」から「1タイル運河」に切り替えられます。その場合、上の3つの運河は全時代共通の[B]運河[/B]1つに置き換わります。古代は灌漑でアンロックされ、以降の時代は技術が不要で、現在の時代の様式で描かれます。コストは [icon:YIELD_PRODUCTION] 生産力400。[icon:YIELD_FOOD] 食料+2、[icon:YIELD_GOLD] ゴールド+2。運河は常に1タイルで、他の運河の隣には建設できず、1ターンに何隻でも通れます。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_ONE_TILE_PARA_2" Language="ja_JP"><Text>メインメニューで選んだ場合は新しいゲームに、ゲーム中に選んだ場合はそのゲームにその時点から適用されます。掘削済みの運河は、掘削時のルールのままです。</Text></Replace>
     </LocalizedText>
 </Database>

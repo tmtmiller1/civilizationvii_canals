@@ -3,6 +3,7 @@
   Building icons for the three Canals, drawn by scripts/make-icons.mjs (sources in art/). The PNGs are imported by
   the modinfo's ImportFiles action and addressed as fs://game/<mod id>/<path>, extension included: without it the
   engine looks for a file with no extension and the icon is blank (watched, c38).
+  The one-tile Canal, the same in every age, shows the Ancient Canal's medallion.
   Loaded with <UpdateIcons>, never <UpdateDatabase>: IconDefinitions lives in the icon database.
 -->
 <Database>
@@ -16,5 +17,8 @@
         <Row><ID>BUILDING_CANAL_MODERN</ID><Path>fs://game/tower-canals/icons/building_canal_modern_256.png</Path></Row>
         <Row><ID>BUILDING_CANAL_MODERN</ID><IconSize>128</IconSize><Path>fs://game/tower-canals/icons/building_canal_modern_128.png</Path></Row>
         <Row><ID>BUILDING_CANAL_MODERN</ID><IconSize>64</IconSize><Path>fs://game/tower-canals/icons/building_canal_modern_64.png</Path></Row>
+        <Row><ID>BUILDING_CANAL_ONE_TILE</ID><Path>fs://game/tower-canals/icons/building_canal_ancient_256.png</Path></Row>
+        <Row><ID>BUILDING_CANAL_ONE_TILE</ID><IconSize>128</IconSize><Path>fs://game/tower-canals/icons/building_canal_ancient_128.png</Path></Row>
+        <Row><ID>BUILDING_CANAL_ONE_TILE</ID><IconSize>64</IconSize><Path>fs://game/tower-canals/icons/building_canal_ancient_64.png</Path></Row>
     </IconDefinitions>
 </Database>

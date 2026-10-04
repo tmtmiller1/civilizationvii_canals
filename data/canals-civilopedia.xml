@@ -21,6 +21,7 @@
     <CivilopediaPageLayoutChapters>
         <Row PageLayoutID="CANALS_OVERVIEW" ChapterID="CONTENT" SortIndex="10"/>
         <Row PageLayoutID="CANALS_OVERVIEW" ChapterID="AGES" SortIndex="20"/>
+        <Row PageLayoutID="CANALS_OVERVIEW" ChapterID="ONE_TILE" SortIndex="25"/>
         <Row PageLayoutID="CANALS_OVERVIEW" ChapterID="BUILD" SortIndex="30"/>
         <Row PageLayoutID="CANALS_OVERVIEW" ChapterID="OPEN" SortIndex="40"/>
         <Row PageLayoutID="CANALS_OVERVIEW" ChapterID="AI" SortIndex="50"/>

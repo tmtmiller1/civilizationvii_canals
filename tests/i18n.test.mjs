@@ -20,7 +20,8 @@ export const LANGUAGES = {
 
 /** Base-game keys the mod uses without defining. */
 const BASE_KEYS = new Set(["LOC_MODULE_BASE_STANDARD_NAME", "LOC_BUILDING_CONSTRUCT_NO_SUITABLE_LOCATION",
-  "LOC_CITY_PURCHASE_INSUFFICIENT_FUNDS", "LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP"]);
+  "LOC_CITY_PURCHASE_INSUFFICIENT_FUNDS", "LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP",
+  "LOC_UI_CONTENT_MGR_SUBTITLE", "LOC_UI_CONTENT_MGR_SUBTITLE_DESCRIPTION"]);
 
 /** tag -> text, for every Row (English) or Replace (translation) in the given files. */
 function textsIn(paths) {

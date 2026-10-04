@@ -17,5 +17,6 @@
         <Row ListType="Canals Site Priority" Item="BUILDING_CANAL_ANTIQUITY" Value="3000"/>
         <Row ListType="Canals Site Priority" Item="BUILDING_CANAL_EXPLORATION" Value="3000"/>
         <Row ListType="Canals Site Priority" Item="BUILDING_CANAL_MODERN" Value="3000"/>
+        <Row ListType="Canals Site Priority" Item="BUILDING_CANAL_ONE_TILE" Value="3000"/>
     </AiFavoredItems>
 </Database>

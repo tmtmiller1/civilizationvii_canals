@@ -21,21 +21,40 @@
 //      map is re-checked, so a missed event is caught on the next turn.
 //   Multiplayer: the terrain retype is a local call, not a networked operation, so in a network game the Canal is
 //   not offered and completed Canals are left as buildings.
+//   One-tile mode (Options > Add-ons, ui/canals-settings.js): an alternative to the age rules, not a replacement.
+//   The age Canals are not offered; one Canal with no age is (BUILDING_CANAL_ONE_TILE), unlocked by Irrigation in
+//   Antiquity and by nothing later, always a single tile, with no ship limit, the same cost and yields in every age,
+//   and drawn in the style of the age being played. A canal keeps the rules of the Canal that
+//   dug it, so switching the mode mid-game changes only what is offered from then on.
 "use strict";
+
+import { getMode, gameHasMode, pinModeToGame } from "/tower-canals/ui/canals-settings.js";
 
 const TAG = "[Canals]";
 const G = globalThis;
 const KEY = "__canals";
 const PERSIST_KEY = "Canals_Pending_v1";
 const OPEN_KEY = "Canals_Open_v1";
-const CANAL_TYPES = ["BUILDING_CANAL_ANTIQUITY", "BUILDING_CANAL_EXPLORATION", "BUILDING_CANAL_MODERN"];
+const ONE_TILE_CANAL = "BUILDING_CANAL_ONE_TILE";
+const CANAL_TYPES = ["BUILDING_CANAL_ANTIQUITY", "BUILDING_CANAL_EXPLORATION", "BUILDING_CANAL_MODERN", ONE_TILE_CANAL];
+/** What an opened one-tile canal records in place of an age: its rules and its look are the same in every age. */
+const ONE_TILE = "ONE_TILE";
 const SETTLE_MS = 400;
 const BUILD_LAND_MS = 6000;
 const BUILD_RADIUS = 3;
 /** Ships that may pass a canal per turn, by its age; the local player's orders are the only ones a script can hold. */
-const TRANSITS_PER_TURN = { AGE_ANTIQUITY: 1, AGE_EXPLORATION: 2, AGE_MODERN: Infinity };
+const TRANSITS_PER_TURN = { AGE_ANTIQUITY: 1, AGE_EXPLORATION: 2, AGE_MODERN: Infinity, [ONE_TILE]: Infinity };
 
 function log(m) { try { console.error(TAG + " " + m); } catch (_) { /* ignore */ } }
+
+/** Whether the one-tile rules are in play. Read from the store at most twice a second: the Options screen can change it
+ * at any time, and the placement rule is asked for every tile of every city. */
+let modeRead = { at: 0, oneTile: false };
+function oneTileMode() {
+  const now = Date.now();
+  if (now - modeRead.at > 500) modeRead = { at: now, oneTile: safe(() => getMode() === "one-tile", false) };
+  return modeRead.oneTile;
+}
 function safe(fn, fb) { try { return fn(); } catch (_e) { return fb; } }
 function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 function J(o) { try { return JSON.stringify(o); } catch (_) { return "?"; } }
@@ -191,7 +210,7 @@ let wonderFeatures = null;
 function clearableFeature(loc) {
   const f = featureOf(loc);
   // a site marker (this mod's, or Dams' on a river tile) is only a marker
-  if (!f || f === SITE_FEATURE || f === "FEATURE_DAMS_SITE") return true;
+  if (!f || SITE_FEATURES.includes(f) || f === "FEATURE_DAMS_SITE") return true;
   if (!wonderFeatures) {
     const rows = safe(() => Array.from(GameInfo.Feature_NaturalWonders), []);
     wonderFeatures = new Set(rows.map((r) => String(r.FeatureType)));
@@ -218,6 +237,16 @@ const CHAIN_RULES = {
   AGE_EXPLORATION: { max: 2, straight: true, branch: false },
   AGE_MODERN: { max: 5, straight: false, branch: true }
 };
+/** The one-tile mode's rule, in every age: Antiquity's. */
+const ONE_TILE_RULE = CHAIN_RULES.AGE_ANTIQUITY;
+
+/** The rule a Canal of this type is judged by: the one-tile Canal by its own, the age Canals by the age in play. */
+function ruleFor(type) {
+  if (type === ONE_TILE_CANAL) return ONE_TILE_RULE;
+  return CHAIN_RULES[currentAge()] || CHAIN_RULES.AGE_ANTIQUITY;
+}
+/** The rule for a new Canal: the mode's. */
+function placementRule() { return ruleFor(oneTileMode() ? ONE_TILE_CANAL : ""); }
 
 /** Plots that are canal tiles: opened ones (now coast) and queued ones (still land, counted so canals can be built
     in sequence). */
@@ -238,13 +267,14 @@ function isNaturalWater(loc, canals) { return isShipWater(loc) && !canals.has(id
  * it; no third tile, no bend, no branch.
  * Modern: a tile touching water or a canal, as long as the run it joins has at most five tiles and touches
  * natural water; runs may bend and branch.
+ * One-tile mode: Antiquity's rule, in every age. `rule` defaults to the rule for a new Canal; a finished one is judged
+ * by the rule of its own type (ruleFor).
  * A tile beside a canal always joins that canal's run and is judged by the run rule: a canal's own water never
  * makes its neighbor a two-shore isthmus on its own (watched gal-exp: that hole let a fourth tile onto a run's
  * side and drew a branched blob in the Exploration age).
  */
-function isIsthmus(loc) {
+function isIsthmus(loc, rule = placementRule()) {
   if (!isCuttable(loc)) return false;
-  const rule = CHAIN_RULES[currentAge()] || CHAIN_RULES.AGE_ANTIQUITY;
   const canals = canalPlots();
   const besideCanal = RING.some((d) => { const n = neighborIn(loc, d); return n && canals.has(idx(n)); });
   if (!besideCanal) return waterStretches(loc) >= 2 || waterAreas(loc).size >= 2;
@@ -369,9 +399,29 @@ async function flipToCoast(loc) {
  * A Canal has completed on `loc`: make it a canal. Owner may be any player; the local client does the work
  * (single player only, see the multiplayer note above).
  */
+/**
+ * The local player's turn is under way. The mod's map edits are requests sent as the local player, and an opening
+ * that ran on as the turn ended lost its district and its Canal building (lab ot-ant5: a Canal bought, the turn
+ * ended at once, the rural district never landed). So a canal is opened only in the local player's turn; one that
+ * completes in another player's turn opens at the next sweep, which runs as the local turn begins.
+ */
+function localTurnActive() {
+  const p = safe(() => Players.get(state.localId >= 0 ? state.localId : GameContext.localPlayerID), null);
+  return !p || safe(() => p.isTurnActive !== false, true);
+}
+
+/** Outside the local turn: say so once a turn, and leave the opening to the next sweep. */
+function notThisTurn(loc) {
+  if (localTurnActive()) return false;
+  const k = `wait ${idx(loc)} ${safe(() => Game.turn, 0)}`;
+  if (!state.told.has(k)) { state.told.add(k); log(`Canal at ${loc.x},${loc.y} finished outside your turn; it opens as your turn begins`); }
+  return true;
+}
+
 async function openCanal(loc, owner) {
   const plot = idx(loc);
   if (state.busy.has(plot) || state.hold) return; // held: the next sweep opens it (see keeping the land look)
+  if (notThisTurn(loc)) return;
   state.busy.add(plot);
   try {
     const canal = canalOn(loc);
@@ -384,7 +434,7 @@ async function openCanal(loc, owner) {
     if (state.saving || onRecord) return; // an open canal, land only while a save runs
     if (alreadyWater) log(`Canal at ${loc.x},${loc.y}: water already, no record; opened from here`);
     const shared = occupants(loc).some((o) => o.type !== canal.type && !isImprovement(o.type));
-    if (shared || !isIsthmus(loc)) {
+    if (shared || !isIsthmus(loc, ruleFor(canal.type))) {
       log(`Canal at ${loc.x},${loc.y} ${shared ? "shares its tile with other buildings" : "is not on a canal site"}; left as a building`);
       forget(plot); return;
     }
@@ -398,7 +448,8 @@ async function openCanal(loc, owner) {
     // so the overlay can dress them as locks.
     const cliffSides = cliffSideIndexes(loc);
     const landType = alreadyWater ? "TERRAIN_FLAT" : terrainOf(loc);
-    const age = canal.type === "BUILDING_CANAL_MODERN" ? "AGE_MODERN" : canal.type === "BUILDING_CANAL_EXPLORATION" ? "AGE_EXPLORATION" : "AGE_ANTIQUITY";
+    const age = canal.type === ONE_TILE_CANAL ? ONE_TILE : canal.type === "BUILDING_CANAL_MODERN" ? "AGE_MODERN"
+      : canal.type === "BUILDING_CANAL_EXPLORATION" ? "AGE_EXPLORATION" : "AGE_ANTIQUITY";
     const flipped = alreadyWater || await flipToCoast(loc);
     if (!flipped) { log(`Canal at ${loc.x},${loc.y}: terrain did not change; left as a building`); return; }
     // On record the moment it is water. The rest of this is seconds of engine requests; a save that starts in that
@@ -732,7 +783,9 @@ function drawOverlay(loc, age, cliffs) {
   if (!water.length) return false;
   const sides = orderSides(runArms(runOf(loc)).get(plot) || channelSides(loc, water), water);
   if (!sides.length) return false;
-  const look = (AGE_LOOKS[age] || AGE_LOOKS.AGE_ANTIQUITY)[plot % 3];
+  // A one-tile canal takes the look of the age being played, so it is redrawn in each new age's style; an age
+  // Canal keeps the look of the age it was dug in.
+  const look = (AGE_LOOKS[age === ONE_TILE ? currentAge() : age] || AGE_LOOKS.AGE_ANTIQUITY)[plot % 3];
   const group = safe(() => WorldUI.createModelGroup("Canals_" + plot), null);
   if (!group) return false;
   const plotRef = { i: loc.x, j: loc.y };
@@ -863,7 +916,7 @@ async function createRuralDistrict(loc, cityId, owner) {
   log(`canal at ${loc.x},${loc.y}: the rural district landed without a city; ${gone ? "removed" : "COULD NOT be removed"}`);
   return false;
 }
-const CANAL_OF_AGE = { AGE_ANTIQUITY: "BUILDING_CANAL_ANTIQUITY", AGE_EXPLORATION: "BUILDING_CANAL_EXPLORATION", AGE_MODERN: "BUILDING_CANAL_MODERN" };
+const CANAL_OF_AGE = { AGE_ANTIQUITY: "BUILDING_CANAL_ANTIQUITY", AGE_EXPLORATION: "BUILDING_CANAL_EXPLORATION", AGE_MODERN: "BUILDING_CANAL_MODERN", [ONE_TILE]: ONE_TILE_CANAL };
 /**
  * Rebuild any opened canal's district that belongs to no city (every AI canal made by 1.2.1 or earlier): take it
  * off, give the plot back to its city (removing a district releases the plot), and settle the tile again with the
@@ -877,9 +930,14 @@ async function repairCitylessDistricts() {
     for (const e of loadOpen()) {
       if (state.saving || state.hold) return;
       const loc = locOf(e.plot); const h = districtHolder(loc);
-      if (!h || h.city || state.busy.has(e.plot) || terrainOf(loc) !== "TERRAIN_COAST") continue;
+      if (state.busy.has(e.plot) || terrainOf(loc) !== "TERRAIN_COAST") continue;
+      if (h && h.city && canalOn(loc)) continue; // whole
+      if (!localTurnActive()) return; // the requests would not land; the next turn's sweep comes back
       state.busy.add(e.plot);
-      try { await repairCanalTile(loc, e.age); } finally { state.busy.delete(e.plot); }
+      try {
+        if (h && !h.city) await repairCanalTile(loc, e.age);
+        else await healCanalTile(loc, e);
+      } finally { state.busy.delete(e.plot); }
     }
     // Any other district without a city. A Canal ordered on a tile without an urban district got one made for it
     // (districtThenBuild), which 1.2.1 and earlier made without a city too; a build that never finished left it on
@@ -1032,6 +1090,31 @@ async function requeue(city, loc, q) {
   await sleep(200);
   return true;
 }
+/**
+ * An open canal missing its district or its Canal building: an opening cut short (the turn ended part-way, so the
+ * requests after it never landed), or anything else that took them off. The tile is settled again as an opening
+ * leaves it: a rural district held by the city that owns the tile, the Canal of its own kind, the site marker. The
+ * citizen an opening places is not given again: one cut short has already freed it, for the player to place.
+ */
+/** The tile's owner is a major civilization and one of its own cities holds the tile. */
+function heldByOwnersCity(owner, city) {
+  if (owner < 0 || !city || !safe(() => Players.get(owner).isMajor, false)) return false;
+  return safe(() => Cities.get(city).owner, -1) === owner;
+}
+async function healCanalTile(loc, e) {
+  const owner = safe(() => GameplayMap.getOwner(loc.x, loc.y), -1); const city = owningCity(loc);
+  const at = `${loc.x},${loc.y}`;
+  if (!heldByOwnersCity(owner, city)) {
+    if (!state.told.has("heal " + at)) { state.told.add("heal " + at); log(`canal at ${at} is missing its district or Canal, and no city of its owner holds the tile; left as it is`); }
+    return;
+  }
+  const missing = [districtAt(loc) === "" ? "district" : "", canalOn(loc) ? "" : "Canal"].filter(Boolean).join(" and ");
+  await settleCanalTile(loc, city, owner, CANAL_OF_AGE[e.age] || CANAL_TYPES[0], { repair: true });
+  const whole = !!(districtHolder(loc) || {}).city && !!canalOn(loc);
+  log(`canal at ${at}: ${missing} missing; rebuilt for player ${owner}: ${whole ? "whole again" : "STILL INCOMPLETE"}; ` +
+    `district=${districtAt(loc) || "none"} ${occupants(loc).map((o) => o.type).join(",") || "nothing on it"}`);
+}
+
 async function repairCanalTile(loc, age) {
   const ownerOf = () => safe(() => GameplayMap.getOwner(loc.x, loc.y), -1);
   const owner = ownerOf(); const city = owningCity(loc);
@@ -1346,7 +1429,7 @@ function sweep() {
     if (seen.has(plot)) continue;
     const c = canalOn(loc);
     if (!c || !c.complete || opened.has(plot) || terrainOf(loc) === "TERRAIN_COAST") continue;
-    if (isIsthmus(loc)) openCanal(loc, c.owner);
+    if (isIsthmus(loc, ruleFor(c.type))) openCanal(loc, c.owner);
   }
   repairCitylessDistricts();
 }
@@ -1420,6 +1503,12 @@ function isThisAgesCanal(d) {
   const age = safe(() => String(GameInfo.Ages.lookup(Game.age).AgeType), "");
   return !!d && (!age || !d.Age || String(d.Age) === age);
 }
+/** The Canal the player and the AI may have now: the one-tile Canal in that mode, else the age's own. */
+function isOfferedCanal(d) {
+  if (!d) return false;
+  const oneTile = String(d.ConstructibleType) === ONE_TILE_CANAL;
+  return oneTileMode() ? oneTile : !oneTile && isThisAgesCanal(d);
+}
 
 /** The tech that unlocks this Canal in the age being played (data/canals-<age>.xml), or null. */
 function unlockNode(def) {
@@ -1484,7 +1573,9 @@ function wrapCanStart(oCan, placeType, purchase) {
     if (!state.enabled || type !== placeType || !args) return res;
     const def = canalDef(args.ConstructibleType);
     if (!def) return args.ConstructibleType != null ? keepOffCanals(res, args) : res;
-    if (!isThisAgesCanal(def)) return res;
+    // Not the mode's Canal: refused outright. The engine alone would offer the one-tile Canal outside its mode, since
+    // it has no age and no unlock (and refuse it only for want of a marked site, which this wrapper overrides).
+    if (!isOfferedCanal(def)) return { ...res, Success: false, Plots: [], ExpandUrbanPlots: [], FailureReasons: ["LOC_BUILDING_CONSTRUCT_NO_SUITABLE_LOCATION"] };
     if (state.multiplayer) return { ...res, Success: false, Plots: [], ExpandUrbanPlots: [], FailureReasons: ["LOC_CANAL_MULTIPLAYER"] };
     const loc = plotOf(args);
     if (loc) {
@@ -1525,7 +1616,13 @@ function wrapCanStartQuery(oQuery, host, placeType) {
     if (constructibles == null || queryType !== constructibles) return res;
     for (const t of CANAL_TYPES) {
       const d = safe(() => GameInfo.Constructibles.lookup(t), null);
-      if (!isThisAgesCanal(d)) continue;
+      if (!d) continue;
+      if (!isOfferedCanal(d)) {
+        // the other mode's Canal is never listed
+        const k = res.findIndex((e) => e && e.index === d.$index);
+        if (k >= 0) res.splice(k, 1);
+        continue;
+      }
       const verdict = safe(() => host.canStart(cityID, placeType, { ConstructibleType: d.$index }, false), null);
       if (!verdict) continue;
       const entry = res.find((e) => e && e.index === d.$index);
@@ -1575,7 +1672,8 @@ async function districtThenBuild(cityID, loc, ctype, forward, path) {
     }
   }
   // the engine takes a Canal only on a marked site (data/canals-sites.xml); a Canal the mod sells itself needs none
-  if (soldFor == null && !await markSite(loc)) log(`the site marker did not land at ${loc.x},${loc.y}`);
+  if (soldFor == null && !await markSite(loc, markerFor((canalDef(ctype) || {}).ConstructibleType)))
+    log(`the site marker did not land at ${loc.x},${loc.y}`);
   // The engine needs a moment before a new district counts as a site (watched: a BUILD sent 200 ms after the
   // district landed was dropped; one sent 3 s later was taken). Wait for its own per-plot verdict.
   // (A Canal the mod sells itself is placed by the mod, not the engine, so there is no verdict to wait for.)
@@ -1689,19 +1787,32 @@ function aiMajors() {
   return out;
 }
 
+/** The Canal on offer now (see isOfferedCanal). */
 function thisAgesCanal() {
   for (const t of CANAL_TYPES) {
     const d = safe(() => GameInfo.Constructibles.lookup(t), null);
-    if (d && isThisAgesCanal(d)) return d;
+    if (d && isOfferedCanal(d)) return d;
   }
   return null;
 }
 
 const SITE_FEATURE = "FEATURE_CANALS_SITE";
+/** The one-tile Canal's own marker: each kind of Canal is offered by the engine only where its marker stands, so the
+ * AI builds the Canal of the mode in play and never the other (data/canals-sites.xml). */
+const ONE_TILE_SITE_FEATURE = "FEATURE_CANALS_SITE_ONE_TILE";
+const SITE_FEATURES = [SITE_FEATURE, ONE_TILE_SITE_FEATURE];
 const SITES_KEY = "Canals_Sites_v1";
 
-function siteIndex() { return safe(() => GameInfo.Features.lookup(SITE_FEATURE).$index, null); }
-function isMarked(loc) { return featureOf(loc) === SITE_FEATURE; }
+/** The marker a Canal of this type needs. */
+function markerFor(type) { return type === ONE_TILE_CANAL ? ONE_TILE_SITE_FEATURE : SITE_FEATURE; }
+/** The marker for a new Canal: the mode's. */
+function offeredMarker() { return oneTileMode() ? ONE_TILE_SITE_FEATURE : SITE_FEATURE; }
+function siteIndex(feature = SITE_FEATURE) { return safe(() => GameInfo.Features.lookup(feature).$index, null); }
+/** The tile holds that marker, or either marker when none is named. */
+function isMarked(loc, feature) {
+  const f = featureOf(loc);
+  return feature ? f === feature : SITE_FEATURES.includes(f);
+}
 /** Marked plots, each with the feature the marker replaced ("" for none). */
 function loadSites() {
   const s = safe(() => JSON.parse(String(Configuration.getGame().getValue(SITES_KEY))), null);
@@ -1732,13 +1843,14 @@ async function putFeature(loc, f) {
   return featureOf(loc) === want;
 }
 
-/** Put the marker on a tile, keeping the feature it replaces. True once it reads back. */
-async function markSite(loc) {
-  if (isMarked(loc)) return true;
-  const f = siteIndex();
+/** Put a marker (by default the mode's) on a tile, keeping the feature it replaces; the other marker, there since the
+ * mode changed, is simply replaced. True once it reads back. */
+async function markSite(loc, feature = offeredMarker()) {
+  if (isMarked(loc, feature)) return true;
+  const f = siteIndex(feature);
   if (f == null || isWater(loc) || !clearableFeature(loc)) return false;
   const sites = loadSites(); const plot = idx(loc);
-  if (!(plot in sites)) { sites[plot] = featureOf(loc); saveSites(sites); }
+  if (!(plot in sites)) { sites[plot] = isMarked(loc) ? "" : featureOf(loc); saveSites(sites); }
   return putFeature(loc, f);
 }
 
@@ -1747,13 +1859,14 @@ async function markSite(loc) {
  * ever hold no canal). The marker is valid on coast for this (data/canals-sites.xml) and yields what bare coast does.
  */
 async function markCanalTile(loc) {
-  const f = siteIndex();
+  const marker = markerFor((canalOn(loc) || {}).type);
+  const f = siteIndex(marker);
   if (f == null) return false;
   const sites = loadSites(); const plot = idx(loc);
   // Whatever the marker replaced when the tile was ordered went with the flip, for good: the record holds nothing,
   // or the woods would come back onto the water and take the fishing boat with them (fx6).
   if (sites[plot] !== "") { sites[plot] = ""; saveSites(sites); }
-  const ok = isMarked(loc) || await putFeature(loc, f);
+  const ok = isMarked(loc, marker) || await putFeature(loc, f);
   if (!ok) log(`canal at ${loc.x},${loc.y}: the site marker did not land on the opened tile`);
   return ok;
 }
@@ -1765,6 +1878,16 @@ async function markCanalTile(loc) {
  * with a build it can no longer place. The player's own orders are kept the same way through loadPending.
  */
 function queuedCanalPlots() {
+  const out = new Map();
+  for (const [p, o] of queuedCanalOrders()) out.set(p, o.pid);
+  return out;
+}
+/** The Canal type of a queue item (its constructible index or type hash). */
+function queuedType(it) {
+  return String((canalDef(it.constructibleType) || canalDef(it.type) || {}).ConstructibleType || "");
+}
+/** The same, with the Canal type each order is for (its marker must stay under it). */
+function queuedCanalOrders() {
   const types = new Set();
   for (const t of CANAL_TYPES) {
     const d = safe(() => GameInfo.Constructibles.lookup(t), null);
@@ -1781,7 +1904,7 @@ function queuedCanalPlots() {
         if (![it.constructibleType, it.type].some((t) => t != null && types.has(t))) continue;
         const l = it.location;
         if (!l || l.x == null || l.x < 0) continue;
-        out.set(idx({ x: l.x, y: l.y }), pid);
+        out.set(idx({ x: l.x, y: l.y }), { pid, type: queuedType(it) });
       }
     }
   }
@@ -1803,7 +1926,7 @@ function aiSites() {
     for (const city of safe(() => Players.get(pid).Cities.getCities() || [], [])) {
       for (const p of eligiblePlots(city.id, true)) {
         const w = canalWorth(locOf(p));
-        if (w.worth > 0) out.set(p, { pid, why: w.why });
+        if (w.worth > 0) out.set(p, { pid, why: w.why, feature: offeredMarker() });
       }
     }
   }
@@ -1815,7 +1938,7 @@ async function markWanted(want) {
   let added = 0;
   for (const [p, w] of want) {
     const loc = locOf(p);
-    if (isMarked(loc) || !await markSite(loc)) continue;
+    if (isMarked(loc, w.feature) || !await markSite(loc, w.feature)) continue;
     added++;
     if (w.why !== "ordered") log(`site marked for AI ${w.pid} at ${loc.x},${loc.y} (${w.why})`);
   }
@@ -1830,7 +1953,7 @@ async function unmarkStale(want) {
   for (const key of Object.keys(loadSites())) {
     const p = Number(key); const loc = locOf(p);
     if (isWater(loc)) {
-      if (canalOn(loc)) { if (!isMarked(loc)) await markCanalTile(loc); continue; }
+      if (canalOn(loc)) { if (!isMarked(loc, markerFor(canalOn(loc).type))) await markCanalTile(loc); continue; }
       if (isMarked(loc)) await putFeature(loc, FeatureTypes.NO_FEATURE);
       const s = loadSites(); delete s[p]; saveSites(s); continue;
     }
@@ -1846,14 +1969,16 @@ async function syncSites() {
   state.syncing = true;
   try {
     const want = aiSites();
-    for (const p of loadPending()) if (!want.has(p)) want.set(p, { pid: state.localId, why: "ordered" });
-    for (const [p, pid] of queuedCanalPlots()) if (!want.has(p)) want.set(p, { pid, why: "queued" });
+    // An order already given keeps the marker of the Canal it is for, whatever the mode is now.
+    const queued = queuedCanalOrders();
+    for (const [p, o] of queued) want.set(p, { pid: o.pid, why: "queued", feature: markerFor(o.type) });
+    for (const p of loadPending()) if (!want.has(p)) want.set(p, { pid: state.localId, why: "ordered", feature: offeredMarker() });
     const added = await markWanted(want);
     const removed = await unmarkStale(want);
     // canals opened before the marker was kept on the tile (Canals 1.2.0 saves), and any that lost it
     for (const e of loadOpen()) {
       const l = locOf(e.plot);
-      if (isWater(l) && canalOn(l) && !isMarked(l)) await markCanalTile(l);
+      if (isWater(l) && canalOn(l) && !isMarked(l, markerFor(canalOn(l).type))) await markCanalTile(l);
     }
     if (added || removed) log(`sites: ${added} marked, ${removed} unmarked, ${want.size} held`);
   } finally { state.syncing = false; }
@@ -2030,6 +2155,8 @@ function install() {
   }
   if (!state.canalIndexes.size) { log("no Canal buildings in the database; inactive"); return false; }
   state.multiplayer = !!safe(() => Configuration.getGame().isNetworkMultiplayer, false);
+  // A game keeps the rules it started with: the main menu's choice is written into the save the first time it loads.
+  if (!state.multiplayer && !safe(gameHasMode, true)) safe(() => pinModeToGame(getMode()));
   const build = wrapHost(safe(() => Game.CityOperations, null), safe(() => CityOperationTypes.BUILD, null), false);
   if (!build) { log("Game.CityOperations not wrappable; inactive"); return false; }
   state.originals = { hosts: [build] };
@@ -2052,7 +2179,8 @@ function install() {
   whenStarted(notices, 5000);
   const uhost = safe(() => Game.UnitOperations, null);
   if (uhost && typeof uhost.sendRequest === "function") { state.originals.unitSend = uhost.sendRequest; uhost.sendRequest = wrapUnitSend(uhost.sendRequest.bind(uhost)); }
-  log(`active${state.multiplayer ? " (network game: canals not offered)" : ""}: Canal placement limited to isthmus tiles`);
+  log(`active${state.multiplayer ? " (network game: canals not offered)" : ""}: Canal placement limited to isthmus tiles; ` +
+    `rules: ${oneTileMode() ? "one-tile canals" : "by age"}`);
   return true;
 }
 
@@ -2079,14 +2207,15 @@ function uninstall() {
 
 if (!G[KEY]) {
   G[KEY] = {
-    version: "1.3.1",
+    version: "1.4.0",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
-    uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen,
+    uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen, localTurnActive,
     districtHolder, repairCitylessDistricts,
     drawOverlay, clearOverlay, redrawNeighbours, hasResource,
     aiMajors, thisAgesCanal, waterAreas, reloadThroughSave, canalWorth, waterSides, syncSites, aiSites, markSite,
-    unmarkSite, loadSites, queuedCanalPlots, markCanalTile,
+    unmarkSite, loadSites, queuedCanalPlots, queuedCanalOrders, markCanalTile,
+    get mode() { return oneTileMode() ? "one-tile" : "ages"; },
     get staleLoad() { return state.staleLoad.slice(); },
     channelArms: (loc) => ({ water: waterSideIndexes(loc), arms: runArms(runOf(loc)).get(idx(loc)) || [] }),
   };

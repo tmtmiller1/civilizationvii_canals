@@ -2,7 +2,8 @@
 <!--
   Canals - a Civilization VII mod.
   Three Canal buildings (Antiquity, Exploration, Modern), built through the ordinary production screen on a land
-  tile that separates two bodies of water. When one completes, the tile becomes a Coast tile with a quay on it and
+  tile that separates two bodies of water; or, in the one-tile mode chosen in Options > Add-ons, one Canal that is
+  the same in every age. When one completes, the tile becomes a Coast tile with a quay on it and
   ships sail through. Data: the buildings and their tech unlocks. Script: the placement rule, the completion
   handler, persistence and rollback.
   AffectsSavedGames=0: the data adds types only (no base rows change), so a save loads with the mod on or off.
@@ -14,7 +15,7 @@
         <Authors>Tower</Authors>
         <Package>Canals</Package>
         <PackageSortIndex>100</PackageSortIndex>
-        <Version>1.3.1</Version>
+        <Version>1.4.0</Version>
         <AffectsSavedGames>0</AffectsSavedGames>
     </Properties>
     <Dependencies>
@@ -43,7 +44,15 @@
                     <Item locale="zh_Hans_CN">text/zh_cn/CanalsText.xml</Item>
                     <Item locale="zh_Hant_HK">text/zh_hk/CanalsText.xml</Item>
                 </UpdateText>
-                <UIScripts><Item>ui/canals-shell.js</Item></UIScripts>
+                <!-- canals-options.js: the "Canal rules" row in Options > Add-ons, the default for new games -->
+                <UIScripts>
+                    <Item>ui/canals-shell.js</Item>
+                    <Item>ui/canals-options.js</Item>
+                </UIScripts>
+                <ImportFiles>
+                    <Item>ui/canals-options.js</Item>
+                    <Item>ui/canals-settings.js</Item>
+                </ImportFiles>
             </Actions>
         </ActionGroup>
         <ActionGroup id="canals-game" scope="game" criteria="always">
@@ -80,9 +89,14 @@
                     <Item>icons/building_canal_modern_256.png</Item>
                     <Item>icons/building_canal_modern_128.png</Item>
                     <Item>icons/building_canal_modern_64.png</Item>
+                    <Item>ui/canals-options.js</Item>
+                    <Item>ui/canals-settings.js</Item>
                 </ImportFiles>
                 <UpdateIcons><Item>data/canals-icons.xml</Item></UpdateIcons>
-                <UIScripts><Item>ui/canals.js</Item></UIScripts>
+                <UIScripts>
+                    <Item>ui/canals.js</Item>
+                    <Item>ui/canals-options.js</Item>
+                </UIScripts>
             </Actions>
         </ActionGroup>
         <!-- Tech unlocks live in per-age groups: a node of another age is not in that age's database. -->

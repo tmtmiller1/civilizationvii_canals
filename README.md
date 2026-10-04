@@ -94,10 +94,32 @@ counts as a canal end, so a city or town can open its center to the water.*
 
 *The same canal after a save and reload: the quay, the boats and the channel through the land are all still there.*
 
+## One-tile canals
+
+The age rules above are the default. Options, Add-ons, Canals has a **Canal rules** setting that switches to
+one-tile canals instead:
+
+| Rules | Canal | Unlocked by | Production cost | Food | Gold | Length | Ships per turn |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| One-tile canals, any age | Canal | Irrigation in Antiquity; nothing in later ages | 400 | 2 | 2 | always 1 tile | no limit |
+
+With one-tile canals the three age Canals are not offered. A single Canal takes their place in every age, with the
+same cost and yields whatever the age. It is drawn in the style of the age being played: the harbor and quay of
+Antiquity, the houses and wharf of Exploration, the buildings and harbor of Modern, so a canal dug in Antiquity is
+redrawn in each new age's style. It qualifies on the same tiles as an Antiquity canal: a strip of land with water on
+two separate sides, never next to another canal, dug or queued. Every ship that can reach it can pass it, as many each
+turn as want to.
+
+The setting chosen in the main menu applies to new games. A game keeps the setting it was first loaded with, and the
+setting can be changed during a game from the same Options screen; the change applies to that game from then on.
+Canals already dug keep the rules they were dug under, and a Canal already ordered is finished under its own rules.
+AI players follow the rules in play: the mod marks their sites for the Canal on offer, and the game offers them that
+Canal only.
+
 ## Civilopedia
 
 The Civilopedia's Game Concepts section has a Canals group with four pages: Canals (what a Canal is, each age's
-Canal, building one and what happens when it opens), Canal Sites, Longer Canals, and Ships and Yields.
+Canal, one-tile canals, building one and what happens when it opens), Canal Sites, Longer Canals, and Ships and Yields.
 
 ## Which tiles qualify
 
@@ -169,8 +191,9 @@ sail through them.
 
 ## Compatibility
 
-- Adds three buildings and their tech unlocks, and a canal-site marker: a map feature with no look and no yield of its
-  own, which the mod places on the tiles where a Canal may go. Changes no base-game rows, replaces no base-game files.
+- Adds three buildings and their tech unlocks, a fourth building for one-tile canals, and two canal-site markers (one
+  per set of rules): map features with no look and no yield of their own, which the mod places on the tiles where a
+  Canal may go. Changes no base-game rows, replaces no base-game files.
   Saves keep the markers; a save loaded without the mod simply has none.
 - How much the AI values a Canal is read when a game is created, so it holds in games started with this version. In a
   game already under way the AI can still build on its canal sites, but chooses to less often.
