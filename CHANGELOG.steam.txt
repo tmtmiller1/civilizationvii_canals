@@ -3,6 +3,15 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.4.0 | 2026-10-04 | src 01d62275f3e9 | gen da660ec53e81 ====
+[b]Version 1.4.0 · 4 October 2026[/b]
+• One-tile canals, an alternative set of rules chosen in Options, Add-ons, under Canals: Canal rules. “By age” is the mod as before and stays the default. “One-tile canals” replaces the three age Canals with a single Canal that is the same in every age: unlocked by Irrigation in Antiquity and needing no tech after that, 400 Production, +2 Food and +2 Gold, always one tile and never next to another canal, and no limit on how many ships pass it each turn. It is drawn in the style of the age being played, so a canal dug in Antiquity is redrawn as an Exploration canal, then a Modern one, as the game moves on.
+• The choice made in the main menu applies to new games; the first time a game loads it keeps that choice, and changing it during a game applies to that game from then on. Canals already dug keep the rules they were dug under, and a Canal already ordered is finished under its own rules.
+• The AI follows the same rules: it is offered only the Canal of the rules in play, on its own kind of site.
+• A Civilopedia chapter, One-Tile Canals, on the Canals page.
+• A canal whose opening was cut short is rebuilt. Opening a finished Canal takes a few seconds of steps; if they were cut off part-way, the tile was left as water with no district, no fishing boat and no Canal building, so it gave nothing. Now, as each of your turns begins and as a game loads, any open canal missing its district or its Canal is settled again: a rural district held by its city, the Canal of its own kind and its site marker. This also repairs such a canal in a save made with an earlier version.
+• A Canal opens only during your own turn. One that finishes in another player's turn opens as your next turn begins.
+
 ==== 1.3.1 | 2026-10-01 | src e51797db1901 | gen 03328b65329f ====
 [b]Version 1.3.1 · 1 October 2026[/b]
 • Repairs a tile left broken by an unfinished Canal. Before 1.2.2, ordering a Canal on a tile with no district made an urban district there that belonged to no city. If the Canal never finished, that district stayed: it looked like an empty urban quarter, and buildings put on it completed but were not drawn and gave their city nothing. 1.2.2 repaired only canals and Canal orders still in progress, so such a tile stayed broken.

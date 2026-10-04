@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The antiquity-age Canal's tech unlock. Loaded only while that age is in use (the node exists only in its age). -->
+<!--
+  The antiquity-age tech unlocks. Loaded only while that age is in use (the node exists only in its age). The one-tile
+  Canal has no unlock in the later ages' files, so from Exploration on it needs no tech.
+-->
 <Database>
     <ProgressionTreeNodeUnlocks>
         <Row ProgressionTreeNodeType="NODE_TECH_AQ_ENGINEERING" TargetKind="KIND_CONSTRUCTIBLE" TargetType="BUILDING_CANAL_ANTIQUITY" UnlockDepth="1"/>
+        <Row ProgressionTreeNodeType="NODE_TECH_AQ_IRRIGATION" TargetKind="KIND_CONSTRUCTIBLE" TargetType="BUILDING_CANAL_ONE_TILE" UnlockDepth="1"/>
     </ProgressionTreeNodeUnlocks>
 </Database>

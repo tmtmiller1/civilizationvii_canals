@@ -9,18 +9,26 @@
   (Removable), and yields exactly what bare land yields (data/canals-sites.sql). No map places it (PlacementDensity 0).
   An opened canal is coast with its Canal building still on it, and the building requires the marker: the marker is
   valid on coast as well, and yields what bare coast does.
+  The one-tile Canal has a marker of its own, FEATURE_CANALS_SITE_ONE_TILE, placed only in the one-tile mode: the
+  engine offers each kind of Canal only where its own marker stands, so the AI builds the Canal of the mode in play
+  and never the other.
 -->
 <Database>
     <Types>
         <Row Type="FEATURE_CANALS_SITE" Kind="KIND_FEATURE"/>
+        <Row Type="FEATURE_CANALS_SITE_ONE_TILE" Kind="KIND_FEATURE"/>
     </Types>
     <Features>
         <Row FeatureType="FEATURE_CANALS_SITE" Name="LOC_FEATURE_CANALS_SITE_NAME" Tooltip="LOC_FEATURE_CANALS_SITE_TOOLTIP" PlacementClass="ONE" PlacementDensity="0" Removable="true"/>
+        <Row FeatureType="FEATURE_CANALS_SITE_ONE_TILE" Name="LOC_FEATURE_CANALS_SITE_NAME" Tooltip="LOC_FEATURE_CANALS_SITE_TOOLTIP" PlacementClass="ONE" PlacementDensity="0" Removable="true"/>
     </Features>
     <Feature_ValidTerrains>
         <Row FeatureType="FEATURE_CANALS_SITE" TerrainType="TERRAIN_FLAT"/>
         <Row FeatureType="FEATURE_CANALS_SITE" TerrainType="TERRAIN_HILL"/>
         <Row FeatureType="FEATURE_CANALS_SITE" TerrainType="TERRAIN_COAST"/>
+        <Row FeatureType="FEATURE_CANALS_SITE_ONE_TILE" TerrainType="TERRAIN_FLAT"/>
+        <Row FeatureType="FEATURE_CANALS_SITE_ONE_TILE" TerrainType="TERRAIN_HILL"/>
+        <Row FeatureType="FEATURE_CANALS_SITE_ONE_TILE" TerrainType="TERRAIN_COAST"/>
     </Feature_ValidTerrains>
     <Feature_ValidBiomes>
         <Row BiomeType="BIOME_MARINE" FeatureType="FEATURE_CANALS_SITE"/>
@@ -29,10 +37,17 @@
         <Row BiomeType="BIOME_PLAINS" FeatureType="FEATURE_CANALS_SITE"/>
         <Row BiomeType="BIOME_TROPICAL" FeatureType="FEATURE_CANALS_SITE"/>
         <Row BiomeType="BIOME_TUNDRA" FeatureType="FEATURE_CANALS_SITE"/>
+        <Row BiomeType="BIOME_MARINE" FeatureType="FEATURE_CANALS_SITE_ONE_TILE"/>
+        <Row BiomeType="BIOME_DESERT" FeatureType="FEATURE_CANALS_SITE_ONE_TILE"/>
+        <Row BiomeType="BIOME_GRASSLAND" FeatureType="FEATURE_CANALS_SITE_ONE_TILE"/>
+        <Row BiomeType="BIOME_PLAINS" FeatureType="FEATURE_CANALS_SITE_ONE_TILE"/>
+        <Row BiomeType="BIOME_TROPICAL" FeatureType="FEATURE_CANALS_SITE_ONE_TILE"/>
+        <Row BiomeType="BIOME_TUNDRA" FeatureType="FEATURE_CANALS_SITE_ONE_TILE"/>
     </Feature_ValidBiomes>
     <Constructible_RequiredFeatures>
         <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" FeatureType="FEATURE_CANALS_SITE"/>
         <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" FeatureType="FEATURE_CANALS_SITE"/>
         <Row ConstructibleType="BUILDING_CANAL_MODERN" FeatureType="FEATURE_CANALS_SITE"/>
+        <Row ConstructibleType="BUILDING_CANAL_ONE_TILE" FeatureType="FEATURE_CANALS_SITE_ONE_TILE"/>
     </Constructible_RequiredFeatures>
 </Database>

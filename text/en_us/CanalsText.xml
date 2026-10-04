@@ -6,7 +6,7 @@
             <Text>Canals</Text>
         </Row>
         <Row Tag="LOC_CANALS_MOD_DESCRIPTION">
-            <Text>Adds a Canal building to each age. Build it on a land tile that separates two bodies of water; when it is finished the tile becomes a coast tile with a quay on it, and ships sail through. Unlocked by Engineering, Shipbuilding and Industrialization. Single-player games only.</Text>
+            <Text>Adds a Canal building to each age. Build it on a land tile that separates two bodies of water; when it is finished the tile becomes a coast tile with a quay on it, and ships sail through. Unlocked by Engineering, Shipbuilding and Industrialization. An option in Options, Add-ons, switches to one-tile canals instead: one Canal in every age, unlocked by Irrigation in Antiquity, with no limit on ships. Single-player games only.</Text>
         </Row>
         <Row Tag="LOC_BUILDING_CANAL_ANTIQUITY_NAME">
             <Text>Ancient Canal</Text>
@@ -16,6 +16,12 @@
         </Row>
         <Row Tag="LOC_BUILDING_CANAL_MODERN_NAME">
             <Text>Modern Canal</Text>
+        </Row>
+        <Row Tag="LOC_BUILDING_CANAL_ONE_TILE_NAME">
+            <Text>Canal</Text>
+        </Row>
+        <Row Tag="LOC_BUILDING_CANAL_ONE_TILE_DESCRIPTION">
+            <Text>Cuts a ship channel through a narrow neck of land. Can only be built on a land tile that separates two bodies of water, and never next to another canal. When it is finished the tile becomes water and every ship can sail through it, as many as want to each turn. The same building in every age.</Text>
         </Row>
         <Row Tag="LOC_BUILDING_CANAL_DESCRIPTION">
             <Text>Cuts a ship channel through a narrow neck of land. Can only be built on a land tile that separates two bodies of water. When it is finished the tile becomes a coast tile with a quay, and ships can sail through it.</Text>
@@ -60,6 +66,23 @@
             <Text>Canals was added to this game after {2_Tech} was researched, so the game keeps the {1_Canal} locked for the rest of this age.[N][N]It is sold for gold in each settlement's purchase list instead of being built with production.</Text>
         </Row>
 
+        <!-- Options > Add-ons (ui/canals-options.js) -->
+        <Row Tag="LOC_OPTIONS_GROUP_CANALS">
+            <Text>Canals</Text>
+        </Row>
+        <Row Tag="LOC_CANALS_OPTION_MODE">
+            <Text>Canal rules</Text>
+        </Row>
+        <Row Tag="LOC_CANALS_OPTION_MODE_DESCRIPTION">
+            <Text>By age: each age has its own Canal, unlocked by a tech, and canals grow longer and carry more ships as the ages go on. One-tile canals: one Canal in every age, unlocked by Irrigation in Antiquity and needing no tech after that, drawn in the style of the age being played, always a single tile, and any number of ships can pass it each turn. Chosen in the main menu, it applies to new games; chosen during a game, to that game. Canals already dug keep their own rules.</Text>
+        </Row>
+        <Row Tag="LOC_CANALS_OPTION_MODE_AGES">
+            <Text>By age</Text>
+        </Row>
+        <Row Tag="LOC_CANALS_OPTION_MODE_ONE_TILE">
+            <Text>One-tile canals</Text>
+        </Row>
+
         <!-- Civilopedia: the Canals group in Game Concepts (data/canals-civilopedia.xml). -->
         <Row Tag="LOC_PEDIA_CANALS_TITLE">
             <Text>Canals</Text>
@@ -91,6 +114,15 @@
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_AGES_PARA_1">
             <Text>[BLIST][LI][B]Ancient Canal[/B] (Antiquity): unlocked by Engineering. Costs 300 [icon:YIELD_PRODUCTION] Production. +2 [icon:YIELD_FOOD] Food, +2 [icon:YIELD_GOLD] Gold. A canal is one tile long.[LI][B]Medieval Canal[/B] (Exploration): unlocked by Shipbuilding. Costs 500 [icon:YIELD_PRODUCTION] Production. +3 [icon:YIELD_FOOD] Food, +4 [icon:YIELD_GOLD] Gold. A canal can be two tiles long, in a straight line.[LI][B]Modern Canal[/B] (Modern): unlocked by Industrialization. Costs 800 [icon:YIELD_PRODUCTION] Production. +4 [icon:YIELD_FOOD] Food, +6 [icon:YIELD_GOLD] Gold. A canal can be up to five tiles long and can bend and branch.[/LIST]</Text>
+        </Row>
+        <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_ONE_TILE_TITLE">
+            <Text>One-Tile Canals</Text>
+        </Row>
+        <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_ONE_TILE_PARA_1">
+            <Text>Canal rules in Options, Add-ons, can be switched from By age to One-tile canals. The three Canals above are then replaced by a single [B]Canal[/B], the same in every age: unlocked by Irrigation in Antiquity, it needs no tech in later ages, and it is drawn in the style of the age being played. Costs 400 [icon:YIELD_PRODUCTION] Production. +2 [icon:YIELD_FOOD] Food, +2 [icon:YIELD_GOLD] Gold. A canal is always one tile and is never built next to another canal, and any number of ships can pass it each turn.</Text>
+        </Row>
+        <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_ONE_TILE_PARA_2">
+            <Text>The choice made in the main menu applies to new games; made during a game, it applies to that game from then on. Canals already dug keep the rules they were dug under.</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_TITLE">
             <Text>Building a Canal</Text>

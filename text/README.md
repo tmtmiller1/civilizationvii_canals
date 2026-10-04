@@ -8,7 +8,7 @@ the modinfo.
 
 | File | Contents |
 | --- | --- |
-| `en_us/CanalsText.xml` | The source of truth: the mod's name and description, the three Canal buildings, the placement messages, the notices and the Civilopedia pages (65 tags). |
+| `en_us/CanalsText.xml` | The source of truth: the mod's name and description, the Canal buildings, the placement messages, the notices, the Options row and the Civilopedia pages (75 tags). |
 | `<lang>/CanalsText.xml` | The same tags in one language. |
 
 All eleven languages below ship as machine translations (2026-10-01) that use the game's own words for its terms,
