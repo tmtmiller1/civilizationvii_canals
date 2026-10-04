@@ -348,7 +348,7 @@ text/en_us/CanalsText.xml           name, description, placement messages and th
 text/<lang>/CanalsText.xml          the same text in each of 11 other languages (see text/README.md)
 tests/pedia-pages.test.mjs          checks every Civilopedia page has text to draw (npm run pedia)
 tests/i18n.test.mjs                 checks every translation has every tag, placeholder and markup (npm run i18n)
-devtools/gen-glossary.py            pulls the game's own translations of game terms into devtools/glossary/
+devtools/gen-glossary.py            pulls the game's own translations of game terms into devtools/glossary/ (local, not committed)
 docs/verification-runs.md           every step and the run that proved it
 docs/steam-workshop-description.txt the Workshop page text
 docs/workshop-preview.png           the mod icon and Workshop preview (rendered from workshop-preview.svg)

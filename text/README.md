@@ -12,7 +12,8 @@ the modinfo.
 | `<lang>/CanalsText.xml` | The same tags in one language. |
 
 All eleven languages below ship as machine translations (2026-10-01) that use the game's own words for its terms,
-taken from the game's l10n files by `devtools/gen-glossary.py` into `devtools/glossary/`. To correct one, edit its
+taken from the game's l10n files by `devtools/gen-glossary.py` into `devtools/glossary/` (generated locally, not
+committed; run the script to rebuild it). To correct one, edit its
 `<Text>`; to change the English, edit the English and update every language.
 
 ## Two file shapes
