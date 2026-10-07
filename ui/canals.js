@@ -979,8 +979,9 @@ function mapChecked() { return safe(() => String(Configuration.getGame().getValu
 const HEALED_DISTRICTS = ["DISTRICT_URBAN", "DISTRICT_RURAL"];
 /**
  * Give a district without a city to the city that owns its tile, with what stands on it. A district cannot be moved
- * to a city: a second CREATE_ELEMENT naming the Parent changes nothing, and the district has no setter (hl2).. Taking the district off removes its buildings and releases the plot, so the plot is bought back for the city,
- * the district made again with the city as Parent, and every finished building and improvement made again on it:
+ * to a city: a second CREATE_ELEMENT naming the Parent changes nothing, and the district has no setter (hl2). Taking
+ * the district off removes its buildings and releases the plot, so the plot is bought back for the city, the district
+ * made again with the city as Parent, and every finished building and improvement made again on it:
  * they come back finished, held by the city, and their yields reach it (hl2: a Bank, a Kiln and Medieval Walls).
  * Anything still under construction there is not kept.
  */
@@ -1461,6 +1462,7 @@ function eligiblePlots(cityID, anyUnits = false) {
     if (centre && safe(() => GameplayMap.getPlotDistance(centre.x, centre.y, loc.x, loc.y), 99) > BUILD_RADIUS)
       continue;
     if (!isIsthmus(loc) || hasResource(loc) || isParkland(loc)) continue;
+    if (unfinishedCanal(cityID, loc)) { out.push(p); continue; }
     // never a tile that holds buildings: the canal removes whatever stands on it
     const d = districtAt(loc);
     if (d !== "" && d !== "DISTRICT_RURAL") continue;
@@ -1470,6 +1472,19 @@ function eligiblePlots(cityID, anyUnits = false) {
     out.push(p);
   }
   return out;
+}
+
+/**
+ * A Canal begun on this tile and taken out of the queue before it was finished. The engine leaves it on the map with
+ * the production put into it, and an order for the same Canal on the same tile takes it up again, progress and all
+ * (rs1). The tile now holds a district, a building and a remembered site, so the checks for a fresh site would never
+ * offer it again.
+ */
+function unfinishedCanal(cityID, loc) {
+  const c = canalOn(loc);
+  if (!c || c.complete || c.owner !== cityOwner(cityID)) return false;
+  if (!isOfferedCanal(safe(() => GameInfo.Constructibles.lookup(c.type), null))) return false;
+  return !queuedHere(cityID, loc).some((q) => q.type === c.type);
 }
 
 /**
@@ -2206,7 +2221,7 @@ function uninstall() {
 
 if (!G[KEY]) {
   G[KEY] = {
-    version: "1.4.1",
+    version: "1.4.2",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
     uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen, localTurnActive,
