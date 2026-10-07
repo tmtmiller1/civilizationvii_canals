@@ -1,33 +1,33 @@
-# How the canal works, and the runs that proved each step
+# How the canal works, and the runs behind each step
 
-Every step below was watched on 2026-09-25 on Civilization VII 1.5.0. The runs live in
+The steps below were checked on 2026-09-25 on Civilization VII 1.5.0. The runs live in
 `mod_ideas_tested/canals/devtools/harness/` as `<label>-UI.log` with their captures in `shots/`; the analysis
 that led to this design is `mod_ideas_tested/canals/REEXAMINATION-2026-09-25.md`. The reader-facing account is
 the [README](../README.md); this file is the evidence behind it.
 
 ## The shape
 
-1. **Placement.** The Canal buildings carry no terrain rule. `ui/canals.js` wraps `Game.CityOperations.canStart`:
+1. Placement. The Canal buildings carry no terrain rule. `ui/canals.js` wraps `Game.CityOperations.canStart`:
    for a Canal the offered plots are the city's land tiles within its build ring (`BUILD_RADIUS`) that pass
    `isIsthmus`, and the per-plot check refuses anything else with `LOC_CANAL_NOT_ISTHMUS`. The engine's verdict
    on *whether* a Canal may be built (locked, already queued) is kept; the mod decides *where*.
-2. **Commit.** The engine offers buildings only on tiles that already hold an urban district (`c7`: 4 urban plots
+2. Commit. The engine offers buildings only on tiles that already hold an urban district (`c7`: 4 urban plots
    offered, 8 rural land tiles never), so a Canal on a rural isthmus first gets one: `CREATE_ELEMENT {Kind:
    DISTRICT, Type: DISTRICT_URBAN}` lands in about 3 s, after which the Canal is offered there and a real BUILD
    queues it (`c7`, `c8`). The plot is remembered in the save (`Canals_Pending_v1`).
-3. **Completion.** `ConstructibleBuildCompleted` fires for every player's buildings with the type hash, the
+3. Completion. `ConstructibleBuildCompleted` fires for every player's buildings with the type hash, the
    constructible id and the tile (`c5b`, `c6`). For a Canal on a canal site the handler retypes the tile to Coast
    (`WorldBuilder.MapPlots.setTerrain` inside `startBlock`/`endBlock`, feature cleared first, lands in about
    110 ms), destroys the Canal and its urban district (the district's housing art would hide the canal, `c14`),
    buys the released plot back for the city, frees the Canal's citizen and places it with the city's own expand
    order (rural district, fishing boats, worker), re-creates the Canal on that rural district so its yields count
    (`c23`, `c25`), and draws the canal look (`c15`).
-4. **The passage.** A ship's path to the far side went from 10 plots around the land to 3 plots through the tile,
+4. The passage. A ship's path to the far side went from 10 plots around the land to 3 plots through the tile,
    and a real move landed it there, its plot now in the other water area (`c4`); the same through a tile holding
    a quay and an urban district (`c5b`). The retype survives a cold save and reload (`c3`). The tile's area id
    does not change (the engine recalculates areas only at the age transition), which is why `isIsthmus` resolves
    a canal tile's waters through its neighbors instead of its area id.
-5. **The look, in-session.** `WorldUI.createModelGroup().addModelAtPlot(asset, {i, j}, offset, {placement,
+5. The look, in-session. `WorldUI.createModelGroup().addModelAtPlot(asset, {i, j}, offset, {placement,
    followTerrain, scale, angle})` draws cooked assets on the hex at once (`c11` to `c13`). One
    `TER_Decal_RiverPiece_Straight` per ship-water side, angle `(360 - 60 x ring index) % 360` so the arm points at
    that side (the piece points east at 0 and turns counter-clockwise on screen), the age's props along the first
@@ -120,7 +120,7 @@ the [README](../README.md); this file is the evidence behind it.
 | `c99` | `c58` replayed on the 1.1.0 release build: a two-tile cut, one city building with production, one buying. | The same verdict as `c58`: both opened, the ship's route crossed both and arrived. |
 | `c99b` | A save holding its canal as Coast (what Canals 1.0.0 wrote), the canal retyped to land while the game loads; the Options screen's autosave slider. | The retype landed while the game loaded, and the hex was still drawn as open shallows: the load had already drawn it, and a retype does not redraw a hex. The slider showed 1 with the setting held at 1001; picking 4 stored 1004 and showed 4. |
 | `c102` | The mod's autosaves over four turns with a keep count of 2; the reload offer on the same save. | The files carried on the game's series (`AutoSave_01_0002` to `_0006`), headed the `AUTOSAVE` list newest first and were the newest save of all, which is what Continue loads; each new one deleted the one past the keep count. "Reload now" wrote the turn's autosave with the canal as land and loaded it; nothing was left marked as saved as Coast. |
-| `c103` | The message boxes as the player reads them. | Body type one size up, a reading width, paragraphs (watched by the user). |
+| `c103` | The message boxes as the player reads them. | Body type one size up, a reading width, paragraphs (checked by the user). |
 | `c104` | The reload offer again, with no Autoplay to move the camera. | Before: the hex drawn as open shallows. After "Reload now": grass either side and the channel cut through, the land look of `c77`. |
 | `c100` | Age transition with a canal open: a player canal at 31,38 on `c95`'s Exploration save, autoplayed from turn 121 into the Modern age. | At turn 140 `BeforeAgeTransition` came first, then `GameAgeEnded`; the mod set the canal to land on the first. The Modern age attached with it as land (hill) and its record kept, turned it Coast once the load settled, and drew the channel through the city's land. The canal's area id in the new age is a land area, as a canal's is. |
 | `galr-mod16` | The Modern cycle: `g16-mod`'s five canals dug through the real build path and saved through the mod, reloaded. | All five water after the load, drawn as branching channels through grassland with quays and boats. |
@@ -185,7 +185,7 @@ the [README](../README.md); this file is the evidence behind it.
   Canal is raised (`AiFavoredItems` +3,000) so it builds on them at all (`s2c`). This replaced a planner that dug AI
   canals itself, which left the game's own AI free to put Canals anywhere (`w1`).
 
-## What is not watched
+## Not tested
 
 - An AI building over a repaired canal tile on land: in `hx-c13`, `hx-c14`, `hx-d2` and `hx-d4` no AI chose such a
   tile, and the engine refuses BUILD and PURCHASE sent for an AI's city. The district is then the same kind every
@@ -199,9 +199,9 @@ the [README](../README.md); this file is the evidence behind it.
   did not break an opening even without it (`race-ctl-one`).
 - A one-tile canal carried across an age transition.
 - A Modern branch through the real build path (`gal-mod` dropped that one BUILD with no reason code; branching
-  was proved by retype in `c28`).
+  was only checked by retype in `c28`).
 - The second and third look of each age as whole compositions; their pieces were photographed individually
-  (`c16`, `c17`). The first look of each age was watched in a game of its own age (`gal-ant3`, `gal-exp`,
+  (`c16`, `c17`). The first look of each age was seen in a game of its own age (`gal-ant3`, `gal-exp`,
   `gal-mod`).
 - An AI warship crossing between two seas through a canal: the AI units seen in canals were embarked land units
   (`c98`).

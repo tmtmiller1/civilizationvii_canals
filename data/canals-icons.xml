@@ -2,7 +2,7 @@
 <!--
   Building icons for the three Canals, drawn by scripts/make-icons.mjs (sources in art/). The PNGs are imported by
   the modinfo's ImportFiles action and addressed as fs://game/<mod id>/<path>, extension included: without it the
-  engine looks for a file with no extension and the icon is blank (watched, c38).
+  engine looks for a file with no extension and the icon is blank (c38).
   The one-tile Canal, the same in every age, shows the Ancient Canal's medallion.
   Loaded with <UpdateIcons>, never <UpdateDatabase>: IconDefinitions lives in the icon database.
 -->

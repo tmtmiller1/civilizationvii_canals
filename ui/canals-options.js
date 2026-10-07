@@ -1,4 +1,4 @@
-// canals-options.js - the mod's row in Options > Add-ons: which canal rules are in play.
+// The mod's row in Options > Add-ons, which picks the canal rules in play.
 //
 // "By age" is the mod as it has always been; "One-tile canals" swaps in the one Canal that is the same in every age
 // (see canals-settings.js and ui/canals.js). Loaded in the main menu, where the choice is the default for new games,
@@ -8,8 +8,8 @@ import { CategoryType, OptionType, Options } from "/core/ui/options/model-option
 import { CategoryData } from "/core/ui/options/options-helpers.js";
 import { MODES, getMode, setMode } from "/tower-canals/ui/canals-settings.js";
 
-// The shared "Mods" category that Tower's other mods and the community's create the same way. Run in the main menu
-// too, where a throw would take the menu down, so any failure only leaves the row out.
+// The shared "Mods" category, created the same way Tower's other mods and the community's create it. This also runs
+// in the main menu, where a throw would take the menu down, so any failure only leaves the row out.
 try {
   if (!CategoryType.Mods) CategoryType.Mods = "mods";
   if (!CategoryData[CategoryType.Mods]) {

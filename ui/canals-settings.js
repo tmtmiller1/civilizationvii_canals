@@ -33,7 +33,7 @@ function gameOptions() {
 }
 
 /**
- * The shared entry, for a write. Coherent's getItem() can return the FIRST key in the store instead of the one asked
+ * The shared entry, for a write. Coherent's getItem() can return the first key in the store instead of the one asked
  * for, so a write goes ahead only when what came back looks like a settings root ({ "<modId>": {...}, ... }), never
  * over another mod's data.
  */

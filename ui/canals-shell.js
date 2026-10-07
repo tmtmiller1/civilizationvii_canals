@@ -1,4 +1,4 @@
-// canals-shell.js - main menu side of Canals.
+// Main menu side of Canals.
 //
 // While a game with an open canal runs, the mod holds the engine's autosave by storing its frequency as 1000 + the
 // player's own value (see holdEngineAutosave in canals.js). This script runs whenever the main menu loads, after a

@@ -3,10 +3,10 @@
 Last reviewed 2026-09-29 against Canals 1.1.0 on Civilization VII 1.5.0.
 
 This file records what Canals touches, which kinds of mod touch the same things, and what a player would see when
-both are enabled. It was built by reading code, not by playing: 1,187 community mods in the reference corpus
-(refreshed 2026-09-21), the mods installed on the development machine, and Tower's own mods. Each finding carries a
-status line. "Read from code" means nobody has watched it in a game; treat it as a prediction with its reasoning
-laid out, and the cheapest test that would settle it is named beside it.
+both are enabled. It comes from reading code rather than from playing: the 1,187 community mods in the reference
+corpus (refreshed 2026-09-21), the mods installed on the development machine, and Tower's own mods. Each finding
+carries a status line. "Read from code" means it has not been tried in a game; treat it as a prediction with its
+reasoning laid out, and the cheapest test that would settle it is named beside it.
 
 Other authors' mods are described by what they do, not by name. The same mechanism usually appears in several mods,
 and a player needs to recognise the kind of mod, not one title.
@@ -33,7 +33,7 @@ Everything a conflict could come through. If another mod touches none of these, 
 | Kind of mod | Result | Status |
 | --- | --- | --- |
 | Gives every building a placement adjacency (ring or compact-city mods) | Canal offered, then refused; the tile can lose its improvement | Read from code |
-| National Park | Works together in either load order: park land is never a Canal site | Watched in game, both orders |
+| National Park | Works together in either load order: park land is never a Canal site | Tested in game, both orders |
 | Another script that restricts where buildings go | Depends on which script wraps last | Read from code |
 | Dams | Works together | Read from code |
 | Saves or archives games through `Network.saveGame` | Works; those saves hold canals as land like any other | Read from code |
@@ -105,7 +105,7 @@ rural tile anyway, and its refusal has to be told apart from the other mod's.
 
 ### 2a. National Park
 
-Status: watched in game on 1.5.0, 2026-09-29, both wrap orders, with a control run on 1.1.0. Harness:
+Status: tested in game on 1.5.0, 2026-09-29, both wrap orders, with a control run on 1.1.0. Harness:
 `mod_ideas_tested/canals/devtools/harness/canalh-game-np1.js` (runs `np1-fix`, `np1-control`, `np2-reverse`; Modern
 Age, seed 9001). Offline test of the same wrappers: `mod_ideas_tested/canals/devtools/np-order-test.mjs`.
 
@@ -135,10 +135,10 @@ purchase and a build sent at the park tile.
   canal through the park.
 - A Canal on a free isthmus still opens with both mods loaded (bought, charged once, Coast).
 
-The other direction needed no change, and was watched: with a canal already open on the isthmus, a park founded
+The other direction needed no change, and was tested: with a canal already open on the isthmus, a park founded
 beside it was not offered the canal tile, a park aimed at it is refused ("Nothing else can be built on a canal"),
 and the park's expansion list left it out. The Canal building bars the tile from joining a park, and a queued
-Canal's urban district does the same. Not watched: a click on the canal tile inside the open picker (the list the
+Canal's urban district does the same. Not tested: a click on the canal tile inside the open picker (the list the
 picker lights was read instead).
 
 ### 3. Dams
@@ -167,7 +167,7 @@ make. The corpus has mods that archive a copy of every Nth autosave on `SaveComp
 that call `Network.saveGame` for quicksaves; all of them call the global at the moment of saving, so they get the
 wrapped call and their saves hold canals as land. When an archiving mod starts its save from the same
 `SaveComplete` that turns canals back to Coast, Canals turns them to land again for the second save; the guard that
-keeps a retype from running during a save (the cause of a crash watched in run `c71`) covers that sequence.
+keeps a retype from running during a save (the cause of the crash in run `c71`) covers that sequence.
 
 Canals' own autosaves are written with the autosave category, so a mod that counts autosaves sees them.
 
@@ -198,7 +198,7 @@ retypes those tiles itself at each save and after it. Consequences:
   open.
 - An editor that removes a whole canal cannot remove its record; only removing the mod does.
 
-None of this can corrupt a save. It is worth knowing when a canal "refuses" to be edited.
+None of this can corrupt a save. It explains why a canal "refuses" to be edited.
 
 ### 7. Production and purchase screen replacements
 

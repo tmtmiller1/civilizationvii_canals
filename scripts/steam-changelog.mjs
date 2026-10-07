@@ -55,7 +55,7 @@ function compareVersions(a, b) {
   return 0;
 }
 
-// ── CHANGELOG.md → sections ────────────────────────────────────────────────────────────────────────────────────────
+// CHANGELOG.md → sections
 
 function parseMarkdown(md) {
   const sections = [];
@@ -162,7 +162,7 @@ function changelogUrl() {
   }
 }
 
-// ── CHANGELOG.steam.txt ────────────────────────────────────────────────────────────────────────────────────────────
+// CHANGELOG.steam.txt
 
 const HEADER_RE = /^==== (\S+) \| ([^|]*) \| src (\w+) \| gen (\w+) ====$/;
 

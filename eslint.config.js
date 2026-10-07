@@ -1,5 +1,5 @@
-// Dev-only ESLint flat config. Enforces the modularization gate used by active
-// tower mods and catches correctness issues. Not shipped in release artifacts.
+// Dev-only ESLint flat config: the size limits the other tower mods use, plus the
+// usual correctness rules. Not shipped in release artifacts.
 
 const ENGINE_GLOBALS = {
   Game: "readonly",
@@ -76,14 +76,11 @@ export default [
       globals: { ...ENGINE_GLOBALS, ...BROWSER_GLOBALS }
     },
     rules: {
-      // Size and shape rules are WARNINGS here, not errors, and that is deliberate.
-      // `districtThenBuild`, `eligiblePlots` and `install` drive the engine through a
-      // fixed sequence (buy the plot, place the district, wait for the build, retype
-      // the plot, sweep units) that was verified in game on 2026-09-25 by the c31 probe
-      // run. Splitting that sequence to satisfy a threshold would restructure the exact
-      // code those probes watched, so the gate reports the debt without blocking a
-      // release on it.
-      // TODO: refactor the three functions above, then raise these back to "error" to
+      // Size and shape rules only warn here. `districtThenBuild`, `eligiblePlots` and
+      // `install` drive the engine through a fixed sequence (buy the plot, place the
+      // district, wait for the build, retype the plot, sweep units) that is known to
+      // work as written, and splitting it to meet a threshold risks breaking the order.
+      // TODO: refactor those three functions, then raise these back to "error" to
       // match the other tower mods.
       complexity: ["warn", 10],
       "max-statements": ["warn", 18],
@@ -92,12 +89,11 @@ export default [
         "warn",
         { max: 50, skipBlankLines: true, skipComments: true, IIFEs: true }
       ],
-      // Also a warning, and for a practical reason: expanding the dense one-liners to
-      // satisfy max-len pushed this file to 499 counted lines against a 500 limit, so as
-      // an error it would fail on the very next line of code added. It belongs with the
-      // size debt above, not as a one-line cliff.
+      // Also a warning. Expanding the dense one-liners for max-len left the script at 499
+      // counted lines against a limit of 500, so as an error the next added line would
+      // fail the gate. Same size debt as above.
       "max-lines": ["warn", { max: 500, skipBlankLines: true, skipComments: true }],
-      // Everything below is enforced at the same strength as the other tower mods.
+      // the rest are errors, as in the other tower mods
       "max-len": [
         "error",
         {
