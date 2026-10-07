@@ -4,6 +4,13 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.4.2] - 2026-10-07
+
+- A Canal taken out of the production queue before it is finished can be ordered again. The half-dug Canal stays on
+  its tile with the Production already put into it, but its tile was no longer offered, so it could never be
+  finished. Now the tile is offered again once the Canal is out of the queue, and ordering it there carries on from
+  where it stopped.
+
 ## [1.4.1] - 2026-10-04
 
 - No change in game: the mod plays exactly as 1.4.0. Repository housekeeping only.

@@ -3,6 +3,10 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.4.2 | 2026-10-07 | src 5f200b37939b | gen 58a4096205f2 ====
+[b]Version 1.4.2 · 7 October 2026[/b]
+• A Canal taken out of the production queue before it is finished can be ordered again. The half-dug Canal stays on its tile with the Production already put into it, but its tile was no longer offered, so it could never be finished. Now the tile is offered again once the Canal is out of the queue, and ordering it there carries on from where it stopped.
+
 ==== 1.4.1 | 2026-10-04 | src a3556e4055bd | gen 862f6652d91b ====
 [b]Version 1.4.1 · 4 October 2026[/b]
 • No change in game: the mod plays exactly as 1.4.0. Repository housekeeping only.
