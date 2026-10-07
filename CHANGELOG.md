@@ -4,6 +4,19 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.4.3] - 2026-10-07
+
+- Settings kept after a restart. Civilization VII reads back only the first entry in its mod storage, whichever one
+  a mod asks for, so options set in one session could come back as another mod's data or not at all, and a mod
+  saving its options could copy that data under its own name. Canals now carries the Tower Settings Keeper file,
+  which keeps every mod's settings inside the one entry the game reads correctly and repairs a store another mod has
+  already put out of order, without deleting anything. The Canal rules chosen in Options now stay chosen after a
+  restart, and so do other mods' options that use the shared settings entry.
+- The file runs before any other script and changes nothing else in the mod. If several mods carry it, or the
+  standalone Tower Settings Keeper is installed too, one copy runs and the newest build wins. Nothing to set up:
+  existing settings carry over. Tower Settings Keeper:
+  [GitHub](https://github.com/tmtmiller1/civilizationvii_tower-settings-keeper), [Steam](https://steamcommunity.com/sharedfiles/filedetails/?id=3815023570).
+
 ## [1.4.2] - 2026-10-07
 
 - A Canal taken out of the production queue before it is finished can be ordered again. The half-dug Canal stays on

@@ -16,7 +16,7 @@
         <Authors>Tower</Authors>
         <Package>Canals</Package>
         <PackageSortIndex>100</PackageSortIndex>
-        <Version>1.4.2</Version>
+        <Version>1.4.3</Version>
         <AffectsSavedGames>0</AffectsSavedGames>
     </Properties>
     <Dependencies>
@@ -47,6 +47,8 @@
                 </UpdateText>
                 <!-- canals-options.js: the "Canal rules" row in Options > Add-ons, the default for new games -->
                 <UIScripts>
+                    <!-- Tower Settings Keeper: listed first, imports nothing, so it runs before anything reads storage. -->
+                    <Item>ui/settings-keeper.js</Item>
                     <Item>ui/canals-shell.js</Item>
                     <Item>ui/canals-options.js</Item>
                 </UIScripts>
@@ -95,6 +97,8 @@
                 </ImportFiles>
                 <UpdateIcons><Item>data/canals-icons.xml</Item></UpdateIcons>
                 <UIScripts>
+                    <!-- Tower Settings Keeper: listed first, imports nothing, so it runs before anything reads storage. -->
+                    <Item>ui/settings-keeper.js</Item>
                     <Item>ui/canals.js</Item>
                     <Item>ui/canals-options.js</Item>
                 </UIScripts>

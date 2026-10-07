@@ -68,6 +68,8 @@ const BROWSER_GLOBALS = {
 };
 
 export default [
+  // Tower Settings Keeper, copied unchanged from its own repo; it is linted and tested there.
+  { ignores: ["ui/settings-keeper.js"] },
   {
     files: ["ui/**/*.js"],
     languageOptions: {
