@@ -1,8 +1,8 @@
 // pedia-pages.test.mjs
 //
-// Civilopedia page-resolution gate: every page the mod adds must actually have text to draw.
+// Civilopedia page-resolution gate: every page the mod adds must have text to draw.
 //
-// The pedia resolves a chaptered page's body WITHOUT any database row: for each chapter of the page's layout it
+// The pedia resolves a chaptered page's body without any database row: for each chapter of the page's layout it
 // looks for that chapter's paragraphs by key convention and stops at the first gap (base-standard
 // ui/civilopedia/model-civilopedia.js, getChapterBody → findChapterTextKey):
 //
@@ -11,7 +11,7 @@
 //
 // where <prefix> is tried as LOC_PEDIA_<section>_PAGE_<page>, then LOC_PEDIA_<section>_PAGE, then
 // LOC_PEDIA_PAGE_<page>, then LOC_PEDIA_PAGE. A chapter with no text is skipped silently and a page whose
-// chapters are all empty renders as a title with nothing under it — no error, no log line, nothing to notice
+// chapters are all empty renders as a title with nothing under it: no error, no log line, nothing to notice
 // short of opening the page in game. The same is true of a mistyped page Name. So this gate walks the shipped
 // data exactly as the engine does and fails on a page that would come up blank, a paragraph sequence with a hole
 // in it (PARA_1 and PARA_3 silently drops PARA_3), a layout or page group that is referenced but never defined,
@@ -20,7 +20,7 @@
 // It also checks the search terms (every Term key has text and names a real page) and that each page and group
 // title fits the sidebar, which truncates long names with an ellipsis.
 //
-// It does NOT prove the engine draws them; only opening the Civilopedia in game does that. It proves the mod's
+// It does not show that the engine draws them; only opening the Civilopedia in game does that. It covers the mod's
 // side of the contract. Ported from Universal Auto Explore.
 //
 // Run as a plain node script (no engine loader needed): `node ./tests/pedia-pages.test.mjs` (also run by npm run verify).
@@ -58,7 +58,7 @@ function rowsIn(xml, table) {
   return out;
 }
 
-// ── what the mod ships ───────────────────────────────────────────────────────
+// what the mod ships
 const dataFiles = walk("data").filter((f) => f.endsWith(".xml") && /Civilopedia/.test(read(f)));
 assert.ok(dataFiles.length, "no Civilopedia data file found under data/");
 const dataXml = dataFiles.map(read).join("\n");
@@ -114,7 +114,7 @@ function conventionParagraphs(page, chapter) {
     const found = [];
     for (let i = 1; defined.has(`${stem}_PARA_${i}`); i++) found.push(`${stem}_PARA_${i}`);
     // A hole in the sequence is silent data loss: the engine stops at the gap and never reads past it. This has
-    // to run even when NOTHING was found, because the commonest way to make the hole is to lose PARA_1 itself,
+    // to run even when nothing was found, because the commonest way to make the hole is to lose PARA_1 itself,
     // which strands the whole chapter while leaving its text in the file.
     const stranded = [];
     for (let i = found.length + 2; i <= found.length + 20; i++) if (defined.has(`${stem}_PARA_${i}`)) stranded.push(i);
@@ -126,7 +126,7 @@ function conventionParagraphs(page, chapter) {
   return [];
 }
 
-// ── 0) foreign-key ordering within each file ─────────────────────────────────
+// 0) foreign-key ordering within each file
 // CivilopediaPages.PageLayoutID and CivilopediaPageLayoutChapters.PageLayoutID are real foreign keys onto
 // CivilopediaPageLayouts (01_GameplaySchema.sql), and the loader inserts in document order, so a file that
 // references one of its own layouts before declaring it inserts against a row that does not exist yet. That is
@@ -145,7 +145,7 @@ for (const f of dataFiles) {
   }
 }
 
-// ── 1) sections, groups and layouts are defined where they are referenced ────
+// 1) sections, groups and layouts are defined where they are referenced
 const sectionIds = new Set([...sections.map((r) => r.SectionID), ...BASE_SECTIONS]);
 const groupIds = new Set([...groups.map((r) => `${r.SectionID}|${r.PageGroupID}`), ...BASE_GROUPS]);
 const layoutIds = new Set([...layouts.map((r) => r.PageLayoutID), ...Object.keys(BASE_LAYOUTS)]);
@@ -159,7 +159,7 @@ for (const r of layoutChapters) {
   if (!layouts.some((l) => l.PageLayoutID === r.PageLayoutID)) fail(`layout chapter ${r.PageLayoutID}/${r.ChapterID}: layout ${r.PageLayoutID} is not defined by this mod`);
 }
 
-// ── 2) every page resolves to a title and to at least one chapter with text ──
+// 2) every page resolves to a title and to at least one chapter with text
 assert.ok(pages.length, "no CivilopediaPages rows");
 let chaptersWithText = 0;
 let paragraphsTotal = 0;
@@ -194,7 +194,7 @@ for (const page of pages) {
   chaptersWithText += withText;
 }
 
-// ── 2b) sidebar names fit, page ids are unique ────────────────────────────────
+// 2b) sidebar names fit, page ids are unique
 // The pedia's search (the box, and engine.trigger("open-civilopedia", id)) matches a bare page id across every
 // section, so two pages sharing an id make one of them unreachable by id.
 const textOf = (key) => {
@@ -214,13 +214,13 @@ for (const p of pages) {
   seenIds.add(p.PageID);
 }
 
-// ── 2c) search terms name real pages and have text ────────────────────────────
+// 2c) search terms name real pages and have text
 for (const r of searchTerms) {
   if (!pages.some((p) => p.SectionID === r.SectionID && p.PageID === r.PageID)) fail(`search term ${r.Term}: no page ${r.SectionID}/${r.PageID}`);
   if (!defined.has(r.Term)) fail(`search term ${r.Term} has no en_us row`);
 }
 
-// ── 3) no orphaned paragraph rows ────────────────────────────────────────────
+// 3) no orphaned paragraph rows
 for (const r of paragraphRows) {
   const page = pages.find((p) => p.SectionID === r.SectionID && p.PageID === r.PageID);
   if (!page) {
@@ -232,7 +232,7 @@ for (const r of paragraphRows) {
   }
 }
 
-// ── 4) a chapter title row that names a chapter no layout has is dead text ───
+// 4) a chapter title row that names a chapter no layout has is dead text
 // (Cheap catch for a renamed chapter: the title stays behind and nothing shows it.)
 const chapterIds = new Set(layoutChapters.map((r) => r.ChapterID));
 for (const key of defined) {

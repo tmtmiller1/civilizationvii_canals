@@ -160,8 +160,8 @@ were tried before this design, the probes and the harness runs live in the autho
 
 ## [1.0.0] - 2026-09-25
 
-First release. Watched working end to end on Civilization VII 1.5.0 in games of all three ages; the run behind
-each step is in `docs/verification-runs.md`.
+First release, for Civilization VII 1.5.0, tested in games of all three ages; the run behind each step is in
+`docs/verification-runs.md`.
 
 - A Canal building for each age, in the ordinary production list, unlocked by Engineering, Shipbuilding and
   Industrialization, at 300, 500 and 800 production. A city can dig as many canals as it has sites for.

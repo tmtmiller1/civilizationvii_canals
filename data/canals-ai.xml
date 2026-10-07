@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   How much the game's own AI values a Canal. The engine lets the AI build one only on a site ui/canals.js marked as
-  worth digging (data/canals-sites.xml), so the value can be raised safely: it acts only where the canal pays. Weighed
-  unraised, the AI considered a Canal at its marked sites 26 times each in 25 turns and never chose it; at 400 its score
-  rose fivefold (121 to 606, s2b) and still lost to the 3,300-7,300 of what the AI did build. Value V multiplies the
-  AI's score by 1 + V/100 (engine-closed.md, AI data).
+  worth digging (data/canals-sites.xml), so a high value only acts where the canal pays. Value V multiplies the AI's
+  score by 1 + V/100 (engine-closed.md, AI data). With no value the AI scores a Canal around 121 and never picks it.
+  At 400 the score is 606, still well under the 3,300 to 7,300 of the things it does build. At 3000 it builds one.
 -->
 <Database>
     <AiListTypes>

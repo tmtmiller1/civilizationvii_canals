@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Canals - a Civilization VII mod.
+  Canals, a Civilization VII mod.
   Three Canal buildings (Antiquity, Exploration, Modern), built through the ordinary production screen on a land
-  tile that separates two bodies of water; or, in the one-tile mode chosen in Options > Add-ons, one Canal that is
-  the same in every age. When one completes, the tile becomes a Coast tile with a quay on it and
-  ships sail through. Data: the buildings and their tech unlocks. Script: the placement rule, the completion
-  handler, persistence and rollback.
-  AffectsSavedGames=0: the data adds types only (no base rows change), so a save loads with the mod on or off.
+  tile that separates two bodies of water. In the one-tile mode chosen in Options > Add-ons there is one Canal
+  instead, the same in every age. When one completes, the tile becomes a Coast tile with a quay on it and ships
+  sail through. The data files hold the buildings and their tech unlocks. The script does the placement rule, the
+  completion handler, persistence and rollback.
+  AffectsSavedGames is 0 because the data only adds types and changes no base rows, so a save loads with the mod
+  on or off.
 -->
 <Mod id="tower-canals" version="1" xmlns="ModInfo">
     <Properties>

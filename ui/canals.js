@@ -1,6 +1,6 @@
 // canals.js - Canals, a Civilization VII mod. Game scope.
 //
-// What it does (every step watched 2026-09-25 on 1.5.0, see docs/verification-runs.md):
+// What it does (the runs behind each step are in docs/verification-runs.md):
 //   1. Placement. The Canal buildings (data/canals.xml) carry no terrain rule of their own; this script decides
 //      where they may go by wrapping the two calls that place a building: Game.CityOperations BUILD (production)
 //      and Game.CityCommands PURCHASE (gold, the only way a town gets a building). For a Canal, the offered plots
@@ -11,7 +11,7 @@
 //   2. Commit. A Canal BUILD or PURCHASE on an isthmus without an urban district first gets one (CREATE_ELEMENT
 //      DISTRICT), then the order is forwarded; if the engine refuses it the district is removed again. The tile is
 //      remembered in the save (GameConfiguration key) so a reload mid-construction still finishes the job. A
-//      purchased Canal lands complete with no completion event (watched, c36), so the commit opens it.
+//      purchased Canal lands complete with no completion event (c36), so the commit opens it.
 //   3. Completion. On ConstructibleBuildCompleted for a Canal on an isthmus: the tile is retyped to Coast
 //      (WorldBuilder.MapPlots.setTerrain, the feature cleared first), the Canal building and its district are
 //      destroyed and the plot bought back, so the finished canal is a bare water hex the city owns that ships path
@@ -59,7 +59,7 @@ function safe(fn, fb) { try { return fn(); } catch (_e) { return fb; } }
 function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 function J(o) { try { return JSON.stringify(o); } catch (_) { return "?"; } }
 
-// --- map reads -----------------------------------------------------------------------------------
+// map reads
 
 function idx(loc) { return GameplayMap.getIndexFromLocation(loc); }
 function locOf(i) { const l = GameplayMap.getLocationFromIndex(i); return { x: l.x, y: l.y }; }
@@ -88,7 +88,7 @@ function isImprovement(type) { return safe(() => String(GameInfo.Constructibles.
 
 /**
  * The water bodies a land tile touches: area id -> one water neighbor, ice excluded.
- * A finished canal keeps the area id of the land it was cut from (watched: the engine never recalculates areas
+ * A finished canal keeps the area id of the land it was cut from (the engine never recalculates areas
  * in-turn or on reload), so a water tile whose area id matches the surrounding land is a canal, not a sea; its
  * seas are resolved through its own water neighbors (a few hops, so a chain of canals resolves too).
  */
@@ -146,10 +146,10 @@ function isShipWater(loc) { return isOpenWater(loc) || isSettlementCentre(loc); 
  * tiles on one side and one on the other is two; five coast tiles in a row (a headland) is one.
  * A center is counted apart from the water rather than as a piece of it. Counted as water it could bridge the gap
  * between a neck's two shores and read them as a single stretch, so founding a settlement next to a neck took the
- * neck's own site away (watched, c48: a Modern town beside a two-shore neck left it unbuildable).
+ * neck's own site away (c48: a Modern town beside a two-shore neck left it unbuildable).
  */
 /** A ship-water neighbor in that ring direction. Cliffs do not matter: the retype clears the plot's cliff flags
- * (watched, c21); only their drawn rock faces remain until the next load. */
+ * (c21); only their drawn rock faces remain until the next load. */
 function openWaterSide(loc, d) {
   const n = safe(() => GameplayMap.getAdjacentPlotLocation(loc, DirectionTypes[d]), null);
   return !!(n && n.x >= 0 && isShipWater(n));
@@ -179,7 +179,7 @@ function waterStretches(loc) {
 
 /**
  * A tile holding a resource can take no building at all: the engine refuses every building on it, in a city or a
- * town, built or bought, even with an urban district in place, and gives no reason (watched, c53 to c55: Canal,
+ * town, built or bought, even with an urban district in place, and gives no reason (c53 to c55: Canal,
  * Grocer and Fishing Quay refused on an ivory and a wine tile, all three taken on a plain tile beside them; not one
  * urban tile on the whole map held a resource). The Canal is a building, and a script cannot clear a resource
  * (ResourceBuilder is map-generation only), so such a tile is never offered.
@@ -270,7 +270,7 @@ function isNaturalWater(loc, canals) { return isShipWater(loc) && !canals.has(id
  * One-tile mode: Antiquity's rule, in every age. `rule` defaults to the rule for a new Canal; a finished one is judged
  * by the rule of its own type (ruleFor).
  * A tile beside a canal always joins that canal's run and is judged by the run rule: a canal's own water never
- * makes its neighbor a two-shore isthmus on its own (watched gal-exp: that hole let a fourth tile onto a run's
+ * makes its neighbor a two-shore isthmus on its own (gal-exp: that hole let a fourth tile onto a run's
  * side and drew a branched blob in the Exploration age).
  */
 function isIsthmus(loc, rule = placementRule()) {
@@ -316,7 +316,7 @@ function isIsthmus(loc, rule = placementRule()) {
   return true;
 }
 
-// --- persistence ---------------------------------------------------------------------------------
+// persistence
 
 /** Remembered Canal sites (plot indexes), kept in the save so a reload mid-construction still completes. */
 function loadPending() {
@@ -342,7 +342,7 @@ function rememberOpen(plot, age, cliffs, land) {
   }
 }
 
-// --- the canal itself -----------------------------------------------------------------------------
+// the canal itself
 
 const state = {
   enabled: true, originals: null, canalIndexes: new Set(), busy: new Set(),
@@ -457,15 +457,15 @@ async function openCanal(loc, owner) {
     // no record of its own.
     rememberOpen(plot, age, cliffSides, landType);
     // The Canal and its urban district go: an urban district draws a block of houses over the hex, which hides the
-    // canal (watched, run c14). The citizen the Canal housed comes back as a pending point and is placed on the
-    // finished canal with the game's own expand order, which makes it a worked rural fishing tile (watched, c23);
+    // canal (run c14). The citizen the Canal housed comes back as a pending point and is placed on the
+    // finished canal with the game's own expand order, which makes it a worked rural fishing tile (c23);
     // the invisible works building of the canal's age then adds its food and gold to the city natively.
     safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: canal.owner, LocalID: canal.id }));
     await sleep(300);
     const did = districtIdAt(loc);
     if (did) safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "DISTRICT", Owner: did.owner, LocalID: did.id }));
     await sleep(1200);
-    // Removing the district releases the plot (watched); give it back to the city.
+    // Removing the district releases the plot; give it back to the city.
     if (cityId && safe(() => GameplayMap.getOwner(loc.x, loc.y), -1) !== who) {
       safe(() => Cities.get(cityId).purchasePlot({ x: loc.x, y: loc.y }));
       await sleep(1500);
@@ -479,10 +479,10 @@ async function openCanal(loc, owner) {
   } finally { state.busy.delete(plot); }
 }
 
-// --- the look, in-session --------------------------------------------------------------------------
+// the look, in-session
 //
 // A retyped hex keeps its land mesh until the next load (the engine redraws it as water then). Until then the
-// canal is drawn by script from shipped meshes (watched 2026-09-25, runs c11 to c13): one river channel piece per
+// canal is drawn by script from shipped meshes (runs c11 to c13, 2026-09-25): one river channel piece per
 // water side, meeting at the hex center, a stone quay with cranes along the first arm, and moored river boats.
 // The model group lives for the session; after a reload the engine's own water and quay take over.
 
@@ -491,8 +491,8 @@ const BOATS_ASSET = "IMP_FishingBoat_River_I_W_O_E";
 /**
  * Per age, several looks; a canal takes the one its plot number selects, so it keeps that look across reloads.
  * Each entry: whether the river-city house layout is drawn (with which attachment set), and the props placed along
- * the first arm as [asset, along, left, scale]. Watched 2026-09-25 (runs c16, c17, c19): the harbors, the wharf,
- * the shipyard and the layouts; the pier B and Modern pier pieces are siblings of watched pieces.
+ * the first arm as [asset, along, left, scale]. Runs c16, c17 and c19 (2026-09-25) covered the harbors, the wharf,
+ * the shipyard and the layouts; the pier B and Modern pier pieces are siblings of pieces seen there.
  */
 const AGE_LOOKS = {
   AGE_ANTIQUITY: [
@@ -698,8 +698,8 @@ function runArms(run) {
  */
 function orderSides(sides, water) {
   if (sides.length < 2) return sides;
-  // "left" of an arm (alongArm's +y) is counter-clockwise on screen, which is the PREVIOUS ring index
-  // (armAngle turns counter-clockwise as the index falls); watched c32: the props sat on the next arm with +1.
+  // "left" of an arm (alongArm's +y) is counter-clockwise on screen, which is the previous ring index
+  // (armAngle turns counter-clockwise as the index falls); c32: the props sat on the next arm with +1.
   let k = sides.findIndex((i) => !(water || sides).includes((i + 5) % 6));
   if (k < 0) k = sides.findIndex((i) => !sides.includes((i + 5) % 6));
   return k <= 0 ? sides : sides.slice(k).concat(sides.slice(0, k));
@@ -722,7 +722,7 @@ function alongArm(angleDeg, x, y) {
  * A lock where a channel meets a shore that was a cliff (the rock faces stay drawn after the retype, so the canal
  * is dressed as stepping down through them): a stone chamber with gates across the channel, a gatehouse on one
  * bank and a water wheel on the other. Pieces as [asset, along the arm, to its left, scale, angle offset].
- * Watched 2026-09-25 (runs c29, c30): further out than 0.42 the chamber vanishes into the cliff mesh. The looping
+ * Runs c29 and c30 (2026-09-25): further out than 0.42 the chamber vanishes into the cliff mesh. The looping
  * waterfall effect that stood past the lock (c34) is gone: from the game camera it read as a white spray standing up
  * out of the sea (lab c63).
  */
@@ -864,16 +864,16 @@ function wrapUnitSend(oSend) {
 
 /**
  * The finished canal tile: the citizen the Canal housed is placed on it with the city's own expand order (rural
- * district, fishing boats, a worker: watched c23), then the age's invisible works building is created there. If the
+ * district, fishing boats, a worker: c23), then the age's invisible works building is created there. If the
  * expand order does not offer the tile, a rural district is created directly and the citizen stays pending for the
  * player to place.
  */
-// --- districts that belong to no city -------------------------------------------------------------
+// districts that belong to no city
 //
 // CREATE_ELEMENT makes a district for a player, and for a city only when the request names it as Parent. Without
 // one the district has cityId null and is missing from the city's own district list. On a water canal nothing builds
 // there, but the tile is land in every save, in the next age, and for good once Canals is turned off, and the first
-// urban building the AI puts on it then crashes the game in native code (watched on a player's save, runs hx-c1 to
+// urban building the AI puts on it then crashes the game in native code (a player's save, runs hx-c1 to
 // hx-c12: the same Bazaar commit crashed over a fishing boat, a farm and a bare tile, and went through once the
 // district without a city was gone). Canals 1.2.1 and earlier made every AI canal's district that way.
 
@@ -979,8 +979,7 @@ function mapChecked() { return safe(() => String(Configuration.getGame().getValu
 const HEALED_DISTRICTS = ["DISTRICT_URBAN", "DISTRICT_RURAL"];
 /**
  * Give a district without a city to the city that owns its tile, with what stands on it. A district cannot be moved
- * to a city: a second CREATE_ELEMENT naming the Parent changes nothing, and the district has no setter (watched,
- * hl2). Taking the district off removes its buildings and releases the plot, so the plot is bought back for the city,
+ * to a city: a second CREATE_ELEMENT naming the Parent changes nothing, and the district has no setter (hl2).. Taking the district off removes its buildings and releases the plot, so the plot is bought back for the city,
  * the district made again with the city as Parent, and every finished building and improvement made again on it:
  * they come back finished, held by the city, and their yields reach it (hl2: a Bank, a Kiln and Medieval Walls).
  * Anything still under construction there is not kept.
@@ -1158,13 +1157,13 @@ async function settleCanalTile(loc, cityId, owner, canalType, opts) {
   await markCanalTile(loc);
 }
 
-// --- keeping the land look across loads --------------------------------------------------------------
+// keeping the land look across loads
 //
 // A load draws each hex from the terrain in the save, and a Coast hex comes out as open sea: the canal was gone
 // from sight after every reload. So a canal is land in every save and Coast while the player plays; after a load it
 // is turned to Coast again at once and drawn over the land mesh.
 //
-// The retype must land BEFORE a save starts, never during one: a canal retyped inside StartSaveRequest crashed the
+// The retype must land before a save starts, never during one: a canal retyped inside StartSaveRequest crashed the
 // game on the save's worker thread (c71, c75: same stack), while the same canal already land when the autosave began
 // saved cleanly (c74). Every save the UI makes goes through Network.saveGame, which is wrapped: the canals go to land,
 // the save is sent once the map reads them as land, and they are Coast again on SaveComplete.
@@ -1443,7 +1442,7 @@ function onBuildCompleted(data) {
   setTimeout(() => openCanal(loc, owner), SETTLE_MS);
 }
 
-// --- placement and commit ---------------------------------------------------------------------------
+// placement and commit
 
 function plotOf(args) { return args && args.X != null && args.Y != null ? { x: args.X, y: args.Y } : null; }
 
@@ -1458,7 +1457,7 @@ function eligiblePlots(cityID, anyUnits = false) {
   const centre = safe(() => city.location, null);
   for (const p of safe(() => city.getPurchasedPlots() || [], [])) {
     const loc = locOf(p);
-    // Only tiles the city can build on: within its ring (watched: a purchased tile 12 plots out is refused).
+    // Only tiles the city can build on: within its ring (a purchased tile 12 plots out is refused).
     if (centre && safe(() => GameplayMap.getPlotDistance(centre.x, centre.y, loc.x, loc.y), 99) > BUILD_RADIUS)
       continue;
     if (!isIsthmus(loc) || hasResource(loc) || isParkland(loc)) continue;
@@ -1474,10 +1473,10 @@ function eligiblePlots(cityID, anyUnits = false) {
 }
 
 /**
- * The engine's verdict on WHETHER a Canal may be had at all (locked, already queued, too little gold), as opposed to
+ * The engine's verdict on whether a Canal may be had at all (locked, already queued, too little gold), as opposed to
  * where. Only a plain "no suitable location" is ours to override, because that is the engine not seeing the canal
  * sites. Anything else is kept, including an unlock the player has not earned: a refusal for a locked building
- * carries no reasons at all (watched 2026-09-24, engine-closed.md), so a missing reason must not read as consent.
+ * carries no reasons at all (engine-closed.md, 2026-09-24), so a missing reason must not read as consent.
  */
 function engineSaysNo(res) {
   if (!res) return true;
@@ -1550,7 +1549,7 @@ function modPrice(cityID, def) {
 /**
  * Wraps a canStart that places a building: Game.CityOperations BUILD (production) or Game.CityCommands PURCHASE
  * (gold; a town's only way to get a building). For a Canal the offered plots are the canal sites and nothing else,
- * the engine's own urban-expansion plots included (watched, c36: a town's purchase offered three plain tiles beside it
+ * the engine's own urban-expansion plots included (c36: a town's purchase offered three plain tiles beside it
  * and refused the site).
  */
 /**
@@ -1606,7 +1605,7 @@ function wrapCanStart(oCan, placeType, purchase) {
  * The production and purchase lists are not built from canStart but from canStartQuery, and an entry whose result
  * says "no suitable location" is dropped from the list. The engine judges a Canal by its own rule and refuses it
  * wherever it sees no urban plot to expand onto, so in a town the row never appeared at all although the mod's own
- * canStart offered the site (watched, c41 and c42). Give the Canal's entry the mod's verdict.
+ * canStart offered the site (c41 and c42). Give the Canal's entry the mod's verdict.
  */
 function wrapCanStartQuery(oQuery, host, placeType) {
   return function (cityID, opType, queryType, ...rest) {
@@ -1646,7 +1645,7 @@ function inQueue(cityID, ctype) {
 
 /**
  * A Canal BUILD or PURCHASE on a tile without an urban district: create one, then forward; undo the district on
- * refusal. A purchased Canal lands complete and the engine sends no completion event for it (watched, c36), so the
+ * refusal. A purchased Canal lands complete and the engine sends no completion event for it (c36), so the
  * canal is opened here.
  */
 async function districtThenBuild(cityID, loc, ctype, forward, path) {
@@ -1674,7 +1673,7 @@ async function districtThenBuild(cityID, loc, ctype, forward, path) {
   // the engine takes a Canal only on a marked site (data/canals-sites.xml); a Canal the mod sells itself needs none
   if (soldFor == null && !await markSite(loc, markerFor((canalDef(ctype) || {}).ConstructibleType)))
     log(`the site marker did not land at ${loc.x},${loc.y}`);
-  // The engine needs a moment before a new district counts as a site (watched: a BUILD sent 200 ms after the
+  // The engine needs a moment before a new district counts as a site (a BUILD sent 200 ms after the
   // district landed was dropped; one sent 3 s later was taken). Wait for its own per-plot verdict.
   // (A Canal the mod sells itself is placed by the mod, not the engine, so there is no verdict to wait for.)
   if (soldFor == null) {
@@ -1704,7 +1703,7 @@ async function districtThenBuild(cityID, loc, ctype, forward, path) {
   if (!hadDistrict) {
     const did = districtIdAt(loc);
     if (did) safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "DISTRICT", Owner: did.owner, LocalID: did.id }));
-    // Removing the district released the plot (watched); buy it back for the city.
+    // Removing the district released the plot; buy it back for the city.
     await sleep(1000);
     if (safe(() => GameplayMap.getOwner(loc.x, loc.y), -1) !== local)
       safe(() => Cities.get(cityID).purchasePlot({ x: loc.x, y: loc.y }));
@@ -1757,7 +1756,7 @@ function wrapHost(host, type, purchase) {
   return saved;
 }
 
-// --- canal sites ---------------------------------------------------------------------------------------
+// canal sites
 //
 // The Canal requires a site marker on its tile (data/canals-sites.xml, Constructible_RequiredFeatures), so the engine
 // offers it, to the game's own AI as to the player, only on a tile this script has marked. The canal rule itself (a
@@ -1773,7 +1772,7 @@ function wrapHost(host, type, purchase) {
 //   - every tile with a Canal in any settlement's build queue, until the order is done with (queuedCanalPlots);
 //   - every opened canal, under its Canal building (markCanalTile).
 // A marker put on a tile that held vegetation, wetland or a floodplain replaces it; that feature is kept (SITES_KEY)
-// and put back when the tile stops being a site with no Canal begun on it. Loaded without the mod, a save simply has
+// and put back when the tile stops being a site with no Canal begun on it. Loaded without the mod, a save has
 // no markers (m6b).
 
 function aiMajors() {
@@ -1844,7 +1843,7 @@ async function putFeature(loc, f) {
 }
 
 /** Put a marker (by default the mode's) on a tile, keeping the feature it replaces; the other marker, there since the
- * mode changed, is simply replaced. True once it reads back. */
+ * mode changed, is replaced. True once it reads back. */
 async function markSite(loc, feature = offeredMarker()) {
   if (isMarked(loc, feature)) return true;
   const f = siteIndex(feature);
@@ -2056,7 +2055,7 @@ function canalWorth(loc) {
   return best;
 }
 
-// --- telling the player ------------------------------------------------------------------------------
+// telling the player
 
 /**
  * The dialog box sets its body as one centred run of text-base type with no width of its own, so a message of a few
@@ -2095,7 +2094,7 @@ async function tellOnce(key, body) {
 
 /**
  * A save from Canals 1.0.0 holds its canals as Coast, so the load drew them as open sea, and that look stays for the
- * session (watched, c99: the hex kept its sea mesh after the retype to land). One save and load draws them as canals
+ * session (c99: the hex kept its sea mesh after the retype to land). One save and load draws them as canals
  * again, since every save now holds them as land. The mod offers to do both: this turn's autosave is written through
  * the wrapped save call and then loaded. Declined, the look comes right after the player's own next save and load.
  */
@@ -2146,7 +2145,7 @@ function whenStarted(fn, delay) {
   poll();
 }
 
-// --- install ---------------------------------------------------------------------------------------
+// install
 
 function install() {
   for (const t of CANAL_TYPES) {

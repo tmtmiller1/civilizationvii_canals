@@ -10,7 +10,7 @@
 # What it does: syntax-check the script and the XML, mirror the shipped files into dist/<folder>/, zip with the
 # modinfo at the zip root, audit the zip against an allow-list, render the preview, and write the manifest. The
 # change note comes from CHANGELOG.steam.txt (scripts/steam-changelog.mjs keeps it in step with CHANGELOG.md).
-# The Workshop description is included only for the FIRST upload (no steam_workshop_id.txt yet) or when
+# The Workshop description is included only for the first upload (no steam_workshop_id.txt yet) or when
 # WITH_DESCRIPTION=1: steamcmd only touches the fields present, so leaving it out keeps the live page text.
 
 set -euo pipefail
@@ -88,7 +88,7 @@ fi
 echo "    OK: every shipped entry matches the allow-list."
 unzip -l "$ZIP_PATH" | head -25 || true
 
-# ── Steam Workshop preview + manifest ─────────────────────────────────────
+# Steam Workshop preview + manifest
 # Preview: the mod's logo, 1024x1024 (docs/workshop-preview.png); set by hand on the Workshop page.
 PREVIEW_SRC="docs/workshop-preview.png"
 PREVIEW_OUT="$DIST_DIR/preview.png"

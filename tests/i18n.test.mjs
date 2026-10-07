@@ -1,6 +1,6 @@
 // i18n.test.mjs - Canals: every string a player sees can be translated.
 //
-// text/en_us is the source of truth (see text/README.md). This checks that every LOC_ key the code, data and
+// text/en_us is the master copy (see text/README.md). This checks that every LOC_ key the code, data and
 // modinfo use has English text; that no tag is defined twice (a duplicate tag makes the game drop the whole file);
 // and, for each translation folder, that it holds exactly the English tags, under the right Language, with the same
 // {placeholders}, [icon:...] tags and markup as the English. Ported from National Park.

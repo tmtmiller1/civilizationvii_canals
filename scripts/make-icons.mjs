@@ -106,7 +106,7 @@ function channel(age, id) {
   return out;
 }
 
-// --- per-age dressing -----------------------------------------------------------------------------------------
+// per-age dressing
 
 function torch(x, y, h) {
   return `<line x1="${x}" y1="${y}" x2="${x}" y2="${y - h}" stroke="#4a2f17" stroke-width="${f(h / 9)}"/>` +
