@@ -4,19 +4,23 @@
 //   1. Placement. The Canal buildings (data/canals.xml) carry no terrain rule of their own; this script decides
 //      where they may go by wrapping the two calls that place a building: Game.CityOperations BUILD (production)
 //      and Game.CityCommands PURCHASE (gold, the only way a town gets a building). For a Canal, the offered plots
-//      are the city's land tiles with water on at least two separate sides (a strip of land between coasts, the
-//      same sea or not), and the per-plot check refuses anything else. The same verdict is written into
-//      canStartQuery, which is what the production and purchase lists are built from. The engine itself takes a Canal
-//      only on a tile holding the site marker (data/canals-sites.xml), which the order places: see "canal sites".
-//   2. Commit. A Canal BUILD or PURCHASE on an isthmus without an urban district first gets one (CREATE_ELEMENT
-//      DISTRICT), then the order is forwarded; if the engine refuses it the district is removed again. The tile is
-//      remembered in the save (GameConfiguration key) so a reload mid-construction still finishes the job. A
-//      purchased Canal lands complete with no completion event (c36), so the commit opens it.
-//   3. Completion. On ConstructibleBuildCompleted for a Canal on an isthmus: the tile is retyped to Coast
-//      (WorldBuilder.MapPlots.setTerrain, the feature cleared first), the Canal building and its district are
-//      destroyed and the plot bought back, so the finished canal is a bare water hex the city owns that ships path
-//      through at once; a canal look (channel, quay, boats) is drawn on it from shipped meshes. A Canal completed on
-//      a tile that is not an isthmus (an AI's, or a stale save) is left alone.
+//      are the plots the engine offers a plain building of the age through the same path, narrowed to tiles beside
+//      ship water or beside a canal (isIsthmus), and the per-plot check refuses anything else. The same verdict is
+//      written into canStartQuery, which is what the production and purchase lists are built from. The engine itself
+//      takes a Canal only on a tile holding the site marker (data/canals-sites.xml), which the order places: see
+//      "canal sites".
+//   2. Commit. A bare tile gets a rural district first (held by the city). The chosen tile is marked, the engine's
+//      own per-plot yes is waited for, any obsolete building on the tile is taken off, and the order is
+//      forwarded; the engine places the Canal on the district the tile has (cm2), so no urban district is ever
+//      made. The tile is remembered in the save (GameConfiguration key) so a
+//      reload mid-construction still finishes the job. A purchased Canal lands complete with no completion event
+//      (c36), so the commit opens it.
+//   3. Completion. On ConstructibleBuildCompleted for a Canal on a site: the tile is retyped to Coast
+//      (WorldBuilder.MapPlots.setTerrain, the feature cleared first) and the canal look (channel, quay, boats) is
+//      drawn on it from shipped meshes. On a rural tile the Canal stays and a fishing boat replaces the improvement.
+//      On an urban tile the Canal and the district are destroyed and the plot bought back, then the tile is settled
+//      as a worked rural fishing tile holding the Canal. Ships path through at once. A Canal completed on a tile
+//      that is not a site (an AI's, or a stale save) is left alone.
 //   4. Safety net. On load and at the start of every turn, every remembered tile and every complete Canal on the
 //      map is re-checked, so a missed event is caught on the next turn.
 //   Multiplayer: the terrain retype is a local call, not a networked operation, so in a network game the Canal is
@@ -40,7 +44,8 @@ const CANAL_TYPES = ["BUILDING_CANAL_ANTIQUITY", "BUILDING_CANAL_EXPLORATION", "
 /** What an opened one-tile canal records in place of an age: its rules and its look are the same in every age. */
 const ONE_TILE = "ONE_TILE";
 const SETTLE_MS = 400;
-const BUILD_LAND_MS = 6000;
+/** How long a forwarded order is given to reach the map or the queue. */
+const PLACE_MS = 3000;
 const BUILD_RADIUS = 3;
 /** Ships that may pass a canal per turn, by its age; the local player's orders are the only ones a script can hold. */
 const TRANSITS_PER_TURN = { AGE_ANTIQUITY: 1, AGE_EXPLORATION: 2, AGE_MODERN: Infinity, [ONE_TILE]: Infinity };
@@ -231,11 +236,11 @@ function isCuttable(loc) {
 
 function currentAge() { return safe(() => String(GameInfo.Ages.lookup(Game.age).AgeType), "AGE_ANTIQUITY"); }
 
-/** Most tiles a canal run may have, by age; whether it must be a straight line; whether it may branch. */
+/** Most tiles a canal run may have, by age. */
 const CHAIN_RULES = {
-  AGE_ANTIQUITY: { max: 1, straight: true, branch: false },
-  AGE_EXPLORATION: { max: 2, straight: true, branch: false },
-  AGE_MODERN: { max: 5, straight: false, branch: true }
+  AGE_ANTIQUITY: { max: 1 },
+  AGE_EXPLORATION: { max: 2 },
+  AGE_MODERN: { max: 5 }
 };
 /** The one-tile mode's rule, in every age: Antiquity's. */
 const ONE_TILE_RULE = CHAIN_RULES.AGE_ANTIQUITY;
@@ -260,24 +265,20 @@ function canalPlots() {
 function isNaturalWater(loc, canals) { return isShipWater(loc) && !canals.has(idx(loc)); }
 
 /**
- * The placement rule.
- * Antiquity: a single tile with water on at least two separate sides (a strip of land between two shores), never
- * beside another canal.
- * Exploration: the same, or a tile beside one canal (opened or queued) that makes a straight two-tile line with
- * it; no third tile, no bend, no branch.
- * Modern: a tile touching water or a canal, as long as the run it joins has at most five tiles and touches
- * natural water; runs may bend and branch.
- * One-tile mode: Antiquity's rule, in every age. `rule` defaults to the rule for a new Canal; a finished one is judged
- * by the rule of its own type (ruleFor).
- * A tile beside a canal always joins that canal's run and is judged by the run rule: a canal's own water never
- * makes its neighbor a two-shore isthmus on its own (gal-exp: that hole let a fourth tile onto a run's
- * side and drew a branched blob in the Exploration age).
+ * The placement rule: a cuttable land tile that touches ship water, so the new water joins water a ship can reach.
+ * Beside a canal (opened or queued) the tile joins that canal's run, and the run may have at most the age's number
+ * of tiles (one in Antiquity, two in Exploration, five in Modern), every tile of it reaching natural water through
+ * the run. A longer cut is dug from the shore inward, one tile at a time; where it goes, and whether it ever meets
+ * the far shore, is the player's call. One-tile mode: Antiquity's rule, in every age. `rule` defaults to the rule for
+ * a new Canal; a finished one is judged by the rule of its own type (ruleFor).
+ * A tile beside a canal is judged by the run rule, never as a shore tile of its own: a canal's own water does not
+ * make its neighbor a site outside the run's length (gal-exp).
  */
 function isIsthmus(loc, rule = placementRule()) {
   if (!isCuttable(loc)) return false;
   const canals = canalPlots();
   const besideCanal = RING.some((d) => { const n = neighborIn(loc, d); return n && canals.has(idx(n)); });
-  if (!besideCanal) return waterStretches(loc) >= 2 || waterAreas(loc).size >= 2;
+  if (!besideCanal) return waterStretches(loc) >= 1;
   if (rule.max <= 1) return false;
   const me = idx(loc);
   // the run of canal tiles this tile would join
@@ -306,13 +307,6 @@ function isIsthmus(loc, rule = placementRule()) {
     }
   }
   for (const p of comp) if (!dist.has(p)) return false;
-  // the run's shape: links per tile (a branch is three), and in a straight run the two links are opposite sides
-  for (const p of comp) {
-    const links = [];
-    RING.forEach((d, i) => { const n = neighborIn(locOf(p), d); if (n && comp.has(idx(n))) links.push(i); });
-    if (!rule.branch && links.length > 2) return false;
-    if (rule.straight && links.length === 2 && (links[1] - links[0]) !== 3) return false;
-  }
   return true;
 }
 
@@ -418,6 +412,30 @@ function notThisTurn(loc) {
   return true;
 }
 
+/**
+ * The opened tile kept as the rural tile it was: a script-placed improvement on a rural district replaces the one
+ * there (engine-closed.md), so the boat takes the farm's place. False when the boat did not land, and the opening
+ * falls back to rebuilding the tile.
+ */
+async function keepRuralTile(loc, who) {
+  const BOAT = "IMPROVEMENT_FISHING_BOAT";
+  const local = GameContext.localPlayerID;
+  const others = () => occupants(loc).filter((o) => isImprovement(o.type) && o.type !== BOAT);
+  // the land improvement first, and gone before the boat is placed: a placed improvement takes the place (and can
+  // take the id) of the one there, and a destroy sent for the old one then took the boat (wm4)
+  for (const o of others())
+    safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: o.owner, LocalID: o.id }));
+  for (let k = 0; k < 20 && others().length; k++) await sleep(100);
+  if (!occupants(loc).some((o) => o.type === BOAT)) {
+    safe(() => Game.PlayerOperations.sendRequest(local, "CREATE_ELEMENT",
+      { Kind: "CONSTRUCTIBLE", Type: BOAT, Location: { x: loc.x, y: loc.y }, Owner: who }));
+    for (let k = 0; k < 20 && !occupants(loc).some((o) => o.type === BOAT); k++) await sleep(100);
+  }
+  if (!occupants(loc).some((o) => o.type === BOAT)) { log(`canal at ${loc.x},${loc.y}: no boat landed on the rural tile; rebuilt`); return false; }
+  await markCanalTile(loc);
+  return !!canalOn(loc);
+}
+
 async function openCanal(loc, owner) {
   const plot = idx(loc);
   if (state.busy.has(plot) || state.hold) return; // held: the next sweep opens it (see keeping the land look)
@@ -433,7 +451,8 @@ async function openCanal(loc, owner) {
     if (alreadyWater && onRecord) return;
     if (state.saving || onRecord) return; // an open canal, land only while a save runs
     if (alreadyWater) log(`Canal at ${loc.x},${loc.y}: water already, no record; opened from here`);
-    const shared = occupants(loc).some((o) => o.type !== canal.type && !isImprovement(o.type));
+    // Buildings of the age share the tile only on an AI's or a stale tile; obsolete ones the canal replaces (c14).
+    const shared = occupants(loc).some((o) => o.type !== canal.type && !isImprovement(o.type) && !isObsolete(o.type));
     if (shared || !isIsthmus(loc, ruleFor(canal.type))) {
       log(`Canal at ${loc.x},${loc.y} ${shared ? "shares its tile with other buildings" : "is not on a canal site"}; left as a building`);
       forget(plot); return;
@@ -456,10 +475,27 @@ async function openCanal(loc, owner) {
     // time lands this canal with the others (wrapSaveGame) and the load knows it as a canal, not as open sea with
     // no record of its own.
     rememberOpen(plot, age, cliffSides, landType);
-    // The Canal and its urban district go: an urban district draws a block of houses over the hex, which hides the
-    // canal (run c14). The citizen the Canal housed comes back as a pending point and is placed on the
-    // finished canal with the game's own expand order, which makes it a worked rural fishing tile (c23);
-    // the invisible works building of the canal's age then adds its food and gold to the city natively.
+    // Drawn now, not once the tile is settled: the steps below each redraw the hex (the houses go, the plot changes
+    // hands, the rural district, the boat and the Canal land one by one), and with the canal look already over it
+    // they happen under the art rather than in front of a bare hex. The look is a model group of its own, so the
+    // engine's redraws do not touch it; the houses hide it only until they are taken off, a moment later.
+    state.openedHere.add(plot); state.landMesh.add(plot);
+    const drawn = drawOverlay(loc, age, cliffSides);
+    const redrawn = redrawNeighbours(loc);
+    // The engine places the Canal on the district the tile has (cm2, 2026-10-08). On a rural one the Canal already
+    // stands where the finished canal keeps it: the land improvement gives way to the boat and that is all.
+    if (districtAt(loc) === "DISTRICT_RURAL" && await keepRuralTile(loc, who)) {
+      forget(plot);
+      log(`canal opened at ${loc.x},${loc.y} for player ${who} on its rural tile: ${occupants(loc).map((o) => o.type).join(",")} overlay=${drawn} neighboursRedrawn=${redrawn}`);
+      return;
+    }
+    // An urban district (the engine's construction site for a production build on a bare city tile, or a quarter
+    // whose obsolete buildings the canal replaces) draws a block of houses over the hex, which hides the canal (run
+    // c14): the Canal and the district go. The citizen the Canal housed comes back as a pending point and is placed
+    // on the finished canal with the game's own expand order, which makes it a worked rural fishing tile (c23); the
+    // invisible works building of the canal's age then adds its food and gold to the city natively.
+    for (const o of occupants(loc)) if (o.type !== canal.type && !isImprovement(o.type))
+      safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: o.owner, LocalID: o.id }));
     safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: canal.owner, LocalID: canal.id }));
     await sleep(300);
     const did = districtIdAt(loc);
@@ -472,9 +508,6 @@ async function openCanal(loc, owner) {
     }
     forget(plot);
     await settleCanalTile(loc, cityId, who, canal.type);
-    state.openedHere.add(plot); state.landMesh.add(plot);
-    const drawn = drawOverlay(loc, age, cliffSides);
-    const redrawn = redrawNeighbours(loc);
     log(`canal opened at ${loc.x},${loc.y} for player ${who}: ${terrainOf(loc)} district=${districtAt(loc) || "none"} owner=${safe(() => GameplayMap.getOwner(loc.x, loc.y))} overlay=${drawn} neighboursRedrawn=${redrawn}`);
   } finally { state.busy.delete(plot); }
 }
@@ -939,8 +972,8 @@ async function repairCitylessDistricts() {
         else await healCanalTile(loc, e);
       } finally { state.busy.delete(e.plot); }
     }
-    // Any other district without a city. A Canal ordered on a tile without an urban district got one made for it
-    // (districtThenBuild), which 1.2.1 and earlier made without a city too; a build that never finished left it on
+    // Any other district without a city. Up to 1.4.3 a Canal ordered on a tile without an urban district got one made
+    // for it by script, which 1.2.1 and earlier made without a city too; a build that never finished left it on
     // the land for good, off the pending list, and buildings later put there gave the city nothing (a player's save,
     // 2026-10-01). Pending tiles are read at every sweep. The rest of the map is read until one whole pass has gone
     // through cleanly, then never again for this game: from 1.2.2 the mod makes no district without a city, so only a
@@ -1060,7 +1093,7 @@ function queuedHere(city, loc) {
  * One queued item of a healed tile, ordered again. The old entry still stands in the queue after the rebuild and is
  * dropped unbuilt when its turn comes (hl5), and while it stands the engine takes no second order for the same
  * building (hl5-heal4). So it is cancelled (the queue's own RemoveAt), ordered again on the tile once the engine
- * takes the order (a district just made takes none for a moment, see districtThenBuild), and moved back to its
+ * takes the order (a district just made takes none for a moment), and moved back to its
  * place. Progress already put into it is not carried over.
  */
 async function requeue(city, loc, q) {
@@ -1447,26 +1480,84 @@ function onBuildCompleted(data) {
 
 function plotOf(args) { return args && args.X != null && args.Y != null ? { x: args.X, y: args.Y } : null; }
 
+function hasTag(type, tag) {
+  return safe(() => GameInfo.TypeTags.some((r) => String(r.Type) === String(type) && String(r.Tag) === tag), false);
+}
+/** A building of an earlier age that is not ageless: one the game lets a new building replace. */
+function isObsolete(type) {
+  const def = safe(() => GameInfo.Constructibles.lookup(type), null);
+  if (!def || !def.Age) return false;
+  return (AGE_RANK[String(def.Age)] || 0) < (AGE_RANK[currentAge()] || 0) && !hasTag(def.ConstructibleType, "AGELESS");
+}
+/** A building with no placement rule of its own: the engine's answer for it is where any building may go. */
+function plainBuilding(def) {
+  if (String(def.ConstructibleClass) !== "BUILDING") return false;
+  if (def.AdjacentTerrain || def.AdjacentDistrict || def.RiverPlacement || def.AdjacentLake || def.AdjacentRiver)
+    return false;
+  if (def.RequiresDistantLands || def.RequiresHomeland || def.ExistingDistrictOnly || def.RequiresAppealPlacement)
+    return false;
+  if (def.Age && String(def.Age) !== currentAge()) return false;
+  const t = String(def.ConstructibleType);
+  if (CANAL_TYPES.includes(t)) return false;
+  const rows = (table) => safe(() => GameInfo[table].some((r) => String(r.ConstructibleType) === t), false);
+  for (const table of ["Constructible_RequiredFeatures", "Constructible_RequiredFeatureClasses", "Constructible_ValidTerrains",
+    "Constructible_ValidBiomes", "Constructible_ValidFeatures", "Constructible_ValidResources"]) if (rows(table)) return false;
+  if (safe(() => GameInfo.Buildings.find((b) => String(b.ConstructibleType) === t).TraitType, null)) return false;
+  return true;
+}
+const engineListCache = new Map();
 /**
- * The city's land tiles that qualify, whether or not the engine offered them. `anyUnits` keeps a tile a unit stands
- * on (the site marks: a unit passing through must not unmark a site for a turn).
+ * Where the engine lets this settlement put a building right now (urban districts with room, rural tiles it may
+ * build onto, obsolete buildings it may replace): its own canStart for a plain building of the age, through the
+ * path the Canal is ordered by. A town answers for purchase only, a city for production too (cm2: a town takes a
+ * tile it works, never a bare one; a city takes a bare tile and makes the district itself). null when no plain
+ * building answers, and the ring rule below stands in.
  */
-function eligiblePlots(cityID, anyUnits = false) {
+function enginePlots(cityID, purchase) {
+  const host = state.originals && state.originals.hosts[purchase ? 1 : 0];
+  if (!host) return null;
+  const key = `${J(cityID)}:${purchase ? "buy" : "build"}:${safe(() => Game.turn, 0)}`;
+  const hit = engineListCache.get(key);
+  if (hit && Date.now() - hit.at < 1000) return hit.plots;
+  let plots = null;
+  for (const def of safe(() => [...GameInfo.Constructibles].filter(plainBuilding), [])) {
+    const ask = () => host.canStart.call(host.host, cityID, host.type, { ConstructibleType: def.$index }, false);
+    const r = safe(ask, null);
+    if (!r || typeof r !== "object" || r.Locked || (r.NeededUnlock != null && r.NeededUnlock !== -1)) continue;
+    const list = (a) => (Array.isArray(a) ? a : []);
+    const all = [...list(r.Plots), ...list(r.ExpandUrbanPlots)];
+    if (!all.length) continue;
+    plots = new Set(all); break;
+  }
+  engineListCache.set(key, { at: Date.now(), plots });
+  return plots;
+}
+
+/**
+ * The city's tiles that qualify: a rural tile the settlement works, a bare tile within its build ring (the commit
+ * gives it a rural district first, see placeCanal: the Canal is valid on a rural district, so the engine takes it
+ * there, in a town as in a city, cm2), or an urban tile where the engine would put a plain building (enginePlots),
+ * on a tile that passes the water rule, holds no resource, park or unit, and no building of the age. `anyUnits`
+ * keeps a tile a unit stands on (the site marks: a unit passing through must not unmark a site for a turn).
+ * `purchase` names the path the Canal is ordered by; without it the ring rule stands in for the engine's list.
+ */
+function eligiblePlots(cityID, anyUnits = false, purchase = null) {
   const city = safe(() => Cities.get(cityID), null);
   if (!city) return [];
   const out = [];
   const centre = safe(() => city.location, null);
+  const engine = purchase == null ? null : enginePlots(cityID, purchase);
   for (const p of safe(() => city.getPurchasedPlots() || [], [])) {
     const loc = locOf(p);
-    // Only tiles the city can build on: within its ring (a purchased tile 12 plots out is refused).
-    if (centre && safe(() => GameplayMap.getPlotDistance(centre.x, centre.y, loc.x, loc.y), 99) > BUILD_RADIUS)
-      continue;
-    if (!isIsthmus(loc) || hasResource(loc) || isParkland(loc)) continue;
     if (unfinishedCanal(cityID, loc)) { out.push(p); continue; }
-    // never a tile that holds buildings: the canal removes whatever stands on it
+    const away = () => safe(() => GameplayMap.getPlotDistance(centre.x, centre.y, loc.x, loc.y), 99);
     const d = districtAt(loc);
-    if (d !== "" && d !== "DISTRICT_RURAL") continue;
-    if (occupants(loc).some((o) => !isImprovement(o.type))) continue;
+    if (d === "DISTRICT_URBAN" && engine && !engine.has(p)) continue;
+    if (d !== "DISTRICT_RURAL" && centre && away() > BUILD_RADIUS) continue;
+    if (!isIsthmus(loc) || hasResource(loc) || isParkland(loc)) continue;
+    if (d !== "" && d !== "DISTRICT_RURAL" && d !== "DISTRICT_URBAN") continue;
+    // a building of the age, or an ageless one, keeps its tile; obsolete ones the canal replaces
+    if (occupants(loc).some((o) => !isImprovement(o.type) && !isObsolete(o.type))) continue;
     if (canalOn(loc) || loadPending().includes(p)) continue;
     if (!anyUnits && safe(() => (MapUnits.getUnits(loc.x, loc.y) || []).length, 0) > 0) continue;
     out.push(p);
@@ -1562,6 +1653,16 @@ function modPrice(cityID, def) {
 }
 
 /**
+ * A Canal purchase its owner cannot pay for. The engine says so only for a tile that is already a site with an urban
+ * district (c37); the plot-less verdict the purchase list is built from is a "no suitable location" the mod
+ * overrides, so without this a town lists the Canal as buyable with too little gold.
+ */
+function cannotAfford(cityID, def) {
+  const p = modPrice(cityID, def);
+  return p.cost > 0 && p.short;
+}
+
+/**
  * Wraps a canStart that places a building: Game.CityOperations BUILD (production) or Game.CityCommands PURCHASE
  * (gold; a town's only way to get a building). For a Canal the offered plots are the canal sites and nothing else,
  * the engine's own urban-expansion plots included (c36: a town's purchase offered three plain tiles beside it
@@ -1596,6 +1697,8 @@ function wrapCanStart(oCan, placeType, purchase) {
       if (!isIsthmus(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_NOT_ISTHMUS"] };
       if (hasResource(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_RESOURCE"] };
       if (isParkland(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_PARKLAND"] };
+      if (!eligiblePlots(cityID, true, purchase).includes(idx(loc)))
+        return { ...res, Success: false, FailureReasons: ["LOC_BUILDING_CONSTRUCT_NO_SUITABLE_LOCATION"] };
     }
     const general = loc ? oCan(cityID, type, { ConstructibleType: args.ConstructibleType }, ...rest) : res;
     let sold = null;
@@ -1605,13 +1708,15 @@ function wrapCanStart(oCan, placeType, purchase) {
       sold = modPrice(cityID, def);
     }
     // a Canal the mod sells itself (see unlockedByMod) reads as unlocked, priced, and short of gold when it is
-    const open = sold ? { Locked: false, NeededUnlock: -1, Cost: sold.cost, InsufficientFunds: sold.short } : {};
+    const short = sold ? sold.short : purchase && cannotAfford(cityID, def);
+    const open = sold ? { Locked: false, NeededUnlock: -1, Cost: sold.cost, InsufficientFunds: sold.short }
+      : short ? { InsufficientFunds: true } : {};
     if (loc) {
-      if (sold && sold.short) return { ...res, ...open, Success: false, FailureReasons: ["LOC_CITY_PURCHASE_INSUFFICIENT_FUNDS"] };
+      if (short) return { ...res, ...open, Success: false, FailureReasons: ["LOC_CITY_PURCHASE_INSUFFICIENT_FUNDS"] };
       return { ...res, ...open, Success: true, FailureReasons: [] };
     }
-    const plots = eligiblePlots(cityID);
-    const ok = plots.length > 0 && !(sold && sold.short);
+    const plots = eligiblePlots(cityID, false, purchase);
+    const ok = plots.length > 0 && !short;
     return { ...res, ...open, Plots: plots, ExpandUrbanPlots: [], MountainPlots: [], Success: ok, FailureReasons: plots.length ? [] : ["LOC_BUILDING_CONSTRUCT_NO_SUITABLE_LOCATION"] };
   };
 }
@@ -1659,70 +1764,61 @@ function inQueue(cityID, ctype) {
 }
 
 /**
- * A Canal BUILD or PURCHASE on a tile without an urban district: create one, then forward; undo the district on
- * refusal. A purchased Canal lands complete and the engine sends no completion event for it (c36), so the
- * canal is opened here.
+ * A Canal order on its tile: the site marker goes on first, the engine's own verdict is waited for, any obsolete
+ * building on the tile is taken off (the canal takes the whole tile), and the order is forwarded. The engine places
+ * the Canal on whatever district the tile has, or makes one itself (cm2, 2026-10-08): nothing is built by script.
+ * A purchased Canal lands complete with no completion event (c36), so the commit opens it.
  */
-async function districtThenBuild(cityID, loc, ctype, forward, path) {
+async function placeCanal(cityID, loc, ctype, forward, path) {
   const soldFor = path.soldFor;
   const local = GameContext.localPlayerID;
   const plot = idx(loc);
-  const hadDistrict = districtAt(loc) === "DISTRICT_URBAN";
   const engineAccepts = () => safe(() => {
     const r = path.oCan.call(path.host, cityID, path.type, { ConstructibleType: ctype, X: loc.x, Y: loc.y }, false);
     return !!(r && r.Success);
   }, false);
-  if (!hadDistrict) {
-    for (const o of occupants(loc)) safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: o.owner, LocalID: o.id }));
-    // Parent ties the district to the city; without it the district belongs to no city (see districtHolder).
-    safe(() => Game.PlayerOperations.sendRequest(local, "CREATE_ELEMENT",
-      { Kind: "DISTRICT", Type: "DISTRICT_URBAN", Location: { x: loc.x, y: loc.y }, Parent: cityID, Owner: local }));
-    for (let k = 0; k < 20 && districtAt(loc) !== "DISTRICT_URBAN"; k++) await sleep(100);
-    if (districtAt(loc) !== "DISTRICT_URBAN") { log(`no urban district could be created at ${loc.x},${loc.y}; build not sent`); return; }
-    if (!(districtHolder(loc) || {}).city) {
-      await destroyDistrict(loc);
-      log(`the urban district at ${loc.x},${loc.y} landed without a city; removed, build not sent`);
+  // A bare tile gets a rural district first, held by the city: the engine then takes the Canal on it as on any
+  // worked tile, a town's as a city's, and no urban construction site is ever drawn. (A bare tile left to the engine
+  // takes an urban district in a city and is refused in a town: cm2, wm3.)
+  const madeDistrict = districtAt(loc) === "";
+  if (madeDistrict && !await createRuralDistrict(loc, cityID, cityOwner(cityID))) {
+    log(`no district for the Canal at ${loc.x},${loc.y}; not placed`); return;
+  }
+  const undo = async () => { if (madeDistrict) await destroyDistrict(loc); };
+  // the engine takes a Canal only on a marked site (data/canals-sites.xml); a Canal the mod sells itself needs none
+  if (soldFor == null) {
+    if (!await markSite(loc, markerFor((canalDef(ctype) || {}).ConstructibleType))) log(`the site marker did not land at ${loc.x},${loc.y}`);
+    for (let k = 0; k < 20 && !engineAccepts(); k++) await sleep(100);
+    if (!engineAccepts()) {
+      log(`the engine refuses the Canal at ${loc.x},${loc.y}: ${J(safe(() => path.oCan.call(path.host, cityID, path.type, { ConstructibleType: ctype, X: loc.x, Y: loc.y }, false), null))}`);
+      if (plot in loadSites() && !aiSites().has(plot)) await unmarkSite(loc);
+      await undo();
       return;
     }
   }
-  // the engine takes a Canal only on a marked site (data/canals-sites.xml); a Canal the mod sells itself needs none
-  if (soldFor == null && !await markSite(loc, markerFor((canalDef(ctype) || {}).ConstructibleType)))
-    log(`the site marker did not land at ${loc.x},${loc.y}`);
-  // The engine needs a moment before a new district counts as a site (a BUILD sent 200 ms after the
-  // district landed was dropped; one sent 3 s later was taken). Wait for its own per-plot verdict.
-  // (A Canal the mod sells itself is placed by the mod, not the engine, so there is no verdict to wait for.)
-  if (soldFor == null) {
-    for (let k = 0; k < 50 && !engineAccepts(); k++) await sleep(100);
-    if (!engineAccepts()) log(`engine verdict on the Canal at ${loc.x},${loc.y}: ${J(safe(() => path.oCan.call(path.host, cityID, path.type, { ConstructibleType: ctype, X: loc.x, Y: loc.y }, false), null))}`);
-  }
+  for (const o of occupants(loc)) if (!isImprovement(o.type) && isObsolete(o.type))
+    safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: o.owner, LocalID: o.id }));
   remember(plot);
   forward();
   const t0 = Date.now();
-  while (Date.now() - t0 < BUILD_LAND_MS) {
+  while (Date.now() - t0 < PLACE_MS) {
     await sleep(100);
     const c = canalOn(loc);
-    // a production order goes into the queue and reaches the map only later (s1): it is taken all the same
+    // a production order goes into the queue and reaches the map at once or later (s1, cm2): either is taken
     if (!c && !path.purchase && inQueue(cityID, ctype)) { log(`Canal queued at ${loc.x},${loc.y}`); return; }
     if (!c) continue;
     if (soldFor != null) {
       safe(() => Players.grantYield(local, YieldTypes.YIELD_GOLD, -soldFor));
       log(`Canal sold by the mod at ${loc.x},${loc.y} for ${soldFor} gold (its tech was researched before the mod was added)`);
     }
-    log(`Canal ${path.purchase ? "bought" : "queued"} at ${loc.x},${loc.y}`);
+    log(`Canal ${path.purchase ? "bought" : "queued"} at ${loc.x},${loc.y} on ${districtAt(loc) || "no district"}`);
     if (path.purchase && c.complete) setTimeout(() => openCanal(loc, local), SETTLE_MS);
     return;
   }
-  log(`the engine did not take the Canal at ${loc.x},${loc.y}; putting the tile back`);
+  log(`the engine did not take the Canal at ${loc.x},${loc.y}`);
   forget(plot);
   if (plot in loadSites() && !aiSites().has(plot)) await unmarkSite(loc);
-  if (!hadDistrict) {
-    const did = districtIdAt(loc);
-    if (did) safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "DISTRICT", Owner: did.owner, LocalID: did.id }));
-    // Removing the district released the plot; buy it back for the city.
-    await sleep(1000);
-    if (safe(() => GameplayMap.getOwner(loc.x, loc.y), -1) !== local)
-      safe(() => Cities.get(cityID).purchasePlot({ x: loc.x, y: loc.y }));
-  }
+  await undo();
 }
 
 function wrapSendRequest(oSend, path) {
@@ -1749,10 +1845,15 @@ function wrapSendRequest(oSend, path) {
       if (price.short) { log(`not enough gold for the Canal at ${loc.x},${loc.y} (${price.cost})`); return false; }
       const place = () => safe(() => Game.PlayerOperations.sendRequest(GameContext.localPlayerID, "CREATE_ELEMENT",
         { Kind: "CONSTRUCTIBLE", Type: def.ConstructibleType, Location: { x: loc.x, y: loc.y }, Owner: cityOwner(cityID) }));
-      districtThenBuild(cityID, loc, args.ConstructibleType, place, { ...path, soldFor: price.cost });
+      placeCanal(cityID, loc, args.ConstructibleType, place, { ...path, soldFor: price.cost });
       return true;
     }
-    districtThenBuild(cityID, loc, args.ConstructibleType, () => oSend(cityID, type, args, ...rest), path);
+    // checked before the tile is touched: a purchase the engine refuses for gold would leave its urban district behind
+    if (path.purchase && cannotAfford(cityID, def)) {
+      log(`not enough gold for the Canal at ${loc.x},${loc.y} (${modPrice(cityID, def).cost})`);
+      return false;
+    }
+    placeCanal(cityID, loc, args.ConstructibleType, () => oSend(cityID, type, args, ...rest), path);
     return true;
   };
 }
@@ -1760,7 +1861,7 @@ function wrapSendRequest(oSend, path) {
 /** Wrap one host's canStart/sendRequest for the operation that places a building through it. */
 function wrapHost(host, type, purchase) {
   if (!host || typeof host.canStart !== "function" || typeof host.sendRequest !== "function") return null;
-  const saved = { host, canStart: host.canStart, sendRequest: host.sendRequest };
+  const saved = { host, type, canStart: host.canStart, sendRequest: host.sendRequest };
   const path = { host, type, purchase, oCan: saved.canStart };
   host.canStart = wrapCanStart(saved.canStart.bind(host), type, purchase);
   host.sendRequest = wrapSendRequest(saved.sendRequest.bind(host), path);
@@ -2221,7 +2322,7 @@ function uninstall() {
 
 if (!G[KEY]) {
   G[KEY] = {
-    version: "1.4.3",
+    version: "1.5.0",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
     uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen, localTurnActive,

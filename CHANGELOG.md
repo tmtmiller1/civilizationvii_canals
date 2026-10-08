@@ -4,6 +4,21 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.5.0] - 2026-10-08
+
+- A Canal can go on any land tile beside water a ship can sail, or beside a canal already dug: a tile the settlement
+  works, a bare tile within its build ring, or an urban tile whose buildings are all from an earlier age, which the
+  canal replaces. The "two shores" rule and the straight-line rule are gone: a cut is dug from the shore inward, one
+  tile at a time, up to the age's longest run (one tile in Antiquity, two in Exploration, five in Modern), and may
+  bend and branch. Every tile 1.4.3 offered is still offered.
+- No houses on a canal site, ever. The mod used to create an urban district on the tile before every order and take
+  it down again afterwards, which drew a block of houses over the site for several seconds and, when the order was
+  refused, could leave the houses behind with nothing in them. Now the Canal is built on the tile's rural district
+  (a bare tile gets one first) and the engine places it there itself. A bought Canal opens in about a second.
+- A town's purchase list greys out a Canal the treasury cannot pay for, and clicking it changes nothing on the map.
+  Before, the row looked buyable, and the order went as far as the houses before the engine refused it.
+- The canal look is drawn the moment the tile turns to water, not after the tile has been rebuilt around it.
+
 ## [1.4.3] - 2026-10-07
 
 - Settings kept after a restart. Civilization VII reads back only the first entry in its mod storage, whichever one

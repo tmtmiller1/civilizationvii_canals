@@ -2,13 +2,13 @@
 <Database>
     <LocalizedText>
         <Replace Tag="LOC_CANALS_MOD_NAME" Language="ko_KR"><Text>운하</Text></Replace>
-        <Replace Tag="LOC_CANALS_MOD_DESCRIPTION" Language="ko_KR"><Text>각 시대에 운하 건물을 추가합니다. 두 수역을 가르는 육지 타일에 건설하면, 완공 시 그 타일이 선착장이 있는 해안 타일로 바뀌어 배가 지나갈 수 있습니다. 공학, 조선, 산업화로 해금됩니다. 옵션의 추가 콘텐츠에서 대신 1타일 운하로 바꿀 수 있습니다. 모든 시대에 같은 운하 하나로, 고대에는 관개로 해금되며 배 통행 제한이 없습니다. 싱글 플레이 전용입니다.</Text></Replace>
+        <Replace Tag="LOC_CANALS_MOD_DESCRIPTION" Language="ko_KR"><Text>각 시대에 운하 건물을 추가합니다. 물가의 육지 타일 중 게임이 건물을 지을 수 있게 하는 곳에 건설하면, 완공 시 그 타일이 선착장이 있는 해안 타일로 바뀌어 배가 지나갈 수 있습니다. 내륙 쪽 옆 타일을 파면 물길이 이어지며, 시대별 최대 길이까지 늘릴 수 있습니다. 공학, 조선, 산업화로 해금됩니다. 옵션의 추가 콘텐츠에서 대신 1타일 운하로 바꿀 수 있습니다. 모든 시대에 같은 운하 하나로, 고대에는 관개로 해금되며 배 통행 제한이 없습니다. 싱글 플레이 전용입니다.</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_ANTIQUITY_NAME" Language="ko_KR"><Text>고대 운하</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_EXPLORATION_NAME" Language="ko_KR"><Text>중세 운하</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_MODERN_NAME" Language="ko_KR"><Text>근대 운하</Text></Replace>
-        <Replace Tag="LOC_BUILDING_CANAL_DESCRIPTION" Language="ko_KR"><Text>좁은 육지를 가로질러 뱃길을 냅니다. 두 수역을 가르는 육지 타일에만 건설할 수 있습니다. 완공되면 그 타일이 선착장이 있는 해안 타일로 바뀌며, 배가 지나갈 수 있습니다.</Text></Replace>
-        <Replace Tag="LOC_BUILDING_CANAL_TOOLTIP" Language="ko_KR"><Text>완공되면 두 수역 사이의 육지 타일을 배가 다닐 수 있는 수로로 바꿉니다.</Text></Replace>
-        <Replace Tag="LOC_CANAL_NOT_ISTHMUS" Language="ko_KR"><Text>운하는 두 수역을 가르는 육지 타일에 건설해야 합니다.</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_DESCRIPTION" Language="ko_KR"><Text>육지를 가로질러 뱃길을 냅니다. 배가 다닐 수 있는 물이나 운하에 접한 육지 타일에만 건설할 수 있습니다. 완공되면 그 타일이 선착장이 있는 해안 타일로 바뀌며, 배가 지나갈 수 있습니다.</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_TOOLTIP" Language="ko_KR"><Text>완공되면 물가의 육지 타일을 배가 다닐 수 있는 수로로 바꿉니다.</Text></Replace>
+        <Replace Tag="LOC_CANAL_NOT_ISTHMUS" Language="ko_KR"><Text>운하는 배가 다닐 수 있는 물이나 운하에 접한 육지 타일에 건설해야 합니다.</Text></Replace>
         <Replace Tag="LOC_FEATURE_CANALS_SITE_NAME" Language="ko_KR"><Text>운하 부지</Text></Replace>
         <Replace Tag="LOC_FEATURE_CANALS_SITE_TOOLTIP" Language="ko_KR"><Text>운하를 팔 수 있는 좁은 땅입니다. 그 아래 땅과 같은 생산량을 제공합니다.</Text></Replace>
         <Replace Tag="LOC_CANAL_RESOURCE" Language="ko_KR"><Text>자원이 있는 타일에는 운하를 팔 수 없습니다.</Text></Replace>
@@ -26,13 +26,13 @@
         <Replace Tag="LOC_PEDIA_CANALS_TERM_LOCK" Language="ko_KR"><Text>갑문</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_TITLE" Language="ko_KR"><Text>운하</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_TITLE" Language="ko_KR"><Text>기본</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_PARA_1" Language="ko_KR"><Text>운하는 두 수역 사이의 좁은 땅을 가로질러 뱃길을 내는 건물입니다. 완공되면 그 타일은 물이 되며, 배가 돌아가지 않고 곧장 지나갈 수 있습니다.</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_PARA_1" Language="ko_KR"><Text>운하는 물가의 육지 타일을 가로질러 뱃길을 내는 건물입니다. 완공되면 그 타일은 물이 되어 배가 지나갈 수 있으며, 내륙 쪽 옆 타일을 다음 운하로 삼을 수 있으므로 물길은 물가에서부터 한 타일씩 이어져, 건너편 물가에 닿거나 짓는 이가 멈추는 곳까지 이어집니다.</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_PARA_2" Language="ko_KR"><Text>운하는 두 바다, 호수와 바다, 강과 바다, 또는 같은 강의 두 구간을 이을 수 있습니다. 시대마다 고유한 운하가 있으며, [TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]정착지[/TIP]는 부지가 있는 만큼 운하를 건설할 수 있습니다.</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_AGES_TITLE" Language="ko_KR"><Text>시대별 운하</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_AGES_PARA_1" Language="ko_KR"><Text>[BLIST][LI][B]고대 운하[/B](고대 시대): 공학으로 해금됩니다. 비용은 [icon:YIELD_PRODUCTION] 생산력 300입니다. +2 [icon:YIELD_FOOD] 식량, +2 [icon:YIELD_GOLD] 금. 길이는 1타일입니다.[LI][B]중세 운하[/B](대항해시대): 조선으로 해금됩니다. 비용은 [icon:YIELD_PRODUCTION] 생산력 500입니다. +3 [icon:YIELD_FOOD] 식량, +4 [icon:YIELD_GOLD] 금. 직선으로 최대 2타일까지 이어질 수 있습니다.[LI][B]근대 운하[/B](근대 시대): 산업화로 해금됩니다. 비용은 [icon:YIELD_PRODUCTION] 생산력 800입니다. +4 [icon:YIELD_FOOD] 식량, +6 [icon:YIELD_GOLD] 금. 최대 5타일까지 이어질 수 있으며, 꺾이거나 갈라질 수 있습니다.[/LIST]</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_AGES_PARA_1" Language="ko_KR"><Text>[BLIST][LI][B]고대 운하[/B](고대 시대): 공학으로 해금됩니다. 비용은 [icon:YIELD_PRODUCTION] 생산력 300입니다. +2 [icon:YIELD_FOOD] 식량, +2 [icon:YIELD_GOLD] 금. 길이는 1타일입니다.[LI][B]중세 운하[/B](대항해시대): 조선으로 해금됩니다. 비용은 [icon:YIELD_PRODUCTION] 생산력 500입니다. +3 [icon:YIELD_FOOD] 식량, +4 [icon:YIELD_GOLD] 금. 최대 2타일까지 이어질 수 있습니다.[LI][B]근대 운하[/B](근대 시대): 산업화로 해금됩니다. 비용은 [icon:YIELD_PRODUCTION] 생산력 800입니다. +4 [icon:YIELD_FOOD] 식량, +6 [icon:YIELD_GOLD] 금. 최대 5타일까지 이어질 수 있으며, 꺾이거나 갈라질 수 있습니다.[/LIST]</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_TITLE" Language="ko_KR"><Text>운하 건설</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_PARA_1" Language="ko_KR"><Text>도시의 생산 목록에서 운하를 선택하거나, 도시 또는 마을의 구매 목록에서 [icon:YIELD_GOLD] 금으로 구매하세요. 배치 화면에는 운하를 팔 수 있는 타일만 표시됩니다(운하 부지 참조).</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_PARA_2" Language="ko_KR"><Text>선택한 타일은 건설 중인 운하가 있는 시가지 특수지구가 되며, 그 위의 교외 시설은 제거됩니다. 다른 건물과 마찬가지로 운하도 시민 1명을 차지합니다. [icon:YIELD_GOLD] 금으로 구매한 운하는 즉시 개통됩니다.</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_PARA_2" Language="ko_KR"><Text>운하는 다른 건물과 마찬가지로 선택한 타일에 건설됩니다. 정착지가 일하는 타일에서는 시설 옆에 들어서고, 빈 타일은 먼저 정착지의 교외 타일이 되며, 시가지 타일에서는 이전 시대의 건물을 대체합니다. 다른 건물과 마찬가지로 운하도 시민 1명을 차지합니다. [icon:YIELD_GOLD] 금으로 구매한 운하는 즉시 개통됩니다.</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_OPEN_TITLE" Language="ko_KR"><Text>개통 후</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_OPEN_PARA_1" Language="ko_KR"><Text>타일은 해안 타일이 되며 이후 계속 물로 남습니다. 배는 같은 턴에 이 타일을 지나는 경로로 이동할 수 있습니다. 운하는 땅을 가로지르는 수로로 그려지며, 양쪽 기슭에는 해당 시대 양식의 선착장과 건물이 늘어서고, 탁 트인 바다와 만나는 곳에는 배가 정박해 있습니다.</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_OPEN_PARA_2" Language="ko_KR"><Text>운하의 시민은 완공된 운하로 옮겨 가 어장 타일로 개발하며, 운하 건물은 생산량과 함께 타일에 남습니다. 도시가 그곳에 시민을 배치할 수 없으면 플레이어가 직접 배치해야 합니다.</Text></Replace>
@@ -42,17 +42,17 @@
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_MULTIPLAYER_PARA_1" Language="ko_KR"><Text>멀티플레이 게임에서는 운하를 건설할 수 없습니다.</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_TITLE" Language="ko_KR"><Text>운하 부지</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CONTENT_TITLE" Language="ko_KR"><Text>기본</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CONTENT_PARA_1" Language="ko_KR"><Text>운하는 배가 통로로 쓸 수 있는 타일, 즉 서로 다른 두 방향에 물이 있는 좁은 땅에만 건설할 수 있습니다. 물이 모두 한쪽에만 있는 곶은 해당하지 않습니다.</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CONTENT_PARA_1" Language="ko_KR"><Text>운하는 새로 생기는 물이 배가 다닐 수 있는 물과 이어지는 타일에만 건설할 수 있습니다. 즉 바다, 호수, 깊은 강, 또는 이미 판 운하에 접한 육지 타일입니다.</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_TITLE" Language="ko_KR"><Text>조건</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_PARA_1" Language="ko_KR"><Text>[BLIST][LI][TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]정착지[/TIP]가 소유한 평지 또는 거친 지형이며, 그 정착지가 건물을 배치할 수 있는 범위 안에 있어야 합니다.[LI]타일의 서로 다른 두 방향 이상에 물이 있어야 합니다. 바다, 호수, 깊은 강은 어떤 조합이든 인정되며, 양쪽이 같은 바다여도 인정됩니다.[LI]빙하, 그리고 테라처럼 바다에 있는 자연경관은 물로 간주되지 않습니다.[LI]깊은 강 타일이 아니어야 합니다.[LI]타일에 시가지 특수지구가 없어야 합니다. 교외 시설은 있어도 되며, 운하를 배치하면 제거됩니다.[LI]타일에 유닛이 없어야 합니다.[LI]타일에 자원이 없어야 합니다.[LI]이미 완공되었거나 건설 중인 운하가 아니어야 합니다.[/LIST]</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_PARA_1" Language="ko_KR"><Text>[BLIST][LI][TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]정착지[/TIP]가 소유한 평지 또는 거친 지형이며, 그 정착지가 건물을 배치할 수 있는 범위 안에 있어야 합니다.[LI]적어도 한 방향에 배가 다닐 수 있는 물(바다, 호수, 깊은 강)이 있거나, 이미 팠거나 건설 중인 운하에 접하여 그 운하의 다음 타일이 되어야 합니다.[LI]빙하, 그리고 테라처럼 바다에 있는 자연경관은 물로 간주되지 않습니다.[LI]깊은 강 타일이 아니어야 합니다.[LI]정착지가 일하는 타일, 건물을 배치할 수 있는 범위 안의 빈 타일, 또는 건물이 모두 이전 시대의 것인 시가지 타일이어야 하며, 그 건물은 운하가 대체합니다. 현재 시대의 건물이나 시대를 타지 않는 건물은 타일을 그대로 차지합니다.[LI]타일에 유닛이 없어야 합니다.[LI]타일에 자원이 없어야 합니다.[LI]이미 완공되었거나 건설 중인 운하가 아니어야 합니다.[/LIST]</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_TITLE" Language="ko_KR"><Text>정착지 중심부</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_PARA_1" Language="ko_KR"><Text>타일 옆의 도심부나 마을 중심부는 두 방향 중 하나로 인정되므로, 정착지는 중심부에서 바다나 강까지 운하를 팔 수 있습니다. 중심부는 주변의 물과는 별개로 따로 인정되므로, 정착지가 옆에 있다고 해서 좁은 땅이 조건에서 벗어나는 일은 없습니다.</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_PARA_1" Language="ko_KR"><Text>타일 옆의 도심부나 마을 중심부는 배가 닿을 수 있는 물로 인정되므로, 정착지는 중심부에서 바다나 강까지 운하를 팔 수 있습니다.</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_TITLE" Language="ko_KR"><Text>더 긴 운하</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_CONTENT_TITLE" Language="ko_KR"><Text>기본</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_CONTENT_PARA_1" Language="ko_KR"><Text>대항해시대부터는 운하가 1타일보다 길어질 수 있습니다. 기존 운하나 건설 중인 운하 옆의 타일은 현재 시대가 허용하면 그 운하의 다음 타일로 제시됩니다. 운하의 모든 타일이 완공되면 배가 지나갈 수 있습니다.</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_CONTENT_PARA_2" Language="ko_KR"><Text>운하의 물만으로는 옆 타일이 부지가 되지 않습니다. 운하 옆 타일은 그 운하의 일부로만 제시됩니다.</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_AGES_TITLE" Language="ko_KR"><Text>시대별 길이</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_AGES_PARA_1" Language="ko_KR"><Text>[BLIST][LI][B]고대 시대:[/B] 1타일.[LI][B]대항해시대:[/B] 직선으로 최대 2타일. 꺾이거나 갈라질 수 없습니다.[LI][B]근대 시대:[/B] 최대 5타일. 모든 타일이 운하를 통해 탁 트인 바다에 닿는다면 꺾이거나 갈라질 수 있습니다.[/LIST]</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_AGES_PARA_1" Language="ko_KR"><Text>[BLIST][LI][B]고대 시대:[/B] 1타일.[LI][B]대항해시대:[/B] 최대 2타일.[LI][B]근대 시대:[/B] 최대 5타일. 모든 타일이 운하를 통해 탁 트인 바다에 닿는다면 꺾이거나 갈라질 수 있습니다. 운하는 물가에서 내륙으로 한 타일씩 파 들어갑니다.[/LIST]</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_BORDERS_TITLE" Language="ko_KR"><Text>정착지를 잇는 운하</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_BORDERS_PARA_1" Language="ko_KR"><Text>운하는 한 [TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]정착지[/TIP]의 땅에서 다른 정착지의 땅으로 이어질 수 있습니다. 각 타일은 그 타일을 소유한 정착지가 건설하거나 구매하며, 타일들이 모여 하나의 수로를 이룹니다.</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_LOCKS_TITLE" Language="ko_KR"><Text>절벽과 갑문</Text></Replace>
@@ -67,7 +67,7 @@
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_1" Language="ko_KR"><Text>완공된 운하는 해당 도시의 물 타일이며 어장 타일로 개발됩니다. 그 위의 운하 건물은 운하를 판 시대에 따라 생산량을 추가합니다. 고대 운하는 +2 [icon:YIELD_FOOD] 식량과 +2 [icon:YIELD_GOLD] 금, 중세 운하는 +3 [icon:YIELD_FOOD] 식량과 +4 [icon:YIELD_GOLD] 금, 근대 운하는 +4 [icon:YIELD_FOOD] 식량과 +6 [icon:YIELD_GOLD] 금입니다.</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_2" Language="ko_KR"><Text>대가는 [icon:YIELD_PRODUCTION] 생산력 또는 [icon:YIELD_GOLD] 금, 육지 타일, 그리고 그 위에 있던 교외 시설입니다.</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_ONE_TILE_NAME" Language="ko_KR"><Text>운하</Text></Replace>
-        <Replace Tag="LOC_BUILDING_CANAL_ONE_TILE_DESCRIPTION" Language="ko_KR"><Text>좁은 땅을 가로질러 배가 다닐 수로를 냅니다. 두 수역을 가르는 육지 타일에만 건설할 수 있으며, 다른 운하 옆에는 건설할 수 없습니다. 완공되면 타일이 물로 바뀌어 모든 배가 지나갈 수 있으며, 턴마다 지나가는 수에 제한이 없습니다. 모든 시대에 같은 건물입니다.</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_ONE_TILE_DESCRIPTION" Language="ko_KR"><Text>육지를 가로질러 배가 다닐 수로를 냅니다. 배가 다닐 수 있는 물에 접한 육지 타일에만 건설할 수 있으며, 다른 운하 옆에는 건설할 수 없습니다. 완공되면 타일이 물로 바뀌어 모든 배가 지나갈 수 있으며, 턴마다 지나가는 수에 제한이 없습니다. 모든 시대에 같은 건물입니다.</Text></Replace>
         <Replace Tag="LOC_OPTIONS_GROUP_CANALS" Language="ko_KR"><Text>운하</Text></Replace>
         <Replace Tag="LOC_CANALS_OPTION_MODE" Language="ko_KR"><Text>운하 규칙</Text></Replace>
         <Replace Tag="LOC_CANALS_OPTION_MODE_DESCRIPTION" Language="ko_KR"><Text>시대별: 시대마다 기술로 해금되는 운하가 따로 있으며, 시대가 지날수록 운하가 길어지고 더 많은 배가 지나갈 수 있습니다. 1타일 운하: 모든 시대에 같은 운하 하나로, 고대에는 관개로 해금되고 이후에는 기술이 필요 없으며, 현재 시대의 양식으로 그려지고, 항상 1타일이며 턴마다 몇 척이든 지나갈 수 있습니다. 메인 메뉴에서 고르면 새 게임에, 게임 중에 고르면 그 게임에 적용됩니다. 이미 판 운하는 원래 규칙을 유지합니다.</Text></Replace>

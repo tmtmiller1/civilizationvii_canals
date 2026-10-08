@@ -2,13 +2,13 @@
 <Database>
     <LocalizedText>
         <Replace Tag="LOC_CANALS_MOD_NAME" Language="zh_Hant_HK"><Text>運河</Text></Replace>
-        <Replace Tag="LOC_CANALS_MOD_DESCRIPTION" Language="zh_Hant_HK"><Text>為每個時代加入一座運河建築。將其建造在分隔兩片水域的陸地格位上；完成後，該格位會變成設有碼頭的水岸格位，船隻可以從中穿行。由「工程」、「造船術」與「工業化」科技解鎖。可在「選項」的「附加內容」中改用單格位運河：所有時代通用一座運河，古典時代由「灌溉」解鎖，不限制船隻數量。僅限單人遊戲。</Text></Replace>
+        <Replace Tag="LOC_CANALS_MOD_DESCRIPTION" Language="zh_Hant_HK"><Text>為每個時代加入一座運河建築。將其建造在臨水的陸地格位上，凡是遊戲允許放置建築的地方皆可；完成後，該格位會變成設有碼頭的水岸格位，船隻可以從中穿行。再向內陸開鑿相鄰的格位，水道便會延伸，最長可達該時代允許的長度。由「工程」、「造船術」與「工業化」科技解鎖。可在「選項」的「附加內容」中改用單格位運河：所有時代通用一座運河，古典時代由「灌溉」解鎖，不限制船隻數量。僅限單人遊戲。</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_ANTIQUITY_NAME" Language="zh_Hant_HK"><Text>古代運河</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_EXPLORATION_NAME" Language="zh_Hant_HK"><Text>中世紀運河</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_MODERN_NAME" Language="zh_Hant_HK"><Text>現代運河</Text></Replace>
-        <Replace Tag="LOC_BUILDING_CANAL_DESCRIPTION" Language="zh_Hant_HK"><Text>在狹窄的陸地上開鑿一條通航水道。只能建造在分隔兩片水域的陸地格位上。完成後，該格位會變成設有碼頭的水岸格位，船隻可以從中穿行。</Text></Replace>
-        <Replace Tag="LOC_BUILDING_CANAL_TOOLTIP" Language="zh_Hant_HK"><Text>完成後，會將兩片水域之間的陸地格位變成可通航的水道。</Text></Replace>
-        <Replace Tag="LOC_CANAL_NOT_ISTHMUS" Language="zh_Hant_HK"><Text>運河必須建造在分隔兩片水域的陸地格位上。</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_DESCRIPTION" Language="zh_Hant_HK"><Text>在陸地上開鑿一條通航水道。只能建造在緊鄰船隻可航行水域或緊鄰運河的陸地格位上。完成後，該格位會變成設有碼頭的水岸格位，船隻可以從中穿行。</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_TOOLTIP" Language="zh_Hant_HK"><Text>完成後，會將臨水的陸地格位變成可通航的水道。</Text></Replace>
+        <Replace Tag="LOC_CANAL_NOT_ISTHMUS" Language="zh_Hant_HK"><Text>運河必須建造在緊鄰船隻可航行水域或緊鄰運河的陸地格位上。</Text></Replace>
         <Replace Tag="LOC_FEATURE_CANALS_SITE_NAME" Language="zh_Hant_HK"><Text>運河選址</Text></Replace>
         <Replace Tag="LOC_FEATURE_CANALS_SITE_TOOLTIP" Language="zh_Hant_HK"><Text>可以開鑿運河的一片狹長陸地。收益與其下方的土地相同。</Text></Replace>
         <Replace Tag="LOC_CANAL_RESOURCE" Language="zh_Hant_HK"><Text>無法在有資源的格位上開鑿運河。</Text></Replace>
@@ -26,13 +26,13 @@
         <Replace Tag="LOC_PEDIA_CANALS_TERM_LOCK" Language="zh_Hant_HK"><Text>船閘</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_TITLE" Language="zh_Hant_HK"><Text>運河</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_TITLE" Language="zh_Hant_HK"><Text>基礎</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_PARA_1" Language="zh_Hant_HK"><Text>運河是一種建築，可以在兩片水域之間的狹長陸地上開鑿一條通航水道。完成後，該格位會變成水域，船隻可以直接穿過，不必繞行。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_PARA_1" Language="zh_Hant_HK"><Text>運河是一種建築，可以在臨水的陸地格位上開鑿一條通航水道。完成後，該格位會變成水域，船隻可以從中穿行；向內陸相鄰的格位可以成為下一座運河，因此水道會從岸邊起一個格位一個格位地延伸，直到抵達對岸，或止於建造者停手之處。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_PARA_2" Language="zh_Hant_HK"><Text>運河可以連通兩片海洋、湖泊與海洋、河流與海洋，或同一條河流的兩段。每個時代都有各自的運河，[TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]聚落[/TIP]有多少處選址，就能建造多少條運河。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_AGES_TITLE" Language="zh_Hant_HK"><Text>各時代的運河</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_AGES_PARA_1" Language="zh_Hant_HK"><Text>[BLIST][LI][B]古代運河[/B]（古典時代）：由「工程」解鎖。花費300[icon:YIELD_PRODUCTION]生產力。+2[icon:YIELD_FOOD]食物，+2[icon:YIELD_GOLD]金幣。運河長1個格位。[LI][B]中世紀運河[/B]（探索時代）：由「造船術」解鎖。花費500[icon:YIELD_PRODUCTION]生產力。+3[icon:YIELD_FOOD]食物，+4[icon:YIELD_GOLD]金幣。運河可長達2個格位，須呈直線。[LI][B]現代運河[/B]（近代）：由「工業化」解鎖。花費800[icon:YIELD_PRODUCTION]生產力。+4[icon:YIELD_FOOD]食物，+6[icon:YIELD_GOLD]金幣。運河最長可達5個格位，並且可以轉彎與分岔。[/LIST]</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_AGES_PARA_1" Language="zh_Hant_HK"><Text>[BLIST][LI][B]古代運河[/B]（古典時代）：由「工程」解鎖。花費300[icon:YIELD_PRODUCTION]生產力。+2[icon:YIELD_FOOD]食物，+2[icon:YIELD_GOLD]金幣。運河長1個格位。[LI][B]中世紀運河[/B]（探索時代）：由「造船術」解鎖。花費500[icon:YIELD_PRODUCTION]生產力。+3[icon:YIELD_FOOD]食物，+4[icon:YIELD_GOLD]金幣。運河可長達2個格位。[LI][B]現代運河[/B]（近代）：由「工業化」解鎖。花費800[icon:YIELD_PRODUCTION]生產力。+4[icon:YIELD_FOOD]食物，+6[icon:YIELD_GOLD]金幣。運河最長可達5個格位，並且可以轉彎與分岔。[/LIST]</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_TITLE" Language="zh_Hant_HK"><Text>建造運河</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_PARA_1" Language="zh_Hant_HK"><Text>從城市的生產清單中選擇運河，或在城市或城鎮的購買清單中以[icon:YIELD_GOLD]金幣購買。放置畫面只會提供可以開鑿運河的格位（請參閱「運河選址」）。</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_PARA_2" Language="zh_Hant_HK"><Text>所選的格位會變成都會區域，其中是建造中的運河，格位上的任何鄉村改良設施都會被移除。與其他建築一樣，運河會佔用1名市民。以[icon:YIELD_GOLD]金幣購買的運河會立即開通。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_PARA_2" Language="zh_Hant_HK"><Text>運河與其他建築一樣建造在所選的格位上：在聚落正在開發的格位上，它建在改良設施旁邊；空格位會先成為聚落的鄉村格位；在都會格位上，它會取代早先時代的建築。與其他建築一樣，運河會佔用1名市民。以[icon:YIELD_GOLD]金幣購買的運河會立即開通。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_OPEN_TITLE" Language="zh_Hant_HK"><Text>開通之後</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_OPEN_PARA_1" Language="zh_Hant_HK"><Text>該格位會變成水岸格位，此後始終保持為水域。船隻在同一回合就能規劃路線穿過它。運河會以其所屬時代的風格繪製：一條穿過陸地的水道，兩岸設有碼頭與建築，與開闊水域相接處則停泊著船隻。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_OPEN_PARA_2" Language="zh_Hant_HK"><Text>運河佔用的市民會移到完成的運河上，如同在漁業格位上一樣在此工作，運河建築及其收益也會保留在該格位上。若城市無法將該市民安排在那裡，該市民將留給你自行分配。</Text></Replace>
@@ -42,17 +42,17 @@
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_MULTIPLAYER_PARA_1" Language="zh_Hant_HK"><Text>多人遊戲中無法建造運河。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_TITLE" Language="zh_Hant_HK"><Text>運河選址</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CONTENT_TITLE" Language="zh_Hant_HK"><Text>基礎</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CONTENT_PARA_1" Language="zh_Hant_HK"><Text>運河只能建造在船隻可以用作通道的格位上：兩側分別臨水的一片狹長陸地。水域全都位於同一側的岬角不符合條件。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CONTENT_PARA_1" Language="zh_Hant_HK"><Text>運河只能建造在新形成的水域能與船隻可航行水域相連的格位上：緊鄰海洋、湖泊、可航行河流或已開鑿運河的陸地格位。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_TITLE" Language="zh_Hant_HK"><Text>建造條件</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_PARA_1" Language="zh_Hant_HK"><Text>[BLIST][LI]由該[TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]聚落[/TIP]擁有的平坦或崎嶇土地，且位於其可放置建築的範圍內。[LI]格位至少有兩個互不相連的方向臨水。海洋、湖泊與可航行河流皆可計入，可任意組合，兩側為同一片海洋也同樣計入。[LI]冰與位於海中的自然奇觀（例如錫拉島火山）不算作水域。[LI]不是可航行河流格位。[LI]格位上沒有都會區域。允許有鄉村改良設施，放置運河時會將其移除。[LI]格位上沒有單位。[LI]格位上沒有資源。[LI]不是現有的運河，無論是已開鑿或建造中。[/LIST]</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_PARA_1" Language="zh_Hant_HK"><Text>[BLIST][LI]由該[TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]聚落[/TIP]擁有的平坦或崎嶇土地，且位於其可放置建築的範圍內。[LI]至少有一個方向緊鄰船隻可航行的水域：海洋、湖泊或可航行河流；或者緊鄰已開鑿或建造中的運河，作為該運河的下一個格位。[LI]冰與位於海中的自然奇觀（例如錫拉島火山）不算作水域。[LI]不是可航行河流格位。[LI]聚落正在開發的格位、其可放置建築範圍內的空格位，或建築全部來自早先時代的都會格位（這些建築會被運河取代）。目前時代的建築或不限時代的建築會保留其格位。[LI]格位上沒有單位。[LI]格位上沒有資源。[LI]不是現有的運河，無論是已開鑿或建造中。[/LIST]</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_TITLE" Language="zh_Hant_HK"><Text>聚落中心</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_PARA_1" Language="zh_Hant_HK"><Text>與該格位相鄰的城市中心或城鎮中心可算作其兩側之一，因此聚落可以從中心向外開鑿運河，通往海洋或河流。中心會單獨計算，與其周圍的水域無關，因此聚落與狹長陸地相鄰，絕不會使該陸地失去資格。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_PARA_1" Language="zh_Hant_HK"><Text>與該格位相鄰的城市中心或城鎮中心可算作船隻能夠抵達的水域，因此聚落可以從中心向外開鑿運河，通往海洋或河流。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_TITLE" Language="zh_Hant_HK"><Text>更長的運河</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_CONTENT_TITLE" Language="zh_Hant_HK"><Text>基礎</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_CONTENT_PARA_1" Language="zh_Hant_HK"><Text>從探索時代起，運河可以長於1個格位。在當前時代允許的情況下，與現有運河或建造中的運河相鄰的格位，會作為該運河的下一個格位提供。運河的所有格位都完成後，船隻才能通行。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_CONTENT_PARA_2" Language="zh_Hant_HK"><Text>運河本身的水域絕不會單獨使相鄰格位成為選址。運河旁的格位只會作為該運河的一部分提供。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_AGES_TITLE" Language="zh_Hant_HK"><Text>各時代的長度</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_AGES_PARA_1" Language="zh_Hant_HK"><Text>[BLIST][LI][B]古典時代：[/B]1個格位。[LI][B]探索時代：[/B]最多2個格位，須呈直線。不能轉彎或分岔。[LI][B]近代：[/B]最多5個格位。運河可以轉彎與分岔，只要每個格位都能經由運河通往開闊水域。[/LIST]</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_AGES_PARA_1" Language="zh_Hant_HK"><Text>[BLIST][LI][B]古典時代：[/B]1個格位。[LI][B]探索時代：[/B]最多2個格位。[LI][B]近代：[/B]最多5個格位。運河可以轉彎與分岔，只要每個格位都能經由運河通往開闊水域；運河從岸邊向內陸開鑿，一次一個格位。[/LIST]</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_BORDERS_TITLE" Language="zh_Hant_HK"><Text>跨越聚落</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_BORDERS_PARA_1" Language="zh_Hant_HK"><Text>運河可以從一個[TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]聚落[/TIP]的土地延伸到另一個聚落的土地。每個格位由擁有它的聚落建造或購買，這些格位共同構成一條水道。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_LOCKS_TITLE" Language="zh_Hant_HK"><Text>懸崖與船閘</Text></Replace>
@@ -67,7 +67,7 @@
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_1" Language="zh_Hant_HK"><Text>完成的運河是其所屬城市的水域格位，作為漁業格位進行工作。其上的運河建築會依開鑿時所處的時代提供額外收益：古代運河+2[icon:YIELD_FOOD]食物與+2[icon:YIELD_GOLD]金幣，中世紀運河+3[icon:YIELD_FOOD]食物與+4[icon:YIELD_GOLD]金幣，現代運河+4[icon:YIELD_FOOD]食物與+6[icon:YIELD_GOLD]金幣。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_2" Language="zh_Hant_HK"><Text>代價是[icon:YIELD_PRODUCTION]生產力或[icon:YIELD_GOLD]金幣、該陸地格位，以及原本位於其上的任何鄉村改良設施。</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_ONE_TILE_NAME" Language="zh_Hant_HK"><Text>運河</Text></Replace>
-        <Replace Tag="LOC_BUILDING_CANAL_ONE_TILE_DESCRIPTION" Language="zh_Hant_HK"><Text>在狹窄的陸地上開闢一條航道。只能建造在分隔兩片水域的陸地格位上，且不能緊鄰其他運河。完成後，該格位會變成水域，所有船隻都可以從中穿行，每回合不限數量。各時代通用同一座建築。</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_ONE_TILE_DESCRIPTION" Language="zh_Hant_HK"><Text>在陸地上開闢一條航道。只能建造在緊鄰船隻可航行水域的陸地格位上，且不能緊鄰其他運河。完成後，該格位會變成水域，所有船隻都可以從中穿行，每回合不限數量。各時代通用同一座建築。</Text></Replace>
         <Replace Tag="LOC_OPTIONS_GROUP_CANALS" Language="zh_Hant_HK"><Text>運河</Text></Replace>
         <Replace Tag="LOC_CANALS_OPTION_MODE" Language="zh_Hant_HK"><Text>運河規則</Text></Replace>
         <Replace Tag="LOC_CANALS_OPTION_MODE_DESCRIPTION" Language="zh_Hant_HK"><Text>按時代：每個時代都有各自的運河，由科技解鎖；隨著時代推進，運河可以更長，可通過的船隻也更多。單格位運河：所有時代通用一座運河，古典時代由「灌溉」解鎖，之後無需科技，按當前時代的風格繪製，始終只佔1個格位，每回合可通過任意數量的船隻。在主選單中選擇則適用於新遊戲；在遊戲中選擇則適用於該局遊戲。已開鑿的運河保留其原有規則。</Text></Replace>

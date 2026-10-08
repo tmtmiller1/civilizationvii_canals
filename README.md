@@ -4,8 +4,9 @@
 
 # Canals
 
-A Civilization VII mod. Build a Canal on a narrow neck of land between two bodies of water. When it is finished
-the tile becomes water, drawn as a canal for its age, and ships sail straight through it. It stays a canal across
+A Civilization VII mod. Build a Canal on a land tile beside the water. When it is finished the tile becomes
+water, drawn as a canal for its age, and ships sail straight through it; dig the next tile inland and the cut
+grows. It stays a canal across
 every save and reload, and the AI digs canals and sails through them too.
 
 ![A two-tile Exploration canal at Roma, after a save and reload](gallery/01-exploration-cut-after-reload.jpg)
@@ -34,17 +35,18 @@ building; each age has its own, unlocked by a tech, and a settlement can have an
 
 A bought Canal is finished at once: the tile turns to water as soon as the purchase goes through.
 
-On the placement screen the city offers only the tiles a canal makes sense on. In Antiquity that is a land tile
-the city owns with water on at least two separate sides: a strip of land between two shores. Sea, lake and
-navigable river all count, so a canal can join a river to the sea or two reaches of a river. Three coast tiles on
-one side and one on the other qualifies; a headland with all its water in one stretch does not.
+On the placement screen the settlement offers its land tiles that touch water a ship can sail (sea, lake,
+navigable river, or a canal already dug): a tile it works, a bare tile within its build ring, or an urban tile
+whose buildings are all from an earlier age. Where the cut goes, and whether it ever meets the far shore, is the
+player's call.
 
 ![The neck of land at Roma before the cut](gallery/02-exploration-site-before.jpg)
 
 *The site before the first Canal is ordered: the neck of land between Roma's estuary and the northern sea.*
 
-Choose a tile. It becomes an urban district holding the Canal under construction, and the city builds it like any
-other building.
+Choose a tile. The settlement builds the Canal there like any other building; a bought one is finished at once
+and opens within a second. The tile keeps, or gets, a rural district, so no houses ever appear on it; only a
+quarter the canal replaces has its houses taken down when the canal opens.
 
 When the Canal completes, the tile turns to water and is drawn as a canal at once, dressed for the age it was dug
 in: a water channel cut through the land between the shores it joins, boats moored where it meets open water, and
@@ -62,28 +64,23 @@ channels meet and the cut reads as one waterway.*
 
 ## Longer canals
 
-From the Exploration age a canal can be two tiles long: a second Canal is offered on the tile beside the first
-that continues it in a straight line, and nowhere else around it. Exploration allows nothing more: no third
-tile, no bend, no branch. A queued Canal counts as part of the run, so the second can be ordered while the
-first is still being dug; ships pass once both are finished.
+A canal is dug from the shore inward: once a tile is water, the land tile beside it touches water and can be the
+next Canal. A queued Canal counts as part of the run, so the next tile can be ordered while the first is still
+being dug; ships pass once every tile of the run is finished. Each age has a longest run:
+
+| Age | Run |
+| --- | --- |
+| Antiquity | 1 tile |
+| Exploration | up to 2 tiles |
+| Modern | up to 5 tiles |
+
+Runs may bend and branch, as long as every tile of the run reaches open water through it. A junction where a
+branch leaves the main cut is drawn as an open basin, with no houses on it. In Antiquity the tiles beside an
+existing or queued canal are not offered, so a canal is always a single tile.
 
 A canal can cross from one settlement's land into another's: each tile is built or bought by the city or town that
 owns it, and a tile beside another settlement's canal is offered as the next tile of that canal. City and town, two
 towns, or two cities make one waterway alike.
-
-In the Modern age a run may be up to five tiles long and may bend and branch, as long as every tile of it reaches
-open water through the run. A junction where a branch leaves the main cut is drawn as an open basin, with no
-houses on it.
-
-| Age | Run | Bends and branches |
-| --- | --- | --- |
-| Antiquity | 1 tile | no |
-| Exploration | a straight line of up to 2 tiles | no |
-| Modern | up to 5 tiles | yes |
-
-In Antiquity a canal is always a single tile: the tiles beside an existing or queued canal are not offered. In
-every age a tile beside a canal is judged as part of that canal's run; a canal's own water never qualifies a
-neighboring tile as an isthmus by itself.
 
 ![An Antiquity canal from the city center to the sea, with a Galley in it](gallery/04-antiquity-galley-in-canal.jpg)
 
@@ -106,9 +103,9 @@ one-tile canals instead:
 With one-tile canals the three age Canals are not offered. A single Canal takes their place in every age, with the
 same cost and yields whatever the age. It is drawn in the style of the age being played: the harbor and quay of
 Antiquity, the houses and wharf of Exploration, the buildings and harbor of Modern, so a canal dug in Antiquity is
-redrawn in each new age's style. It qualifies on the same tiles as an Antiquity canal: a strip of land with water on
-two separate sides, never next to another canal, dug or queued. Every ship that can reach it can pass it, as many each
-turn as want to.
+redrawn in each new age's style. It qualifies on the same tiles as an Antiquity canal: a land tile beside water a ship can
+sail, never next to another canal, dug or queued. Every ship that can reach it can pass it, as many each turn as
+want to.
 
 The setting chosen in the main menu applies to new games. A game keeps the setting it was first loaded with, and the
 setting can be changed during a game from the same Options screen; the change applies to that game from then on.
@@ -123,18 +120,14 @@ Canal, one-tile canals, building one and what happens when it opens), Canal Site
 
 ## Which tiles qualify
 
-- flat or hill land the city owns, within the city's build ring, not a navigable river tile;
-- at least two separate ways in for a ship: sea, lake or navigable river on separate sides of the hex, in any
-  combination (the same sea on both sides counts); water nothing can enter is not a way in: ice, or a natural
-  wonder standing in the sea, such as Thera; two different bodies of water around it also
-  qualify, even where they meet in one stretch; a settlement's own center beside the tile is a way in of its own,
-  so a city or town can dig a canal from its center out to the sea or a river, and a longer run may start or end
-  at the center. A center counts apart from the water rather than as a piece of it, so a settlement standing next
-  to a neck never costs the neck its two shores;
-- from Exploration on, alternatively the tile that extends an existing or queued canal within the age's run rule:
-  a straight two-tile line in Exploration, up to five tiles with bends and branches in Modern;
-- no urban district on it, and no building other than a rural improvement, which is removed when the Canal is
-  placed;
+- flat or hill land the settlement owns, not a navigable river tile;
+- a tile the settlement works, a bare tile within its build ring, or an urban tile whose buildings are all from an
+  earlier age, which the canal replaces; a tile holding a building of the current age, or an ageless one, is not
+  offered;
+- beside water a ship can sail: sea, lake or navigable river on at least one side; water nothing can enter is not a
+  way in: ice, or a natural wonder standing in the sea, such as Thera; a settlement's own center beside the tile
+  counts as well, so a city or town can dig a canal from its center out;
+- or beside an existing or queued canal, as the next tile of that run, within the age's longest run;
 - no unit standing on it;
 - no resource on it: a tile holding a resource can take no building, and the Canal is one;
 - not already a canal, dug or queued.
@@ -233,20 +226,24 @@ Seven steps. The runs behind each of them, on Civilization VII 1.5.0, are in
 
 1. Placement. The Canal buildings carry no terrain rule of their own. The mod wraps the engine's placement
    queries, for production and for purchase with gold (a town's only way to get a building): for a Canal, the
-   offered plots are the settlement's land tiles within its build ring that pass the rule above, and the per-plot
-   check refuses anything else with the mod's own message. The engine's verdict on *whether* a Canal may be had
-   (locked, already queued, not enough gold) is kept; the mod decides only *where*.
-2. Commit. The engine offers buildings only on tiles that already hold an urban district, so a Canal on a
-   rural isthmus first gets one, created by script, after which the Canal is offered there and a real build order
-   queues it, or a real purchase buys it. A bought Canal arrives complete and the engine sends no completion event
-   for it, so the mod opens it straight away. The plot is remembered in the save, so a reload mid-construction
-   still finishes the job. If the engine does not take the order within a few seconds, the district is removed
-   again and the plot bought back.
-3. Completion. When the Canal completes, the handler retypes the tile to coast (the feature cleared first),
-   removes the Canal and its urban district (a district's housing block would hide the canal), buys the released
-   plot back for the city, frees the Canal's citizen as a pending point and places it on the new water tile with
-   the city's own expand order (a rural district with fishing boats, worked by that citizen), and re-creates the
-   Canal building on that rural district, where its yield rows count in the city at once.
+   offered plots are the settlement's worked and bare tiles within its build ring, and the urban tiles the engine
+   itself offers a plain building of the age through the same path, narrowed to the tiles that pass the rule
+   above; the per-plot check refuses anything else with the mod's own message. The engine's verdict on *whether* a Canal may be had (locked, already queued) is kept, and the mod adds
+   the gold check the engine makes only on a marked tile, so a town's list greys a Canal it cannot afford.
+2. Commit. A bare tile first gets a rural district, held by the city (the engine takes a Canal on a rural
+   district as on any worked tile, in a town as in a city, and a rural district draws no houses). The engine takes
+   a Canal only on a tile holding the site marker (step 6), so the mod marks the chosen tile, waits for the
+   engine's own per-plot yes, removes any obsolete building on the tile, and forwards the order. The engine places
+   the Canal on the district the tile has; no urban district is made. A bought Canal arrives complete and the engine sends no completion event for it,
+   so the mod opens it straight away. The plot is remembered in the save, so a reload mid-construction still
+   finishes the job.
+3. Completion. When the Canal completes, the handler retypes the tile to coast (the feature cleared first) and
+   draws the canal at once. On a rural tile the Canal stays where it is and a fishing boat takes the improvement's
+   place: the tile is a worked fishing tile of the city with the Canal on it, within a second. On an urban tile
+   (a quarter the canal replaced, or a Canal begun under 1.4.3) the Canal and the district go,
+   the released plot is bought back for the city, the Canal's citizen is placed on the new water tile with the
+   city's own expand order (a rural district with fishing boats), and the Canal is re-created on that rural
+   district, where its yield rows count in the city at once.
 4. The passage. A tile retyped to coast is pathable by ships immediately: a ship's path to the far side goes
    from around the land to through the tile in the same turn. The tile's
    area id does not change until the age transition, which is why the placement rule resolves a canal tile's

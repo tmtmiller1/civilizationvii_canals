@@ -61,7 +61,7 @@ full-tile buildings), run at a very high LoadOrder so it lands after every other
 `BUILDING` with no terrain rows, so the update catches it, and the engine will then accept a Canal only on a tile
 touching the city centre.
 
-Canals does not ask the engine where a Canal may go; it offers its own isthmus sites. So the player is still shown
+Canals narrows the engine's own list to its canal sites and adds the worked and bare tiles the engine takes a Canal on. So the player is still shown
 sites anywhere in the city's reach. When one is chosen:
 
 1. The mod clears whatever stood on the tile (a farm, fishing boats) and creates an urban district there.
