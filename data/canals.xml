@@ -2,8 +2,8 @@
 <!--
   The three Canal buildings. No Constructible_ValidTerrains rows on purpose: a BUILDING with terrain rows is
   unplaceable (engine-closed.md), so ui/canals.js restricts placement to isthmus tiles instead.
-  Built on an urban district, kept on a rural one once the canal is open (Constructible_ValidDistricts), with its own
-  food and gold. Population 1: the citizen the Canal houses is placed on the finished canal when it opens (ui/canals.js).
+  Built on whatever district its tile has, rural or urban (Constructible_ValidDistricts; the engine makes an urban one
+  on a bare city tile), and kept on the rural district of the open canal, with its own food and gold. Population 1: the citizen the Canal houses is placed on the finished canal when it opens (ui/canals.js).
   BUILDING_CANAL_ONE_TILE is the Canal of the one-tile mode (Options > Add-ons > Canals): no Age, so it is the same
   building in every age, with one cost and one yield; Irrigation unlocks it in Antiquity (data/canals-antiquity.xml),
   and nothing is needed later. ui/canals.js offers it only in that mode, and the

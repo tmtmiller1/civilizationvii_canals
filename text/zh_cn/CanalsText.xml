@@ -2,13 +2,13 @@
 <Database>
     <LocalizedText>
         <Replace Tag="LOC_CANALS_MOD_NAME" Language="zh_Hans_CN"><Text>运河</Text></Replace>
-        <Replace Tag="LOC_CANALS_MOD_DESCRIPTION" Language="zh_Hans_CN"><Text>为每个时代加入一座运河建筑。将其建在分隔两片水域的陆地地块上；建成后，该地块会变为带有码头的水岸地块，船只可以从中穿行。由“工程”、“造船术”和“工业化”科技解锁。可在“选项”的“附加内容”中改用单地块运河：所有时代通用一座运河，古典时代由“灌溉”解锁，不限制船只数量。仅限单人游戏。</Text></Replace>
+        <Replace Tag="LOC_CANALS_MOD_DESCRIPTION" Language="zh_Hans_CN"><Text>为每个时代加入一座运河建筑。将其建在临水的陆地地块上，凡是游戏允许放置建筑的地方均可；建成后，该地块会变为带有码头的水岸地块，船只可以从中穿行。再向内陆开凿相邻的地块，水道便会延伸，最长可达该时代允许的长度。由“工程”、“造船术”和“工业化”科技解锁。可在“选项”的“附加内容”中改用单地块运河：所有时代通用一座运河，古典时代由“灌溉”解锁，不限制船只数量。仅限单人游戏。</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_ANTIQUITY_NAME" Language="zh_Hans_CN"><Text>古代运河</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_EXPLORATION_NAME" Language="zh_Hans_CN"><Text>中世纪运河</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_MODERN_NAME" Language="zh_Hans_CN"><Text>现代运河</Text></Replace>
-        <Replace Tag="LOC_BUILDING_CANAL_DESCRIPTION" Language="zh_Hans_CN"><Text>在狭窄的陆地上开凿一条通航水道。只能建在分隔两片水域的陆地地块上。建成后，该地块会变为带有码头的水岸地块，船只可以从中穿行。</Text></Replace>
-        <Replace Tag="LOC_BUILDING_CANAL_TOOLTIP" Language="zh_Hans_CN"><Text>建成后，将两片水域之间的陆地地块变为可通航的水道。</Text></Replace>
-        <Replace Tag="LOC_CANAL_NOT_ISTHMUS" Language="zh_Hans_CN"><Text>运河必须建在分隔两片水域的陆地地块上。</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_DESCRIPTION" Language="zh_Hans_CN"><Text>在陆地上开凿一条通航水道。只能建在紧邻船只可航行水域或紧邻运河的陆地地块上。建成后，该地块会变为带有码头的水岸地块，船只可以从中穿行。</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_TOOLTIP" Language="zh_Hans_CN"><Text>建成后，将临水的陆地地块变为可通航的水道。</Text></Replace>
+        <Replace Tag="LOC_CANAL_NOT_ISTHMUS" Language="zh_Hans_CN"><Text>运河必须建在紧邻船只可航行水域或紧邻运河的陆地地块上。</Text></Replace>
         <Replace Tag="LOC_FEATURE_CANALS_SITE_NAME" Language="zh_Hans_CN"><Text>运河选址</Text></Replace>
         <Replace Tag="LOC_FEATURE_CANALS_SITE_TOOLTIP" Language="zh_Hans_CN"><Text>可以开凿运河的一片狭长陆地。产出与其下方的土地相同。</Text></Replace>
         <Replace Tag="LOC_CANAL_RESOURCE" Language="zh_Hans_CN"><Text>无法在有资源的地块上开凿运河。</Text></Replace>
@@ -26,13 +26,13 @@
         <Replace Tag="LOC_PEDIA_CANALS_TERM_LOCK" Language="zh_Hans_CN"><Text>船闸</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_TITLE" Language="zh_Hans_CN"><Text>运河</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_TITLE" Language="zh_Hans_CN"><Text>基础</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_PARA_1" Language="zh_Hans_CN"><Text>运河是一种建筑，可以在两片水域之间的狭长陆地上开凿一条通航水道。建成后，该地块会变为水域，船只可以直接穿过，而无需绕行。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_PARA_1" Language="zh_Hans_CN"><Text>运河是一种建筑，可以在临水的陆地地块上开凿一条通航水道。建成后，该地块会变为水域，船只可以从中穿行；向内陆相邻的地块可以成为下一座运河，因此水道会从岸边起一个地块一个地块地延伸，直到抵达对岸，或止于建造者停手之处。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_PARA_2" Language="zh_Hans_CN"><Text>运河可以连通两片海洋、湖泊与海洋、河流与海洋，或同一条河流的两段。每个时代都有各自的运河，[TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]定居点[/TIP]有多少处选址，就能建造多少条运河。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_AGES_TITLE" Language="zh_Hans_CN"><Text>各时代的运河</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_AGES_PARA_1" Language="zh_Hans_CN"><Text>[BLIST][LI][B]古代运河[/B]（古典时代）：由“工程”解锁。花费300 [icon:YIELD_PRODUCTION] 生产力。+2 [icon:YIELD_FOOD] 食物，+2 [icon:YIELD_GOLD] 金币。运河长1个地块。[LI][B]中世纪运河[/B]（探索时代）：由“造船术”解锁。花费500 [icon:YIELD_PRODUCTION] 生产力。+3 [icon:YIELD_FOOD] 食物，+4 [icon:YIELD_GOLD] 金币。运河可长达2个地块，须呈直线。[LI][B]现代运河[/B]（近世时代）：由“工业化”解锁。花费800 [icon:YIELD_PRODUCTION] 生产力。+4 [icon:YIELD_FOOD] 食物，+6 [icon:YIELD_GOLD] 金币。运河最长可达5个地块，并且可以转弯和分岔。[/LIST]</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_AGES_PARA_1" Language="zh_Hans_CN"><Text>[BLIST][LI][B]古代运河[/B]（古典时代）：由“工程”解锁。花费300 [icon:YIELD_PRODUCTION] 生产力。+2 [icon:YIELD_FOOD] 食物，+2 [icon:YIELD_GOLD] 金币。运河长1个地块。[LI][B]中世纪运河[/B]（探索时代）：由“造船术”解锁。花费500 [icon:YIELD_PRODUCTION] 生产力。+3 [icon:YIELD_FOOD] 食物，+4 [icon:YIELD_GOLD] 金币。运河可长达2个地块。[LI][B]现代运河[/B]（近世时代）：由“工业化”解锁。花费800 [icon:YIELD_PRODUCTION] 生产力。+4 [icon:YIELD_FOOD] 食物，+6 [icon:YIELD_GOLD] 金币。运河最长可达5个地块，并且可以转弯和分岔。[/LIST]</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_TITLE" Language="zh_Hans_CN"><Text>建造运河</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_PARA_1" Language="zh_Hans_CN"><Text>从城市的生产列表中选择运河，或在城市或城镇的购买列表中用[icon:YIELD_GOLD] 金币购买。放置界面只会提供可以开凿运河的地块（参见“运河选址”）。</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_PARA_2" Language="zh_Hans_CN"><Text>所选地块会变为市区区块，其中是正在建造的运河，地块上的任何乡村改良设施都会被移除。与其他建筑一样，运河会占用1名市民。用[icon:YIELD_GOLD] 金币购买的运河会立即开通。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_PARA_2" Language="zh_Hans_CN"><Text>运河与其他建筑一样建在所选地块上：在定居点正在开发的地块上，它建在改良设施旁边；空地块会先成为定居点的乡村地块；在市区地块上，它会取代早先时代的建筑。与其他建筑一样，运河会占用1名市民。用[icon:YIELD_GOLD] 金币购买的运河会立即开通。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_OPEN_TITLE" Language="zh_Hans_CN"><Text>开通之后</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_OPEN_PARA_1" Language="zh_Hans_CN"><Text>该地块会变为水岸地块，此后始终保持为水域。船只在同一回合即可规划路线穿过它。运河会以其所属时代的风格绘制：一条穿过陆地的水道，两岸有码头和建筑，与开阔水域相接处停泊着船只。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_OPEN_PARA_2" Language="zh_Hans_CN"><Text>运河占用的市民会移到建成的运河上，像在渔业地块上一样在此工作，运河建筑及其产出也会保留在该地块上。如果城市无法将该市民安排在那里，该市民将留给你自行分配。</Text></Replace>
@@ -42,17 +42,17 @@
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_MULTIPLAYER_PARA_1" Language="zh_Hans_CN"><Text>多人游戏中无法建造运河。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_TITLE" Language="zh_Hans_CN"><Text>运河选址</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CONTENT_TITLE" Language="zh_Hans_CN"><Text>基础</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CONTENT_PARA_1" Language="zh_Hans_CN"><Text>运河只能建在船只可以用作通道的地块上：两侧分别临水的一片狭长陆地。水域全部位于同一侧的岬角不符合条件。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CONTENT_PARA_1" Language="zh_Hans_CN"><Text>运河只能建在新形成的水域能与船只可航行水域相连的地块上：紧邻海洋、湖泊、可航行河流或已开凿运河的陆地地块。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_TITLE" Language="zh_Hans_CN"><Text>建造条件</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_PARA_1" Language="zh_Hans_CN"><Text>[BLIST][LI]由该[TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]定居点[/TIP]拥有的平坦或崎岖土地，且位于其可放置建筑的范围内。[LI]地块至少有两个互不相连的方向临水。海洋、湖泊和可航行河流均可计入，可任意组合，两侧为同一片海洋也同样计入。[LI]冰原和位于海中的自然奇观（如锡拉岛）不算作水域。[LI]不是可航行河流地块。[LI]地块上没有市区区块。允许有乡村改良设施，放置运河时会将其移除。[LI]地块上没有单位。[LI]地块上没有资源。[LI]不是已有的运河，无论已开凿还是正在建造。[/LIST]</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_PARA_1" Language="zh_Hans_CN"><Text>[BLIST][LI]由该[TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]定居点[/TIP]拥有的平坦或崎岖土地，且位于其可放置建筑的范围内。[LI]至少有一个方向紧邻船只可航行的水域：海洋、湖泊或可航行河流；或者紧邻已开凿或正在建造的运河，作为该运河的下一个地块。[LI]冰原和位于海中的自然奇观（如锡拉岛）不算作水域。[LI]不是可航行河流地块。[LI]定居点正在开发的地块、其可放置建筑范围内的空地块，或建筑全部来自早先时代的市区地块（这些建筑会被运河取代）。当前时代的建筑或不限时代的建筑会保留其地块。[LI]地块上没有单位。[LI]地块上没有资源。[LI]不是已有的运河，无论已开凿还是正在建造。[/LIST]</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_TITLE" Language="zh_Hans_CN"><Text>定居点中心</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_PARA_1" Language="zh_Hans_CN"><Text>与该地块相邻的市中心或城镇中心可算作其两侧之一，因此定居点可以从中心向外开凿运河，通往海洋或河流。中心单独计算，与其周围的水域无关，因此定居点与狭长陆地相邻，绝不会使该陆地失去资格。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_PARA_1" Language="zh_Hans_CN"><Text>与该地块相邻的市中心或城镇中心可算作船只能够抵达的水域，因此定居点可以从中心向外开凿运河，通往海洋或河流。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_TITLE" Language="zh_Hans_CN"><Text>更长的运河</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_CONTENT_TITLE" Language="zh_Hans_CN"><Text>基础</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_CONTENT_PARA_1" Language="zh_Hans_CN"><Text>从探索时代起，运河可以长于1个地块。在当前时代允许的情况下，与现有运河或正在建造的运河相邻的地块，会作为该运河的下一个地块提供。运河的所有地块都建成后，船只才能通行。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_CONTENT_PARA_2" Language="zh_Hans_CN"><Text>运河自身的水域绝不会单独使相邻地块成为选址。运河旁的地块只会作为该运河的一部分提供。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_AGES_TITLE" Language="zh_Hans_CN"><Text>各时代的长度</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_AGES_PARA_1" Language="zh_Hans_CN"><Text>[BLIST][LI][B]古典时代：[/B]1个地块。[LI][B]探索时代：[/B]最多2个地块，须呈直线。不能转弯或分岔。[LI][B]近世时代：[/B]最多5个地块。运河可以转弯和分岔，只要每个地块都能经由运河通往开阔水域。[/LIST]</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_AGES_PARA_1" Language="zh_Hans_CN"><Text>[BLIST][LI][B]古典时代：[/B]1个地块。[LI][B]探索时代：[/B]最多2个地块。[LI][B]近世时代：[/B]最多5个地块。运河可以转弯和分岔，只要每个地块都能经由运河通往开阔水域；运河从岸边向内陆开凿，一次一个地块。[/LIST]</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_BORDERS_TITLE" Language="zh_Hans_CN"><Text>跨定居点</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_BORDERS_PARA_1" Language="zh_Hans_CN"><Text>运河可以从一个[TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]定居点[/TIP]的土地延伸到另一个定居点的土地。每个地块由拥有它的定居点建造或购买，这些地块共同构成一条水道。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_LOCKS_TITLE" Language="zh_Hans_CN"><Text>悬崖与船闸</Text></Replace>
@@ -67,7 +67,7 @@
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_1" Language="zh_Hans_CN"><Text>建成的运河是其所属城市的水域地块，作为渔业地块进行工作。其上的运河建筑会根据开凿时所处的时代提供额外产出：古代运河+2 [icon:YIELD_FOOD] 食物和+2 [icon:YIELD_GOLD] 金币，中世纪运河+3 [icon:YIELD_FOOD] 食物和+4 [icon:YIELD_GOLD] 金币，现代运河+4 [icon:YIELD_FOOD] 食物和+6 [icon:YIELD_GOLD] 金币。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_2" Language="zh_Hans_CN"><Text>代价是[icon:YIELD_PRODUCTION] 生产力或[icon:YIELD_GOLD] 金币、该陆地地块，以及原本位于其上的任何乡村改良设施。</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_ONE_TILE_NAME" Language="zh_Hans_CN"><Text>运河</Text></Replace>
-        <Replace Tag="LOC_BUILDING_CANAL_ONE_TILE_DESCRIPTION" Language="zh_Hans_CN"><Text>在狭窄的陆地上开辟一条航道。只能建在分隔两片水域的陆地地块上，且不能紧邻其他运河。建成后，该地块变为水域，所有船只都可以从中穿行，每回合不限数量。各时代通用同一座建筑。</Text></Replace>
+        <Replace Tag="LOC_BUILDING_CANAL_ONE_TILE_DESCRIPTION" Language="zh_Hans_CN"><Text>在陆地上开辟一条航道。只能建在紧邻船只可航行水域的陆地地块上，且不能紧邻其他运河。建成后，该地块变为水域，所有船只都可以从中穿行，每回合不限数量。各时代通用同一座建筑。</Text></Replace>
         <Replace Tag="LOC_OPTIONS_GROUP_CANALS" Language="zh_Hans_CN"><Text>运河</Text></Replace>
         <Replace Tag="LOC_CANALS_OPTION_MODE" Language="zh_Hans_CN"><Text>运河规则</Text></Replace>
         <Replace Tag="LOC_CANALS_OPTION_MODE_DESCRIPTION" Language="zh_Hans_CN"><Text>按时代：每个时代都有各自的运河，由科技解锁；随着时代推进，运河可以更长，可通过的船只也更多。单地块运河：所有时代通用一座运河，古典时代由“灌溉”解锁，之后无需科技，按当前时代的风格绘制，始终只占1个地块，每回合可通过任意数量的船只。在主菜单中选择则适用于新游戏；在游戏中选择则适用于该局游戏。已开凿的运河保留其原有规则。</Text></Replace>

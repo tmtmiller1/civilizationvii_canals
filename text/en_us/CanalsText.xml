@@ -6,7 +6,7 @@
             <Text>Canals</Text>
         </Row>
         <Row Tag="LOC_CANALS_MOD_DESCRIPTION">
-            <Text>Adds a Canal building to each age. Build it on a land tile that separates two bodies of water; when it is finished the tile becomes a coast tile with a quay on it, and ships sail through. Unlocked by Engineering, Shipbuilding and Industrialization. An option in Options, Add-ons, switches to one-tile canals instead: one Canal in every age, unlocked by Irrigation in Antiquity, with no limit on ships. Single-player games only.</Text>
+            <Text>Adds a Canal building to each age. Build it on a land tile beside the water, where the game would let you put any building; when it is finished the tile becomes a coast tile with a quay on it, and ships sail through. Dig the next tile inland and the cut grows, up to the age's longest run. Unlocked by Engineering, Shipbuilding and Industrialization. An option in Options, Add-ons, switches to one-tile canals instead: one Canal in every age, unlocked by Irrigation in Antiquity, with no limit on ships. Single-player games only.</Text>
         </Row>
         <Row Tag="LOC_BUILDING_CANAL_ANTIQUITY_NAME">
             <Text>Ancient Canal</Text>
@@ -21,16 +21,16 @@
             <Text>Canal</Text>
         </Row>
         <Row Tag="LOC_BUILDING_CANAL_ONE_TILE_DESCRIPTION">
-            <Text>Cuts a ship channel through a narrow neck of land. Can only be built on a land tile that separates two bodies of water, and never next to another canal. When it is finished the tile becomes water and every ship can sail through it, as many as want to each turn. The same building in every age.</Text>
+            <Text>Cuts a ship channel through the land. Can only be built on a land tile beside water a ship can sail, and never next to another canal. When it is finished the tile becomes water and every ship can sail through it, as many as want to each turn. The same building in every age.</Text>
         </Row>
         <Row Tag="LOC_BUILDING_CANAL_DESCRIPTION">
-            <Text>Cuts a ship channel through a narrow neck of land. Can only be built on a land tile that separates two bodies of water. When it is finished the tile becomes a coast tile with a quay, and ships can sail through it.</Text>
+            <Text>Cuts a ship channel through the land. Can only be built on a land tile beside water a ship can sail, or beside a canal. When it is finished the tile becomes a coast tile with a quay, and ships can sail through it.</Text>
         </Row>
         <Row Tag="LOC_BUILDING_CANAL_TOOLTIP">
-            <Text>Turns a land tile between two bodies of water into a navigable channel when completed.</Text>
+            <Text>Turns a land tile beside the water into a navigable channel when completed.</Text>
         </Row>
         <Row Tag="LOC_CANAL_NOT_ISTHMUS">
-            <Text>A Canal must be built on a land tile that separates two bodies of water.</Text>
+            <Text>A Canal must be built on a land tile beside water a ship can sail, or beside a canal.</Text>
         </Row>
         <Row Tag="LOC_FEATURE_CANALS_SITE_NAME">
             <Text>Canal Site</Text>
@@ -104,7 +104,7 @@
             <Text>Basics</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_PARA_1">
-            <Text>A Canal is a building that cuts a ship channel through a narrow strip of land between two bodies of water. When it is finished, the tile becomes water and ships can sail straight through instead of going around.</Text>
+            <Text>A Canal is a building that cuts a ship channel through a land tile beside the water. When it is finished, the tile becomes water and ships can sail through it; the next tile inland can be the next Canal, so a cut grows from the shore, one tile at a time, until it meets the far shore or wherever its builder stops.</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_CONTENT_PARA_2">
             <Text>A canal can join two seas, a lake to the sea, a river to the sea, or two stretches of the same river. Each age has its own Canal, and a [TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]Settlement[/TIP] can build as many as it has sites for.</Text>
@@ -113,7 +113,7 @@
             <Text>Canals by Age</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_AGES_PARA_1">
-            <Text>[BLIST][LI][B]Ancient Canal[/B] (Antiquity): unlocked by Engineering. Costs 300 [icon:YIELD_PRODUCTION] Production. +2 [icon:YIELD_FOOD] Food, +2 [icon:YIELD_GOLD] Gold. A canal is one tile long.[LI][B]Medieval Canal[/B] (Exploration): unlocked by Shipbuilding. Costs 500 [icon:YIELD_PRODUCTION] Production. +3 [icon:YIELD_FOOD] Food, +4 [icon:YIELD_GOLD] Gold. A canal can be two tiles long, in a straight line.[LI][B]Modern Canal[/B] (Modern): unlocked by Industrialization. Costs 800 [icon:YIELD_PRODUCTION] Production. +4 [icon:YIELD_FOOD] Food, +6 [icon:YIELD_GOLD] Gold. A canal can be up to five tiles long and can bend and branch.[/LIST]</Text>
+            <Text>[BLIST][LI][B]Ancient Canal[/B] (Antiquity): unlocked by Engineering. Costs 300 [icon:YIELD_PRODUCTION] Production. +2 [icon:YIELD_FOOD] Food, +2 [icon:YIELD_GOLD] Gold. A canal is one tile long.[LI][B]Medieval Canal[/B] (Exploration): unlocked by Shipbuilding. Costs 500 [icon:YIELD_PRODUCTION] Production. +3 [icon:YIELD_FOOD] Food, +4 [icon:YIELD_GOLD] Gold. A canal can be two tiles long.[LI][B]Modern Canal[/B] (Modern): unlocked by Industrialization. Costs 800 [icon:YIELD_PRODUCTION] Production. +4 [icon:YIELD_FOOD] Food, +6 [icon:YIELD_GOLD] Gold. A canal can be up to five tiles long, with bends and branches.[/LIST]</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_ONE_TILE_TITLE">
             <Text>One-Tile Canals</Text>
@@ -131,7 +131,7 @@
             <Text>Choose the Canal from a City's production list, or buy it with [icon:YIELD_GOLD] Gold in a City's or Town's purchase list. The placement screen offers only the tiles where a canal can be dug (see Canal Sites).</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_BUILD_PARA_2">
-            <Text>The chosen tile becomes an urban district holding the Canal under construction, and any rural Improvement on it is removed. Like other buildings, a Canal takes one citizen. A Canal bought with [icon:YIELD_GOLD] Gold opens at once.</Text>
+            <Text>The Canal is built on the chosen tile like any other building: on a tile the Settlement works it goes beside the Improvement, a bare tile becomes a rural tile of the Settlement first, and on an urban tile it replaces buildings of an earlier age. Like other buildings, a Canal takes one citizen. A Canal bought with [icon:YIELD_GOLD] Gold opens at once.</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_OPEN_TITLE">
             <Text>When It Opens</Text>
@@ -162,19 +162,19 @@
             <Text>Basics</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CONTENT_PARA_1">
-            <Text>A Canal can be built only on a tile a ship could use as a passage: a strip of land with water on two separate sides. A headland whose water is all on one side does not qualify.</Text>
+            <Text>A Canal can be built only on a tile the new water would join to water a ship can sail: a land tile beside the sea, a lake, a Navigable River, or a canal already dug.</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_TITLE">
             <Text>Requirements</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_PARA_1">
-            <Text>[BLIST][LI]Flat or hill land owned by the [TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]Settlement[/TIP], within the area where it can place buildings.[LI]Water on at least two separate sides of the tile. Sea, lake and Navigable River all count, in any combination, and the same sea on both sides counts too.[LI]Ice and natural wonders that stand in the sea, such as Thera, do not count as water.[LI]Not a Navigable River tile.[LI]No urban district on the tile. A rural Improvement is allowed and is removed when the Canal is placed.[LI]No unit on the tile.[LI]No resource on the tile.[LI]Not already a canal, dug or under construction.[/LIST]</Text>
+            <Text>[BLIST][LI]Flat or hill land owned by the [TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]Settlement[/TIP], within the area where it can place buildings.[LI]Water a ship can sail on at least one side: sea, lake or Navigable River; or a canal already dug or under construction, as the next tile of that canal.[LI]Ice and natural wonders that stand in the sea, such as Thera, do not count as water.[LI]Not a Navigable River tile.[LI]A tile the Settlement works, a bare tile within the area where it can place buildings, or an urban tile whose buildings are all from an earlier age, which the Canal replaces. A building of the current age, or an ageless one, keeps its tile.[LI]No unit on the tile.[LI]No resource on the tile.[LI]Not already a canal, dug or under construction.[/LIST]</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_TITLE">
             <Text>Settlement Centers</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_PARA_1">
-            <Text>A City or Town center next to the tile counts as one of its two sides, so a Settlement can dig a canal from its center out to the sea or a river. The center counts on its own, apart from the water around it, so a Settlement next to a strip of land never stops that strip from qualifying.</Text>
+            <Text>A City or Town center next to the tile counts as water a ship can reach, so a Settlement can dig a canal from its center out to the sea or a river.</Text>
         </Row>
 
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_TITLE">
@@ -193,7 +193,7 @@
             <Text>Length by Age</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_AGES_PARA_1">
-            <Text>[BLIST][LI][B]Antiquity:[/B] one tile.[LI][B]Exploration:[/B] up to two tiles, in a straight line. No bends or branches.[LI][B]Modern:[/B] up to five tiles. A canal can bend and branch, as long as every tile reaches open water through the canal.[/LIST]</Text>
+            <Text>[BLIST][LI][B]Antiquity:[/B] one tile.[LI][B]Exploration:[/B] up to two tiles.[LI][B]Modern:[/B] up to five tiles. A canal can bend and branch, as long as every tile reaches open water through the canal; it is dug from the shore inward, one tile at a time.[/LIST]</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_BORDERS_TITLE">
             <Text>Across Settlements</Text>
