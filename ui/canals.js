@@ -442,6 +442,7 @@ async function openCanal(loc, owner) {
   if (notThisTurn(loc)) return;
   state.busy.add(plot);
   try {
+    if (canalOn(loc) && !loadOpen().some((e) => e.plot === plot)) showWorks(loc);
     const canal = canalOn(loc);
     if (!canal || !canal.complete) return;
     const onRecord = loadOpen().some((e) => e.plot === plot);
@@ -509,7 +510,7 @@ async function openCanal(loc, owner) {
     forget(plot);
     await settleCanalTile(loc, cityId, who, canal.type);
     log(`canal opened at ${loc.x},${loc.y} for player ${who}: ${terrainOf(loc)} district=${districtAt(loc) || "none"} owner=${safe(() => GameplayMap.getOwner(loc.x, loc.y))} overlay=${drawn} neighboursRedrawn=${redrawn}`);
-  } finally { state.busy.delete(plot); }
+  } finally { state.busy.delete(plot); hideWorks(loc); }
 }
 
 // the look, in-session
@@ -545,6 +546,31 @@ const AGE_LOOKS = {
   ],
 };
 const overlays = new Map();
+
+// the works: an effect over the site while the tile is being changed
+//
+// The engine redraws the hex at each step of a commit and an opening (the improvement gives way to the boat; on a
+// replaced quarter the houses and the district go and the rural tile comes). Nothing can hold those redraws back, so
+// a plot effect is played over the site from the order until the canal is drawn and settled, and the swap reads as
+// works in progress. The effect is the game's own wonder-construction dust, one instance at its own scale (three at
+// double scale hazed five hexes, run vx5, 2026-10-08); empty switches it off.
+let WORKS_VFX = "VFX_WON_BuildState_Change_Continuous_01";
+const WORKS_MAX_MS = 20000;
+const works = new Map();
+function showWorks(loc) {
+  const plot = idx(loc);
+  if (!WORKS_VFX || works.has(plot) || typeof WorldUI === "undefined") return;
+  const g = safe(() => WorldUI.createModelGroup("CanalsWorks_" + plot), null);
+  if (!g) return;
+  safe(() => g.addVFXAtPlot(WORKS_VFX, { x: loc.x, y: loc.y }, { x: 0, y: 0, z: 0 }, { scale: 1 }));
+  works.set(plot, g);
+  // never left behind: an opening that stalls still loses its works
+  setTimeout(() => { if (works.get(plot) === g) hideWorks(loc); }, WORKS_MAX_MS);
+}
+function hideWorks(loc) {
+  const g = works.get(idx(loc));
+  if (g) { safe(() => g.clear()); safe(() => g.destroy()); works.delete(idx(loc)); }
+}
 
 /** Screen angle of a ring direction: the arm piece points east at 0 and turns counter-clockwise on screen. */
 function armAngle(ringIndex) { return (360 - 60 * ringIndex) % 360; }
@@ -1799,13 +1825,14 @@ async function placeCanal(cityID, loc, ctype, forward, path) {
   for (const o of occupants(loc)) if (!isImprovement(o.type) && isObsolete(o.type))
     safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: o.owner, LocalID: o.id }));
   remember(plot);
+  showWorks(loc);
   forward();
   const t0 = Date.now();
   while (Date.now() - t0 < PLACE_MS) {
     await sleep(100);
     const c = canalOn(loc);
     // a production order goes into the queue and reaches the map at once or later (s1, cm2): either is taken
-    if (!c && !path.purchase && inQueue(cityID, ctype)) { log(`Canal queued at ${loc.x},${loc.y}`); return; }
+    if (!c && !path.purchase && inQueue(cityID, ctype)) { log(`Canal queued at ${loc.x},${loc.y}`); hideWorks(loc); return; }
     if (!c) continue;
     if (soldFor != null) {
       safe(() => Players.grantYield(local, YieldTypes.YIELD_GOLD, -soldFor));
@@ -1813,8 +1840,10 @@ async function placeCanal(cityID, loc, ctype, forward, path) {
     }
     log(`Canal ${path.purchase ? "bought" : "queued"} at ${loc.x},${loc.y} on ${districtAt(loc) || "no district"}`);
     if (path.purchase && c.complete) setTimeout(() => openCanal(loc, local), SETTLE_MS);
+    else hideWorks(loc);
     return;
   }
+  hideWorks(loc);
   log(`the engine did not take the Canal at ${loc.x},${loc.y}`);
   forget(plot);
   if (plot in loadSites() && !aiSites().has(plot)) await unmarkSite(loc);
@@ -2322,7 +2351,7 @@ function uninstall() {
 
 if (!G[KEY]) {
   G[KEY] = {
-    version: "1.5.0",
+    version: "1.5.1",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
     uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen, localTurnActive,
@@ -2331,6 +2360,9 @@ if (!G[KEY]) {
     aiMajors, thisAgesCanal, waterAreas, reloadThroughSave, canalWorth, waterSides, syncSites, aiSites, markSite,
     unmarkSite, loadSites, queuedCanalPlots, queuedCanalOrders, markCanalTile,
     get mode() { return oneTileMode() ? "one-tile" : "ages"; },
+    get worksCount() { return works.size; },
+    set worksVfx(v) { WORKS_VFX = String(v || ""); },
+    get worksVfx() { return WORKS_VFX; },
     get staleLoad() { return state.staleLoad.slice(); },
     channelArms: (loc) => ({ water: waterSideIndexes(loc), arms: runArms(runOf(loc)).get(idx(loc)) || [] }),
   };

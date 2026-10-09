@@ -3,6 +3,10 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.5.1 | 2026-10-08 | src ee7c9417dff9 | gen 98a65fcc80e1 ====
+[b]Version 1.5.1 · 8 October 2026[/b]
+• Works dust over a canal site while it changes. The game redraws a tile at each step of an opening (the farm giving way to the boat; on a replaced quarter the houses coming down and the rural tile going up), and nothing can hold those redraws back. The game's own construction dust, the effect it plays over a wonder going up a stage, now covers the site from the order until the canal is open, so the swap reads as works in progress. It clears itself when the canal is drawn and settled, and never outlives an opening that stalls.
+
 ==== 1.5.0 | 2026-10-08 | src cf00cfccd7b3 | gen 4e5fec671105 ====
 [b]Version 1.5.0 · 8 October 2026[/b]
 • A Canal can go on any land tile beside water a ship can sail, or beside a canal already dug: a tile the settlement works, a bare tile within its build ring, or an urban tile whose buildings are all from an earlier age, which the canal replaces. The “two shores” rule and the straight-line rule are gone: a cut is dug from the shore inward, one tile at a time, up to the age's longest run (one tile in Antiquity, two in Exploration, five in Modern), and may bend and branch. Every tile 1.4.3 offered is still offered.

@@ -4,6 +4,14 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.5.1] - 2026-10-08
+
+- Works dust over a canal site while it changes. The game redraws a tile at each step of an opening (the farm giving
+  way to the boat; on a replaced quarter the houses coming down and the rural tile going up), and nothing can hold
+  those redraws back. The game's own construction dust, the effect it plays over a wonder going up a stage, now covers
+  the site from the order until the canal is open, so the swap reads as works in progress. It clears itself when the
+  canal is drawn and settled, and never outlives an opening that stalls.
+
 ## [1.5.0] - 2026-10-08
 
 - A Canal can go on any land tile beside water a ship can sail, or beside a canal already dug: a tile the settlement
