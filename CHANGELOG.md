@@ -4,6 +4,13 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.5.2] - 2026-10-09
+
+- No limit on ships through a canal. An Antiquity canal used to take one of your ships a turn and an Exploration
+  canal two, and a move past that was dropped without a word. Now any number of ships can pass any canal each
+  turn, in every age and under both sets of rules. The Civilopedia's Ships and Yields page and the rules description
+  in Options are updated to match, in every language.
+
 ## [1.5.1] - 2026-10-08
 
 - Works dust over a canal site while it changes. The game redraws a tile at each step of an opening (the farm giving

@@ -6,7 +6,7 @@
             <Text>Canals</Text>
         </Row>
         <Row Tag="LOC_CANALS_MOD_DESCRIPTION">
-            <Text>Adds a Canal building to each age. Build it on a land tile beside the water, where the game would let you put any building; when it is finished the tile becomes a coast tile with a quay on it, and ships sail through. Dig the next tile inland and the cut grows, up to the age's longest run. Unlocked by Engineering, Shipbuilding and Industrialization. An option in Options, Add-ons, switches to one-tile canals instead: one Canal in every age, unlocked by Irrigation in Antiquity, with no limit on ships. Single-player games only.</Text>
+            <Text>Adds a Canal building to each age. Build it on a land tile beside the water, where the game would let you put any building; when it is finished the tile becomes a coast tile with a quay on it, and ships sail through. Dig the next tile inland and the cut grows, up to the age's longest run. Unlocked by Engineering in Antiquity, Shipbuilding in Exploration and Industrialization in Modern. An option in Options, Add-ons, switches to one-tile canals instead: one Canal in every age unlocked by Irrigation in Antiquity. Single-player games only.</Text>
         </Row>
         <Row Tag="LOC_BUILDING_CANAL_ANTIQUITY_NAME">
             <Text>Ancient Canal</Text>
@@ -74,7 +74,7 @@
             <Text>Canal rules</Text>
         </Row>
         <Row Tag="LOC_CANALS_OPTION_MODE_DESCRIPTION">
-            <Text>By age: each age has its own Canal, unlocked by a tech, and canals grow longer and carry more ships as the ages go on. One-tile canals: one Canal in every age, unlocked by Irrigation in Antiquity and needing no tech after that, drawn in the style of the age being played, always a single tile, and any number of ships can pass it each turn. Chosen in the main menu, it applies to new games; chosen during a game, to that game. Canals already dug keep their own rules.</Text>
+            <Text>By age: each age has its own Canal, unlocked by a tech, and canals grow longer as the ages go on. One-tile canals: one Canal in every age, unlocked by Irrigation in Antiquity and needing no tech after that, drawn in the style of the age being played and always a single tile. Chosen in the main menu, it applies to new games; chosen during a game, to that game. Canals already dug keep their own rules.</Text>
         </Row>
         <Row Tag="LOC_CANALS_OPTION_MODE_AGES">
             <Text>By age</Text>
@@ -119,7 +119,7 @@
             <Text>One-Tile Canals</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_ONE_TILE_PARA_1">
-            <Text>Canal rules in Options, Add-ons, can be switched from By age to One-tile canals. The three Canals above are then replaced by a single [B]Canal[/B], the same in every age: unlocked by Irrigation in Antiquity, it needs no tech in later ages, and it is drawn in the style of the age being played. Costs 400 [icon:YIELD_PRODUCTION] Production. +2 [icon:YIELD_FOOD] Food, +2 [icon:YIELD_GOLD] Gold. A canal is always one tile and is never built next to another canal, and any number of ships can pass it each turn.</Text>
+            <Text>Canal rules in Options, Add-ons, can be switched from By age to One-tile canals. The three Canals above are then replaced by a single [B]Canal[/B], the same in every age: unlocked by Irrigation in Antiquity, it needs no tech in later ages, and it is drawn in the style of the age being played. Costs 400 [icon:YIELD_PRODUCTION] Production. +2 [icon:YIELD_FOOD] Food, +2 [icon:YIELD_GOLD] Gold. A canal is always one tile and is never built next to another canal.</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_ONE_TILE_PARA_2">
             <Text>The choice made in the main menu applies to new games; made during a game, it applies to that game from then on. Canals already dug keep the rules they were dug under.</Text>
@@ -215,16 +215,7 @@
             <Text>Passage</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_CONTENT_PARA_1">
-            <Text>Naval units and embarked units can move through an open canal between the waters it joins, from the turn it opens.</Text>
-        </Row>
-        <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_LIMIT_TITLE">
-            <Text>Traffic Limit</Text>
-        </Row>
-        <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_LIMIT_PARA_1">
-            <Text>Older canals can carry only a few of your ships each turn:[BLIST][LI][B]Ancient Canal:[/B] 1 ship per turn.[LI][B]Medieval Canal:[/B] 2 ships per turn.[LI][B]Modern Canal:[/B] no limit.[/LIST]</Text>
-        </Row>
-        <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_LIMIT_PARA_2">
-            <Text>A move whose path runs through a canal that has reached its limit for the turn is not carried out. A ship already sitting in the canal does not count against it, and the count resets every turn. The limit applies to your own move orders only.</Text>
+            <Text>Naval units and embarked units can move through an open canal between the waters it joins, from the turn it opens. Any number of ships can pass a canal each turn.</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_TITLE">
             <Text>Yields</Text>

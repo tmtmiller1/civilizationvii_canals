@@ -34,7 +34,6 @@
         <Row PageLayoutID="CANALS_RUNS" ChapterID="BORDERS" SortIndex="30"/>
         <Row PageLayoutID="CANALS_RUNS" ChapterID="LOCKS" SortIndex="40"/>
         <Row PageLayoutID="CANALS_SHIPPING" ChapterID="CONTENT" SortIndex="10"/>
-        <Row PageLayoutID="CANALS_SHIPPING" ChapterID="LIMIT" SortIndex="20"/>
         <Row PageLayoutID="CANALS_SHIPPING" ChapterID="YIELDS" SortIndex="30"/>
     </CivilopediaPageLayoutChapters>
 

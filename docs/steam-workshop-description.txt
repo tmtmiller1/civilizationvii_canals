@@ -1,42 +1,55 @@
 [h1]Canals[/h1]
-[b]Version 1.5.0. For Civilization VII 1.5.0.[/b]
-Cut a ship channel through the land. Build the Canal on a land tile beside the water; when it is finished the tile becomes water, ships sail through it, and it is drawn as a canal for its age, with a harbor, houses and boats along the banks. Dig the next tile inland and the cut grows. AI players dig canals and sail through them too.
-[h2]Mechanics[/h2]
+[b]Version 1.5.2. For Civilization VII 1.5.0.[/b]
+Cut through a neck of land to join two seas, or dig a channel inland from the shore. The Canal is a building for a land tile on the water: when it finishes, the tile turns to water, ships can sail through that same turn, and harbors, houses and moored boats in the style of the age line the banks. The AI digs its own canals wherever one saves a long way round or opens up a lake.
+You choose how canals work in Options, Add-ons, Canals. [b]By age[/b] (the default) gives each age a bigger Canal and lets a cut run longer, up to five tiles in the Modern age. [b]One-tile canals[/b] gives a single Canal for the whole game: one tile long and the same in every age.
+[h2]By age (default)[/h2]
 [list]
-[*][b]A Canal for each age[/b]: the Ancient, Medieval and Modern Canal, in the ordinary production list, unlocked by Engineering, Shipbuilding and Industrialization, at 300, 500 and 800 production. A settlement can dig as many canals as it has sites for.
-[*][b]Towns too.[/b] A town buys its Canal with gold from its purchase list, like any other building; a bought Canal opens at once.
-[*][b]Where a building goes.[/b] The placement screen offers the settlement’s land tiles beside water a ship can sail (sea, lake or navigable river; ice and a natural wonder in the sea such as Thera do not count): a tile it works, a bare tile within its build ring, or an urban tile whose buildings are all from an earlier age, which the canal replaces. No houses ever appear on the site. A tile that holds a resource takes no building and is not offered.
-[*][b]Ships go through the same turn.[/b] When the Canal completes the tile becomes water and any ship can path through it at once.
-[*][b]Canals last.[/b] A canal is still a channel cut through land after a save and reload.
-[*][b]Longer canals.[/b] A canal is dug from the shore inward: once a tile is water, the land beside it can be the next Canal. Up to two tiles in the Exploration age, up to five in the Modern age, with bends and branches. Neighboring canals join into one waterway, and a canal may run on from one city’s or town’s land into another’s.
-[*][b]A worked tile with its own yields.[/b] The finished canal is a fishing tile of the city, and the Canal stays on it as a building with its own food and gold: 2 and 2 in Antiquity, 3 and 4 in Exploration, 4 and 6 in Modern.
-[*][b]Ships through a canal per turn:[/b] one for an Antiquity canal, two for Exploration, unlimited for Modern.
-[*][b]Drawn for its age.[/b] A channel between its shores, one branch into any other body of water it touches, moored boats at the mouths, and an Antiquity harbor and quay, Exploration houses and a wharf, or Modern buildings and a harbor along the banks. Three looks per age.
+[*][b]A Canal for each age[/b]: the Ancient, Medieval and Modern Canal, unlocked by Engineering, Shipbuilding and Industrialization, at 300, 500 and 800 production.
+[*][b]Longer canals.[/b] Dug from the shore inward: once a tile is water, the land beside it can be the next Canal. One tile in Antiquity, up to two in Exploration, up to five in Modern, with bends and branches. A canal may run on from one settlement's land into another's.
+[*][b]Yields:[/b] food and gold of 2 and 2 in Antiquity, 3 and 4 in Exploration, 4 and 6 in Modern.
 [/list]
-[h2]AI canals[/h2]
-AI players build Canals themselves, as they build any building, and only on a canal site: the mod marks, for each AI, every tile of its settlements where a canal saves a ship at least six tiles of sailing round or opens a lake or sea of ten tiles or more, and the game offers the Canal there and nowhere else. The AI decides when to build it, with production or gold. AI canals open and are drawn like yours, and AI units sail through them.
-[h2]Settlement centers[/h2]
-A city or town center counts as a canal end, so a canal can run from the settlement’s own tile out to the sea or a river.
-[h2]Cliffs[/h2]
-A canal can be cut through a tile with cliffs, and ships cross every edge once it opens. Where the channel meets a shore that was a cliff, it steps down through a lock: a stone chamber with gates, a gatehouse and a water wheel.
-[h2]Autosaves[/h2]
-While a canal is open, the mod writes the autosave at the start of your turn, on your autosave frequency and keep count. The files carry on the game’s own autosave series, so the newest is at the top of the Autosaves tab and is the one Continue loads.
+[h2]One-tile canals[/h2]
+[list]
+[*][b]One Canal in every age[/b], unlocked by Irrigation, at 400 production. The age Canals are not offered.
+[*][b]Always one tile,[/b] never next to another canal, dug or queued.
+[*][b]Yields:[/b] 2 food and 2 gold in every age.
+[*][b]Redrawn each age,[/b] so a canal dug in Antiquity becomes an Exploration canal, then a Modern one.
+[/list]
+The main menu choice applies to new games, and a game keeps the rules it was first loaded with. A change made during a game applies from then on; canals already dug or ordered keep the rules they began under. The AI follows the rules in play.
+[h2]In both modes[/h2]
+[list]
+[*][b]Cities and towns.[/b] Build it from the production list or buy it with gold; a bought Canal opens at once. A settlement can dig as many canals as it has sites for.
+[*][b]Where it goes.[/b] A land tile beside water a ship can sail (sea, lake or navigable river): a tile the settlement works, a bare tile within its build ring, or an urban tile whose buildings are all from an earlier age, which the canal replaces. A city or town center counts as a canal end.
+[*][b]A worked tile.[/b] The finished canal is a fishing tile of the city, and the Canal stays on it as a building with its own yields.
+[*][b]Cliffs.[/b] A canal can cut through cliffs. Where the channel meets a cliff shore it steps down through a lock with gates, a gatehouse and a water wheel.
+[*][b]No traffic limit.[/b] Any number of ships can pass a canal each turn.
+[*][b]Canals last[/b] through a save and reload.
+[/list]
+[h2]Known limitations[/h2]
+[list]
+[*][b]Single-player only.[/b] In a multiplayer game no Canal can be built, and the mod says so when the game starts.
+[*][b]Removing the mod:[/b] a save loads without it, but each canal becomes a plain land tile, the Canal and its yields are gone, and a ship left in a canal is stranded. Move ships out first.
+[*][b]Tiles never offered:[/b] a tile holding a resource, a unit, a current-age or ageless building, or a Dam; a navigable river tile itself; park land from National Park. Ice and a natural wonder in the sea, such as Thera, do not count as water.
+[*][b]A canal cannot be pillaged.[/b] The game offers no raid on a water tile with a building. A ship in an enemy canal can still Coastal Raid the tiles around it.
+[*][b]A Canal opens only in your turn.[/b] One finished during another player's turn opens as your next turn begins.
+[*][b]Cliff faces[/b] stay drawn beside an open canal until the game is next loaded. Ships are not blocked by them.
+[*][b]Autosaves.[/b] While a canal is open the mod writes the autosave at the start of your turn in place of the game's, on your frequency and keep count, in the game's own series. Your setting is restored at the main menu.
+[*][b]AI site choice.[/b] An AI builds only where its city could put a building; a site further out waits until the city grows toward it. How much the AI values a Canal is set when a game is created, so in a game begun before this version it builds them less often.
+[*][b]Added to a game under way[/b] after a Canal's tech was researched, the game keeps that Canal locked. The mod sells it to you for gold instead, but the AI cannot build it until the next age.
+[*][b]Older saves.[/b] Canals from 1.0.0 load drawn as open sea; the mod offers to reload, which fixes them. For games begun with 1.2.1 or earlier, load once with this version and save to keep its repairs.
+[*][b]Not yet seen in testing:[/b] an AI warship crossing between seas (only embarked land units were seen); AI canals in Antiquity or Modern games; the age change through the game's own screens. Once, the game dropped an order for a Modern branch tile without a reason.
+[*][b]Translations are machine-made;[/b] corrections are welcome. English, German, Spanish, French, Italian, Japanese, Korean, Polish, Brazilian Portuguese, Russian, Simplified and Traditional Chinese.
+[/list]
 [h2]Compatibility[/h2]
 [list]
-[*][b]Civilization VII 1.5.0.[/b] No base-game files are replaced and no base-game rows change; three buildings and their tech unlocks are added.
-[*][b]A save loads with or without Canals enabled.[/b] Without it, a dug canal is a plain land tile of the city, and a ship left in it is stranded: move your ships out of the canals before you remove the mod.
-[*][b]Games begun with Canals 1.2.1 or earlier:[/b] load the game once with 1.2.2 enabled and let it start. Within a few seconds the mod brings every canal’s tile up to date, the AI’s canals included, and from then on the game’s saves load safely with Canals on or off.
-[*][b]Added to a game under way[/b] after the Canal’s tech was researched, the game keeps that age’s Canal locked; the mod sells it for gold in each settlement’s purchase list instead.
-[*][b]Saves from Canals 1.0.0[/b] hold their canals as open water and load drawn as open sea. The mod offers to reload at once, which draws them as canals again.
-[*][b]Works with [url=https://github.com/tmtmiller1/civilizationvii_national-parks]National Park[/url].[/b] Park land is never offered as a Canal site, whichever of the two mods loads first.
-[*][b]Works with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3810140802]Dams[/url].[/b] A Dam cannot be built on an opened canal, and a Canal is never offered on a tile that holds a Dam.
-[*][b]Single-player games only.[/b] In a multiplayer game no Canal can be built, and the mod says so when the game starts.
-[*][b]English only.[/b]
+[*]No base-game files replaced and no base-game rows changed; four buildings and their unlocks are added.
+[*]Works with [url=https://github.com/tmtmiller1/civilizationvii_national-parks]National Park[/url] and [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3810140802]Dams[/url], in either load order.
+[*]Carries the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3815023570]Tower Settings Keeper[/url], so your Canal rules survive a restart.
 [/list]
 [h2]Source and documentation[/h2]
 [list]
 [*]Open source on GitHub: [url=https://github.com/tmtmiller1/civilizationvii_canals]source and full documentation[/url], and the [url=https://github.com/tmtmiller1/civilizationvii_canals/releases]release notes[/url].
-[*]This version on GitHub: [url=https://github.com/tmtmiller1/civilizationvii_canals/releases/tag/v1.2.2]Canals 1.2.2[/url], with the zip for a manual install.
+[*]This version: [url=https://github.com/tmtmiller1/civilizationvii_canals/releases/tag/v1.5.2]Canals 1.5.2[/url], with the zip for a manual install.
 [/list]
 [h2]Credits[/h2]
 [list]

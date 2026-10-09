@@ -47,7 +47,9 @@ const SETTLE_MS = 400;
 /** How long a forwarded order is given to reach the map or the queue. */
 const PLACE_MS = 3000;
 const BUILD_RADIUS = 3;
-/** Ships that may pass a canal per turn, by its age; the local player's orders are the only ones a script can hold. */
+/** Ships that may pass a canal per turn, by its age; the local player's orders are the only ones a script can hold.
+ * Off: no ship limit. Set TRANSIT_LIMIT to true to install the quota (wrapUnitSend) again. */
+const TRANSIT_LIMIT = false;
 const TRANSITS_PER_TURN = { AGE_ANTIQUITY: 1, AGE_EXPLORATION: 2, AGE_MODERN: Infinity, [ONE_TILE]: Infinity };
 
 function log(m) { try { console.error(TAG + " " + m); } catch (_) { /* ignore */ } }
@@ -2322,7 +2324,7 @@ function install() {
   safe(() => engine.on("BeforeAgeTransition", onAgeEnded));
   whenStarted(notices, 5000);
   const uhost = safe(() => Game.UnitOperations, null);
-  if (uhost && typeof uhost.sendRequest === "function") { state.originals.unitSend = uhost.sendRequest; uhost.sendRequest = wrapUnitSend(uhost.sendRequest.bind(uhost)); }
+  if (TRANSIT_LIMIT && uhost && typeof uhost.sendRequest === "function") { state.originals.unitSend = uhost.sendRequest; uhost.sendRequest = wrapUnitSend(uhost.sendRequest.bind(uhost)); }
   log(`active${state.multiplayer ? " (network game: canals not offered)" : ""}: Canal placement limited to isthmus tiles; ` +
     `rules: ${oneTileMode() ? "one-tile canals" : "by age"}`);
   return true;
@@ -2351,7 +2353,7 @@ function uninstall() {
 
 if (!G[KEY]) {
   G[KEY] = {
-    version: "1.5.1",
+    version: "1.5.2",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
     uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen, localTurnActive,

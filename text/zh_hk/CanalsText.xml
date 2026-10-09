@@ -2,7 +2,7 @@
 <Database>
     <LocalizedText>
         <Replace Tag="LOC_CANALS_MOD_NAME" Language="zh_Hant_HK"><Text>運河</Text></Replace>
-        <Replace Tag="LOC_CANALS_MOD_DESCRIPTION" Language="zh_Hant_HK"><Text>為每個時代加入一座運河建築。將其建造在臨水的陸地格位上，凡是遊戲允許放置建築的地方皆可；完成後，該格位會變成設有碼頭的水岸格位，船隻可以從中穿行。再向內陸開鑿相鄰的格位，水道便會延伸，最長可達該時代允許的長度。由「工程」、「造船術」與「工業化」科技解鎖。可在「選項」的「附加內容」中改用單格位運河：所有時代通用一座運河，古典時代由「灌溉」解鎖，不限制船隻數量。僅限單人遊戲。</Text></Replace>
+        <Replace Tag="LOC_CANALS_MOD_DESCRIPTION" Language="zh_Hant_HK"><Text>為每個時代加入一座運河建築。將其建造在臨水的陸地格位上，凡是遊戲允許放置建築的地方皆可；完成後，該格位會變成設有碼頭的水岸格位，船隻可以從中穿行。再向內陸開鑿相鄰的格位，水道便會延伸，最長可達該時代允許的長度。由「工程」、「造船術」與「工業化」科技解鎖。可在「選項」的「附加內容」中改用單格位運河：所有時代通用一座運河，古典時代由「灌溉」解鎖。僅限單人遊戲。</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_ANTIQUITY_NAME" Language="zh_Hant_HK"><Text>古代運河</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_EXPLORATION_NAME" Language="zh_Hant_HK"><Text>中世紀運河</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_MODERN_NAME" Language="zh_Hant_HK"><Text>現代運河</Text></Replace>
@@ -59,10 +59,7 @@
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_CHAPTER_LOCKS_PARA_1" Language="zh_Hant_HK"><Text>運河可以穿過邊緣有懸崖的格位，開通後，船隻可以跨越該格位的每一條邊。在水道與懸崖海岸相接處，運河會繪有船閘：一座設有閘門的石砌閘室、一座閘門房與一座水車。船閘不影響移動。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_TITLE" Language="zh_Hant_HK"><Text>船隻與收益</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_CONTENT_TITLE" Language="zh_Hant_HK"><Text>通行</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_CONTENT_PARA_1" Language="zh_Hant_HK"><Text>從運河開通的回合起，海上單位與上船單位即可經由運河在其連通的水域之間移動。</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_LIMIT_TITLE" Language="zh_Hant_HK"><Text>通行限制</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_LIMIT_PARA_1" Language="zh_Hant_HK"><Text>較早的運河每回合只能讓你的少數船隻通過：[BLIST][LI][B]古代運河：[/B]每回合1艘船。[LI][B]中世紀運河：[/B]每回合2艘船。[LI][B]現代運河：[/B]沒有限制。[/LIST]</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_LIMIT_PARA_2" Language="zh_Hant_HK"><Text>若移動路徑經過一條本回合已達通行上限的運河，該移動將不會執行。已經停在運河中的船隻不計入限制，計數每回合重設。此限制僅適用於你自己下達的移動指令。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_CONTENT_PARA_1" Language="zh_Hant_HK"><Text>從運河開通的回合起，海上單位與上船單位即可經由運河在其連通的水域之間移動。每回合可有任意數量的船隻通過運河。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_TITLE" Language="zh_Hant_HK"><Text>收益</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_1" Language="zh_Hant_HK"><Text>完成的運河是其所屬城市的水域格位，作為漁業格位進行工作。其上的運河建築會依開鑿時所處的時代提供額外收益：古代運河+2[icon:YIELD_FOOD]食物與+2[icon:YIELD_GOLD]金幣，中世紀運河+3[icon:YIELD_FOOD]食物與+4[icon:YIELD_GOLD]金幣，現代運河+4[icon:YIELD_FOOD]食物與+6[icon:YIELD_GOLD]金幣。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_2" Language="zh_Hant_HK"><Text>代價是[icon:YIELD_PRODUCTION]生產力或[icon:YIELD_GOLD]金幣、該陸地格位，以及原本位於其上的任何鄉村改良設施。</Text></Replace>
@@ -70,11 +67,11 @@
         <Replace Tag="LOC_BUILDING_CANAL_ONE_TILE_DESCRIPTION" Language="zh_Hant_HK"><Text>在陸地上開闢一條航道。只能建造在緊鄰船隻可航行水域的陸地格位上，且不能緊鄰其他運河。完成後，該格位會變成水域，所有船隻都可以從中穿行，每回合不限數量。各時代通用同一座建築。</Text></Replace>
         <Replace Tag="LOC_OPTIONS_GROUP_CANALS" Language="zh_Hant_HK"><Text>運河</Text></Replace>
         <Replace Tag="LOC_CANALS_OPTION_MODE" Language="zh_Hant_HK"><Text>運河規則</Text></Replace>
-        <Replace Tag="LOC_CANALS_OPTION_MODE_DESCRIPTION" Language="zh_Hant_HK"><Text>按時代：每個時代都有各自的運河，由科技解鎖；隨著時代推進，運河可以更長，可通過的船隻也更多。單格位運河：所有時代通用一座運河，古典時代由「灌溉」解鎖，之後無需科技，按當前時代的風格繪製，始終只佔1個格位，每回合可通過任意數量的船隻。在主選單中選擇則適用於新遊戲；在遊戲中選擇則適用於該局遊戲。已開鑿的運河保留其原有規則。</Text></Replace>
+        <Replace Tag="LOC_CANALS_OPTION_MODE_DESCRIPTION" Language="zh_Hant_HK"><Text>按時代：每個時代都有各自的運河，由科技解鎖；隨著時代推進，運河可以更長。單格位運河：所有時代通用一座運河，古典時代由「灌溉」解鎖，之後無需科技，按當前時代的風格繪製，始終只佔1個格位。在主選單中選擇則適用於新遊戲；在遊戲中選擇則適用於該局遊戲。已開鑿的運河保留其原有規則。</Text></Replace>
         <Replace Tag="LOC_CANALS_OPTION_MODE_AGES" Language="zh_Hant_HK"><Text>按時代</Text></Replace>
         <Replace Tag="LOC_CANALS_OPTION_MODE_ONE_TILE" Language="zh_Hant_HK"><Text>單格位運河</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_ONE_TILE_TITLE" Language="zh_Hant_HK"><Text>單格位運河</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_ONE_TILE_PARA_1" Language="zh_Hant_HK"><Text>「選項」的「附加內容」中的運河規則可以從「按時代」切換為「單格位運河」。此時，上述三種運河由一座各時代通用的[B]運河[/B]取代：古典時代由「灌溉」解鎖，之後的時代無需科技，並按當前時代的風格繪製。花費400[icon:YIELD_PRODUCTION]生產力。+2[icon:YIELD_FOOD]食物，+2[icon:YIELD_GOLD]金幣。運河始終只佔1個格位，不會建造在其他運河旁邊，每回合可通過任意數量的船隻。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_ONE_TILE_PARA_1" Language="zh_Hant_HK"><Text>「選項」的「附加內容」中的運河規則可以從「按時代」切換為「單格位運河」。此時，上述三種運河由一座各時代通用的[B]運河[/B]取代：古典時代由「灌溉」解鎖，之後的時代無需科技，並按當前時代的風格繪製。花費400[icon:YIELD_PRODUCTION]生產力。+2[icon:YIELD_FOOD]食物，+2[icon:YIELD_GOLD]金幣。運河始終只佔1個格位，不會建造在其他運河旁邊。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_OVERVIEW_CHAPTER_ONE_TILE_PARA_2" Language="zh_Hant_HK"><Text>在主選單中作出的選擇適用於新遊戲；在遊戲中作出的選擇由此時起適用於該局遊戲。已開鑿的運河保留開鑿時的規則。</Text></Replace>
     </LocalizedText>
 </Database>

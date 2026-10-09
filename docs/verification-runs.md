@@ -183,7 +183,7 @@ the [README](../README.md); this file is the evidence behind it.
   never offered, and a completed Canal sharing its tile with other buildings (an AI's, in an urban slot) is left
   alone.
 - Transit quota: the local player's `MOVE_TO` orders through a canal are counted per turn and refused past the
-  age's limit (1, 2, unlimited); AI movement is native and cannot be held.
+  age's limit (1, 2, unlimited); AI movement is native and cannot be held. Switched off in 1.5.2 (`TRANSIT_LIMIT`).
 - Looks: three per age, chosen by plot number so a canal keeps its look across reloads.
 - AI canals: the game's own AI builds them, only on sites the script marks. The canal rule is the script's and the
   engine's data cannot express it, so the Canal requires a site marker (`Constructible_RequiredFeatures`), which the
@@ -201,7 +201,7 @@ the [README](../README.md); this file is the evidence behind it.
   are not ordered again (the engine refuses a script's BUILD for an AI city); its AI chooses again.
 - The `hl1` crash: one run of the exact steps (`hl1r`) did not repeat it; the stack is the load-transition fault seen
   with and without mods.
-- A refusal by the transit quota.
+- A refusal by the transit quota (switched off in 1.5.2).
 - 1.4.0's turn guard (a canal opens only in the local player's turn) preventing a break: one End Turn after a purchase
   did not break an opening even without it (`race-ctl-one`).
 - A one-tile canal carried across an age transition.

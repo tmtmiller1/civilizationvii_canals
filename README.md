@@ -96,9 +96,9 @@ counts as a canal end, so a city or town can open its center to the water.*
 The age rules above are the default. Options, Add-ons, Canals has a **Canal rules** setting that switches to
 one-tile canals instead:
 
-| Rules | Canal | Unlocked by | Production cost | Food | Gold | Length | Ships per turn |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| One-tile canals, any age | Canal | Irrigation in Antiquity; nothing in later ages | 400 | 2 | 2 | always 1 tile | no limit |
+| Rules | Canal | Unlocked by | Production cost | Food | Gold | Length |
+| --- | --- | --- | --- | --- | --- | --- |
+| One-tile canals, any age | Canal | Irrigation in Antiquity; nothing in later ages | 400 | 2 | 2 | always 1 tile |
 
 With one-tile canals the three age Canals are not offered. A single Canal takes their place in every age, with the
 same cost and yields whatever the age. It is drawn in the style of the age being played: the harbor and quay of
@@ -140,15 +140,15 @@ ordinary building of the city with its own yields, by the age it was dug in. All
 counted where the city counts everything else. If the city cannot place the citizen on the canal itself, the
 tile still becomes a rural tile of the city and the citizen is left for you to place.
 
-| Canal | Food | Gold | Ships through it per turn |
-| --- | --- | --- | --- |
-| Antiquity | 2 | 2 | 1 |
-| Exploration | 3 | 4 | 2 |
-| Modern | 4 | 6 | no limit |
+| Canal | Food | Gold |
+| --- | --- | --- |
+| Antiquity | 2 | 2 |
+| Exploration | 3 | 4 |
+| Modern | 4 | 6 |
 
-The ship limit holds your own move orders: a move whose path runs through a canal that has already taken its
-ships this turn is not sent, and the count starts again each turn. A ship already sitting in the canal is not
-counted. The game's AI plots its routes natively and is not held.
+Any number of ships can pass a canal each turn, in every age. Up to 1.5.1 an Antiquity canal took one of your ships
+a turn and an Exploration canal two; that limit is still in the script but switched off (`TRANSIT_LIMIT` in
+`ui/canals.js`).
 
 The cost is the production and the tile: the rural improvement on it, if any, is gone, and the tile is water
 from then on.
@@ -306,7 +306,6 @@ a marked tile yielded exactly what it did unmarked, through a save and reload.
 
 Not tested:
 
-- A refusal by the per-turn ship limit.
 - A Modern branch built through the real build path: the branch tile was offered, but the engine dropped that one
   build order with no reason code in the gallery run, so branching was only checked by retyping the tiles
   directly.
@@ -339,7 +338,7 @@ data/canals-exploration.xml
 data/canals-modern.xml
 data/canals-civilopedia.xml         the Canals pages in the Civilopedia's Game Concepts section
 ui/canals.js                        the mod: placement, commit, completion, looks, locks,
-                                    ship limit, saving, AI canals, safety sweep
+                                    ship limit (off), saving, AI canals, safety sweep
 ui/canals-shell.js                  main menu: puts the player's autosave frequency back
 text/en_us/CanalsText.xml           name, description, placement messages and the Civilopedia text
 text/<lang>/CanalsText.xml          the same text in each of 11 other languages (see text/README.md)

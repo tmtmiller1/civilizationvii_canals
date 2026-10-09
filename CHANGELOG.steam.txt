@@ -3,6 +3,10 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.5.2 | 2026-10-09 | src c9f21d946aff | gen 79098e796208 ====
+[b]Version 1.5.2 · 9 October 2026[/b]
+• No limit on ships through a canal. An Antiquity canal used to take one of your ships a turn and an Exploration canal two, and a move past that was dropped without a word. Now any number of ships can pass any canal each turn, in every age and under both sets of rules. The Civilopedia's Ships and Yields page and the rules description in Options are updated to match, in every language.
+
 ==== 1.5.1 | 2026-10-08 | src ee7c9417dff9 | gen 98a65fcc80e1 ====
 [b]Version 1.5.1 · 8 October 2026[/b]
 • Works dust over a canal site while it changes. The game redraws a tile at each step of an opening (the farm giving way to the boat; on a replaced quarter the houses coming down and the rural tile going up), and nothing can hold those redraws back. The game's own construction dust, the effect it plays over a wonder going up a stage, now covers the site from the order until the canal is open, so the swap reads as works in progress. It clears itself when the canal is drawn and settled, and never outlives an opening that stalls.
