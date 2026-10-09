@@ -238,7 +238,8 @@ Seven steps. The runs behind each of them, on Civilization VII 1.5.0, are in
    so the mod opens it straight away. The plot is remembered in the save, so a reload mid-construction still
    finishes the job.
 3. Completion. When the Canal completes, the handler retypes the tile to coast (the feature cleared first) and
-   draws the canal at once. On a rural tile the Canal stays where it is and a fishing boat takes the improvement's
+   draws the canal at once, under the game's own construction dust, which covers the site from the order until the
+   canal is settled. On a rural tile the Canal stays where it is and a fishing boat takes the improvement's
    place: the tile is a worked fishing tile of the city with the Canal on it, within a second. On an urban tile
    (a quarter the canal replaced, or a Canal begun under 1.4.3) the Canal and the district go,
    the released plot is bought back for the city, the Canal's citizen is placed on the new water tile with the
