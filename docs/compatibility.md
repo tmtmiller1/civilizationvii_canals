@@ -19,7 +19,7 @@ Everything a conflict could come through. If another mod touches none of these, 
 | --- | --- |
 | Database (game scope, LoadOrder 150/151) | Adds `BUILDING_CANAL_ANTIQUITY/EXPLORATION/MODERN` (Urban and Rural districts, `MultiplePerCity`, Town), their yields, one tech unlock row per age (Engineering, Shipbuilding, Industrialization), icons. Changes no base row. |
 | `Game.CityOperations` / `Game.CityCommands` | Wraps `canStart`, `canStartQuery` and `sendRequest` on both hosts. For a Canal it replaces the engine's plot list with its own isthmus sites. For every other building it removes opened canal tiles from the plot list and refuses a request aimed at one. |
-| `Game.UnitOperations.sendRequest` | Wraps it to hold the local player's `MOVE_TO` orders to the per-turn transit quota. Never blocks on its own error. |
+| `Game.UnitOperations.sendRequest` | Not wrapped since 1.5.2: the per-turn transit quota is off (`TRANSIT_LIMIT`). When on, wraps it to hold the local player's `MOVE_TO` orders to the quota, and never blocks on its own error. |
 | `Network.saveGame` | Wraps it: canals are turned back to land on the map before any save is sent, and back to Coast on `SaveComplete`. |
 | Autosave | While a canal is open, stores the player's autosave frequency as 1000 + their value (so the engine writes none) and writes the autosave itself at the start of the player's turn. `ui/canals-shell.js` restores the value at the main menu. |
 | Options screen | Wraps `Options.addOption` so the autosave slider shows the player's own value. |
