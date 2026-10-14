@@ -3,6 +3,10 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.5.3 | 2026-10-14 | src 3bc72631e2f1 | gen 7e175f1f543f ====
+[b]Version 1.5.3 · 14 October 2026[/b]
+• The license now says that Civilization VII and its art and data belong to Firaxis and 2K, and that the screenshots are there for illustration. The mod itself plays exactly as in 1.5.2.
+
 ==== 1.5.2 | 2026-10-09 | src c9f21d946aff | gen 79098e796208 ====
 [b]Version 1.5.2 · 9 October 2026[/b]
 • No limit on ships through a canal. An Antiquity canal used to take one of your ships a turn and an Exploration canal two, and a move past that was dropped without a word. Now any number of ships can pass any canal each turn, in every age and under both sets of rules. The Civilopedia's Ships and Yields page and the rules description in Options are updated to match, in every language.

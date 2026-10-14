@@ -1,5 +1,5 @@
 [h1]Canals[/h1]
-[b]Version 1.5.2. Compatible with Civilization VII 1.5.0., Single-player only[/b]
+[b]Version 1.5.3. Compatible with Civilization VII 1.5.0., Single-player only[/b]
 
 Cut a canal through land.
 
@@ -54,7 +54,7 @@ The main menu choice applies to new games, and a game keeps the rules it was fir
 [h2]Source and documentation[/h2]
 [list]
 [*]Open source on GitHub: [url=https://github.com/tmtmiller1/civilizationvii_canals]source and full documentation[/url], and the [url=https://github.com/tmtmiller1/civilizationvii_canals/releases]release notes[/url].
-[*]This version: [url=https://github.com/tmtmiller1/civilizationvii_canals/releases/tag/v1.5.2]Canals 1.5.2[/url], with the zip for a manual install.
+[*]This version: [url=https://github.com/tmtmiller1/civilizationvii_canals/releases/tag/v1.5.3]Canals 1.5.3[/url], with the zip for a manual install.
 [/list]
 [h2]Credits[/h2]
 [list]
