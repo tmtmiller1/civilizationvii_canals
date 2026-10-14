@@ -169,7 +169,6 @@ function cliffSideIndexes(loc) {
   });
   return out;
 }
-/** The same, with the tile itself given: used by the chain rule. */
 function neighborIn(loc, d) {
   const n = safe(() => GameplayMap.getAdjacentPlotLocation(loc, DirectionTypes[d]), null);
   return n && n.x >= 0 ? { x: n.x, y: n.y } : null;
@@ -244,7 +243,6 @@ const CHAIN_RULES = {
   AGE_EXPLORATION: { max: 2 },
   AGE_MODERN: { max: 5 }
 };
-/** The one-tile mode's rule, in every age: Antiquity's. */
 const ONE_TILE_RULE = CHAIN_RULES.AGE_ANTIQUITY;
 
 /** The rule a Canal of this type is judged by: the one-tile Canal by its own, the age Canals by the age in play. */
@@ -252,7 +250,6 @@ function ruleFor(type) {
   if (type === ONE_TILE_CANAL) return ONE_TILE_RULE;
   return CHAIN_RULES[currentAge()] || CHAIN_RULES.AGE_ANTIQUITY;
 }
-/** The rule for a new Canal: the mode's. */
 function placementRule() { return ruleFor(oneTileMode() ? ONE_TILE_CANAL : ""); }
 
 /** Plots that are canal tiles: opened ones (now coast) and queued ones (still land, counted so canals can be built
@@ -263,7 +260,6 @@ function canalPlots() {
   return s;
 }
 
-/** Ship-water that is not a canal of ours: sea, lake, navigable river. */
 function isNaturalWater(loc, canals) { return isShipWater(loc) && !canals.has(idx(loc)); }
 
 /**
@@ -577,7 +573,6 @@ function hideWorks(loc) {
 /** Screen angle of a ring direction: the arm piece points east at 0 and turns counter-clockwise on screen. */
 function armAngle(ringIndex) { return (360 - 60 * ringIndex) % 360; }
 
-/** Ring indexes of the hex's open ship-water sides. */
 function waterSideIndexes(loc) {
   const out = [];
   RING.forEach((d, i) => { if (openWaterSide(loc, d)) out.push(i); });
