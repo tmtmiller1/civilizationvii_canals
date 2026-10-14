@@ -1103,7 +1103,6 @@ async function healDistrict(loc) {
   return true;
 }
 const AGE_RANK = { AGE_ANTIQUITY: 1, AGE_EXPLORATION: 2, AGE_MODERN: 3 };
-/** A constructible's age as a number (0 for one of no age). */
 function ageRank(type) { return AGE_RANK[safe(() => String(GameInfo.Constructibles.lookup(type).Age), "")] || 0; }
 /** A city's queue items on a tile: type and place in the queue. */
 function queuedHere(city, loc) {
@@ -1928,7 +1927,6 @@ function aiMajors() {
   return out;
 }
 
-/** The Canal on offer now (see isOfferedCanal). */
 function thisAgesCanal() {
   for (const t of CANAL_TYPES) {
     const d = safe(() => GameInfo.Constructibles.lookup(t), null);
@@ -1944,9 +1942,7 @@ const ONE_TILE_SITE_FEATURE = "FEATURE_CANALS_SITE_ONE_TILE";
 const SITE_FEATURES = [SITE_FEATURE, ONE_TILE_SITE_FEATURE];
 const SITES_KEY = "Canals_Sites_v1";
 
-/** The marker a Canal of this type needs. */
 function markerFor(type) { return type === ONE_TILE_CANAL ? ONE_TILE_SITE_FEATURE : SITE_FEATURE; }
-/** The marker for a new Canal: the mode's. */
 function offeredMarker() { return oneTileMode() ? ONE_TILE_SITE_FEATURE : SITE_FEATURE; }
 function siteIndex(feature = SITE_FEATURE) { return safe(() => GameInfo.Features.lookup(feature).$index, null); }
 /** The tile holds that marker, or either marker when none is named. */
@@ -2074,7 +2070,6 @@ function aiSites() {
   return out;
 }
 
-/** Marks every wanted tile not yet marked. Returns how many were marked. */
 async function markWanted(want) {
   let added = 0;
   for (const [p, w] of want) {
