@@ -146,15 +146,6 @@ function isOpenWater(loc) {
 /** The same, plus a settlement center, which is a canal end too. */
 function isShipWater(loc) { return isOpenWater(loc) || isSettlementCentre(loc); }
 
-/**
- * How many separate ways a ship can reach the hex: walking the six neighbors in ring order, a run of open water
- * (ice not counted) is one way in, and a settlement center beside the tile is one of its own. Two ways in means
- * the tile is a strip of land between two shores, whether or not those shores belong to the same sea: three coast
- * tiles on one side and one on the other is two; five coast tiles in a row (a headland) is one.
- * A center is counted apart from the water rather than as a piece of it. Counted as water it could bridge the gap
- * between a neck's two shores and read them as a single stretch, so founding a settlement next to a neck took the
- * neck's own site away (c48: a Modern town beside a two-shore neck left it unbuildable).
- */
 /** A ship-water neighbor in that ring direction. Cliffs do not matter: the retype clears the plot's cliff flags
  * (c21); only their drawn rock faces remain until the next load. */
 function openWaterSide(loc, d) {
@@ -174,6 +165,15 @@ function neighborIn(loc, d) {
   return n && n.x >= 0 ? { x: n.x, y: n.y } : null;
 }
 
+/**
+ * How many separate ways a ship can reach the hex: walking the six neighbors in ring order, a run of open water
+ * (ice not counted) is one way in, and a settlement center beside the tile is one of its own. Two ways in means
+ * the tile is a strip of land between two shores, whether or not those shores belong to the same sea: three coast
+ * tiles on one side and one on the other is two; five coast tiles in a row (a headland) is one.
+ * A center is counted apart from the water rather than as a piece of it. Counted as water it could bridge the gap
+ * between a neck's two shores and read them as a single stretch, so founding a settlement next to a neck took the
+ * neck's own site away (c48: a Modern town beside a two-shore neck left it unbuildable).
+ */
 function waterStretches(loc) {
   const ring = RING.map((d) => neighborIn(loc, d));
   const water = ring.map((n) => !!(n && isOpenWater(n)));
@@ -388,10 +388,6 @@ async function flipToCoast(loc) {
 }
 
 /**
- * A Canal has completed on `loc`: make it a canal. Owner may be any player; the local client does the work
- * (single player only, see the multiplayer note above).
- */
-/**
  * The local player's turn is under way. The mod's map edits are requests sent as the local player, and an opening
  * that ran on as the turn ended lost its district and its Canal building (lab ot-ant5: a Canal bought, the turn
  * ended at once, the rural district never landed). So a canal is opened only in the local player's turn; one that
@@ -434,6 +430,10 @@ async function keepRuralTile(loc, who) {
   return !!canalOn(loc);
 }
 
+/**
+ * A Canal has completed on `loc`: make it a canal. Owner may be any player; the local client does the work
+ * (single player only, see the multiplayer note above).
+ */
 async function openCanal(loc, owner) {
   const plot = idx(loc);
   if (state.busy.has(plot) || state.hold) return; // held: the next sweep opens it (see keeping the land look)
@@ -663,18 +663,6 @@ function runOf(loc) {
 }
 
 /**
- * The arms of every tile of a run, decided for the run as a whole. Each tile starts from its own channel (see
- * channelSides). Then the water around the run is grouped into shores - its tiles joined where two of them touch and
- * hold the same body of water - and a shore that no arm reaches gets one branch, from the one tile and side that
- * crowd the picture least: fewest arms, no cliff on that edge (a branch into a lake over a lock reads as a wall), the
- * widest angle to the tile's other arms. Without the branch a lake beside a canal looked cut off although ships cross
- * between them (the user's capture, c56: a lake touching both tiles of a two-tile cut, both of its sides pruned). Open
- * sea around a tile is one shore, which the channel already reaches, so it gets no spokes.
- * The one exception is a junction: where several canals meet on one tile (Modern), an arm runs to every one of them,
- * and such a tile takes a branch only while it has fewer than four arms. This is the drawing only; where canals may
- * be built is decided by isIsthmus.
- */
-/**
  * Which neighbouring canal each tile of a run is drawn joined to: a tree grown from the tile where the most canals
  * meet. Every canal is joined to the run, and a crossroads reads as a cross; without it the arm tiles of a junction,
  * which touch each other too, were drawn joined all round and the crossing filled in as a blob. Drawing only: ships
@@ -702,6 +690,18 @@ function runLinks(run) {
 }
 
 const MAX_ARMS_WITH_BRANCH = 4;
+/**
+ * The arms of every tile of a run, decided for the run as a whole. Each tile starts from its own channel (see
+ * channelSides). Then the water around the run is grouped into shores - its tiles joined where two of them touch and
+ * hold the same body of water - and a shore that no arm reaches gets one branch, from the one tile and side that
+ * crowd the picture least: fewest arms, no cliff on that edge (a branch into a lake over a lock reads as a wall), the
+ * widest angle to the tile's other arms. Without the branch a lake beside a canal looked cut off although ships cross
+ * between them (the user's capture, c56: a lake touching both tiles of a two-tile cut, both of its sides pruned). Open
+ * sea around a tile is one shore, which the channel already reaches, so it gets no spokes.
+ * The one exception is a junction: where several canals meet on one tile (Modern), an arm runs to every one of them,
+ * and such a tile takes a branch only while it has fewer than four arms. This is the drawing only; where canals may
+ * be built is decided by isIsthmus.
+ */
 function runArms(run) {
   const open = new Map(loadOpen().map((e) => [e.plot, e]));
   const inRun = new Set(run.map(idx));
@@ -918,12 +918,6 @@ function wrapUnitSend(oSend) {
 }
 
 
-/**
- * The finished canal tile: the citizen the Canal housed is placed on it with the city's own expand order (rural
- * district, fishing boats, a worker: c23), then the age's invisible works building is created there. If the
- * expand order does not offer the tile, a rural district is created directly and the citizen stays pending for the
- * player to place.
- */
 // districts that belong to no city
 //
 // CREATE_ELEMENT makes a district for a player, and for a city only when the request names it as Parent. Without
@@ -1145,17 +1139,17 @@ async function requeue(city, loc, q) {
   await sleep(200);
   return true;
 }
+/** The tile's owner is a major civilization and one of its own cities holds the tile. */
+function heldByOwnersCity(owner, city) {
+  if (owner < 0 || !city || !safe(() => Players.get(owner).isMajor, false)) return false;
+  return safe(() => Cities.get(city).owner, -1) === owner;
+}
 /**
  * An open canal missing its district or its Canal building: an opening cut short (the turn ended part-way, so the
  * requests after it never landed), or anything else that took them off. The tile is settled again as an opening
  * leaves it: a rural district held by the city that owns the tile, the Canal of its own kind, the site marker. The
  * citizen an opening places is not given again: one cut short has already freed it, for the player to place.
  */
-/** The tile's owner is a major civilization and one of its own cities holds the tile. */
-function heldByOwnersCity(owner, city) {
-  if (owner < 0 || !city || !safe(() => Players.get(owner).isMajor, false)) return false;
-  return safe(() => Cities.get(city).owner, -1) === owner;
-}
 async function healCanalTile(loc, e) {
   const owner = safe(() => GameplayMap.getOwner(loc.x, loc.y), -1); const city = owningCity(loc);
   const at = `${loc.x},${loc.y}`;
@@ -1186,6 +1180,12 @@ async function repairCanalTile(loc, age) {
     `${occupants(loc).map((o) => o.type).join(",") || "nothing on it"}`);
 }
 
+/**
+ * The finished canal tile: the citizen the Canal housed is placed on it with the city's own expand order (rural
+ * district, fishing boats, a worker: c23), then the age's invisible works building is created there. If the
+ * expand order does not offer the tile, a rural district is created directly and the citizen stays pending for the
+ * player to place.
+ */
 async function settleCanalTile(loc, cityId, owner, canalType, opts) {
   const local = GameContext.localPlayerID;
   const plot = idx(loc);
@@ -1685,12 +1685,6 @@ function cannotAfford(cityID, def) {
 }
 
 /**
- * Wraps a canStart that places a building: Game.CityOperations BUILD (production) or Game.CityCommands PURCHASE
- * (gold; a town's only way to get a building). For a Canal the offered plots are the canal sites and nothing else,
- * the engine's own urban-expansion plots included (c36: a town's purchase offered three plain tiles beside it
- * and refused the site).
- */
-/**
  * No other building may stand on an opened canal. The tile is a worked rural tile, so the engine offered it to every
  * building as a place to expand onto, and a player built a Garden on a canal (report, 2026-09-28). It is taken out of
  * every other building's lists, and a request aimed at it is refused.
@@ -1704,6 +1698,12 @@ function keepOffCanals(res, args) {
   return { ...res, Plots: strip(res.Plots), ExpandUrbanPlots: strip(res.ExpandUrbanPlots) };
 }
 
+/**
+ * Wraps a canStart that places a building: Game.CityOperations BUILD (production) or Game.CityCommands PURCHASE
+ * (gold; a town's only way to get a building). For a Canal the offered plots are the canal sites and nothing else,
+ * the engine's own urban-expansion plots included (c36: a town's purchase offered three plain tiles beside it
+ * and refused the site).
+ */
 function wrapCanStart(oCan, placeType, purchase) {
   return function (cityID, type, args, ...rest) {
     const res = oCan(cityID, type, args, ...rest);
