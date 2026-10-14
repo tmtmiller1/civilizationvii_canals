@@ -43,7 +43,7 @@ The main menu choice applies to new games, and a game keeps the rules it was fir
 [*][b]AI site choice.[/b] An AI builds only where its city could put a building; a site further out waits until the city grows toward it. How much the AI values a Canal is set when a game is created, so in a game begun before this version it builds them less often.
 [*][b]Added to a game under way[/b] after a Canal's tech was researched, the game keeps that Canal locked. The mod sells it to you for gold instead, but the AI cannot build it until the next age.
 [*][b]Older saves.[/b] Canals from 1.0.0 load drawn as open sea; the mod offers to reload, which fixes them. For games begun with 1.2.1 or earlier, load once with this version and save to keep its repairs.
-[*][b]Translations are machine-made;[/b] corrections are welcome. English, German, Spanish, French, Italian, Japanese, Korean, Polish, Brazilian Portuguese, Russian, Simplified and Traditional Chinese.
+[*][b]Translations:[/b] corrections are welcome. English, German, Spanish, French, Italian, Japanese, Korean, Polish, Brazilian Portuguese, Russian, Simplified and Traditional Chinese.
 [/list]
 [h2]Compatibility[/h2]
 [list]

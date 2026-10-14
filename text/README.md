@@ -11,7 +11,7 @@ the modinfo.
 | `en_us/CanalsText.xml` | The source of truth: the mod's name and description, the Canal buildings, the placement messages, the notices, the Options row and the Civilopedia pages (75 tags). |
 | `<lang>/CanalsText.xml` | The same tags in one language. |
 
-All eleven languages below ship as machine translations (2026-10-01) that use the game's own words for its terms,
+All eleven languages below ship as translations (2026-10-01) that use the game's own words for its terms,
 taken from the game's l10n files by `devtools/gen-glossary.py` into `devtools/glossary/` (generated locally, not
 committed; run the script to rebuild it). To correct one, edit its
 `<Text>`; to change the English, edit the English and update every language.

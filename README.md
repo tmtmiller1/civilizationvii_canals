@@ -208,7 +208,7 @@ sail through them.
   Canal is never offered on a tile that holds a Dam.
 - Single-player games only. In a multiplayer game no Canal can be built, and the mod says so when the game starts.
 - Translated into German, Spanish, French, Italian, Japanese, Korean, Polish, Brazilian Portuguese, Russian, and
-  Simplified and Traditional Chinese. The translations are machine-made; corrections are welcome.
+  Simplified and Traditional Chinese. Corrections to the translations are welcome.
 
 ## Installation
 
