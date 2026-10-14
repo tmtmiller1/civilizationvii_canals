@@ -4,6 +4,11 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.5.3] - 2026-10-14
+
+- The license now says that Civilization VII and its art and data belong to Firaxis and 2K, and that the
+  screenshots are there for illustration. The mod itself plays exactly as in 1.5.2.
+
 ## [1.5.2] - 2026-10-09
 
 - No limit on ships through a canal. An Antiquity canal used to take one of your ships a turn and an Exploration
