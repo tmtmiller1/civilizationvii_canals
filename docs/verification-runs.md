@@ -5,7 +5,17 @@ The steps below were checked on 2026-09-25 on Civilization VII 1.5.0. The runs l
 that led to this design is `mod_ideas_tested/canals/REEXAMINATION-2026-09-25.md`. The reader-facing account is
 the [README](../README.md); this file is the evidence behind it.
 
-## The shape
+## The shape (Canals 1.0 to 1.4, the old rules)
+
+These five steps are how Canals worked up to 1.4.3, and they're kept because the early runs below belong to them. From
+1.5.0 placement and commit work differently. The offered tiles are the engine's own list for a plain building of the age
+plus the settlement's worked rural tiles and the bare tiles in its build ring, narrowed by the site rule: one shore is
+enough, and a run is 1, 2 or 5 tiles by age, any shape. An urban tile whose buildings are all from an earlier age is
+offered too. An order marks the tile with the site marker, waits for the engine's own per-plot yes, takes off any
+earlier-age building and forwards the order; a bare tile gets a rural district first, and the script never makes an
+urban district. Steps 3 to 5 still hold for an urban tile; a rural tile keeps its district and its Canal and only swaps
+its improvement for a fishing boat. The runs behind 1.5.x are `cs1`-`cs2`, `cm1`-`cm2` and `wm1`-`wm6`, and the README's
+How it works has the current steps.
 
 1. Placement. The Canal buildings carry no terrain rule. `ui/canals.js` wraps `Game.CityOperations.canStart`:
    for a Canal the offered plots are the city's land tiles within its build ring (`BUILD_RADIUS`) that pass
@@ -174,14 +184,16 @@ the [README](../README.md); this file is the evidence behind it.
 - Cliffs: the retype itself clears the plot's cliff flags (`c21`), so ships cross every edge; the cliff rock faces
   are drawn until the next load. Cliff edges are allowed (the earlier exclusion was reverted) and the README and
   Steam text say so.
-- Chains: Antiquity keeps the single-tile two-shore rule. Exploration offers the tile that extends a canal (opened
-  or queued) into a straight two-tile line, and nothing else beside a canal; Modern allows runs of up to five tiles
-  with bends and branches, every tile reaching natural water through the run. A tile beside a canal is always
-  judged as part of that run: the first gallery pass (`gal-exp`) showed that a canal's own water made its
-  neighbors two-shore isthmuses, which let a fourth Canal onto the side of the three-tile cut and drew a branched
-  blob, so the two-shore shortcut now applies only to tiles with no canal beside them. Tiles holding buildings are
-  never offered, and a completed Canal sharing its tile with other buildings (an AI's, in an urban slot) is left
-  alone.
+- Chains, the old rules (up to 1.4.3): Antiquity keeps the single-tile two-shore rule. Exploration offers the tile that
+  extends a canal (opened or queued) into a straight two-tile line, and nothing else beside a canal; Modern allows runs
+  of up to five tiles with bends and branches, every tile reaching natural water through the run. A tile beside a canal
+  is always judged as part of that run: the first gallery pass (`gal-exp`) showed that a canal's own water made its
+  neighbors two-shore isthmuses, which let a fourth Canal onto the side of the three-tile cut and drew a branched blob,
+  so the two-shore shortcut now applies only to tiles with no canal beside them. Tiles holding buildings are never
+  offered, and a completed Canal sharing its tile with other buildings (an AI's, in an urban slot) is left alone. 1.5.0
+  replaced these rules: one shore is enough, a tile beside a canal is judged by its run alone (1, 2 or 5 tiles by age,
+  any shape), and an urban tile whose buildings are all from an earlier age is offered, the canal replacing them
+  (`wm1`-`wm5`). A tile holding a building of the age, or an ageless one, still keeps it.
 - Transit quota: the local player's `MOVE_TO` orders through a canal are counted per turn and refused past the
   age's limit (1, 2, unlimited); AI movement is native and cannot be held. Switched off in 1.5.2 (`TRANSIT_LIMIT`).
 - Looks: three per age, chosen by plot number so a canal keeps its look across reloads.
@@ -216,3 +228,9 @@ the [README](../README.md); this file is the evidence behind it.
 - A ship's path through a canal after an age transition (`c100`'s canal had one plain sea side).
 - Multiplayer: the retype is a local call, so the mod does not offer the Canal in a network game, and says so at the
   start of one. Not run: no network game was started.
+- A chained second tile bought through the mod on 1.5.x. `wm5` showed the mod marking the worked neighbour of an opened
+  canal as a site, so the chain is offered, but both neighbours it found held a resource and the probe's geometry
+  reached no other.
+- An AI soak on any 1.5.x build. The marker rewrite (1.5.0), the works dust (1.5.1) and the parked ship limit (1.5.2)
+  haven't had a long game with the AI building; the last runs with the AI digging canals (`s2c`, `ot-mod`) were on
+  earlier versions.

@@ -139,6 +139,6 @@ else
     echo "     echo <publishedfileid> > steam_workshop_id.txt"
 fi
 echo ""
-echo "-- Upload (SteamCMD; test the cached login first with +@NoPromptForPassword 1 +login <your-steam-account> +quit) --"
-echo "  ~/steamcmd/steamcmd.sh +@NoPromptForPassword 1 +login <your-steam-account> +workshop_build_item $(cd "$DIST_DIR" && pwd)/workshop_item.vdf +quit"
+echo "-- Upload (SteamCMD asks for the password, then a Steam Guard confirmation in the mobile app) --"
+echo "  ~/steamcmd/steamcmd.sh +login tmtmiller +workshop_build_item $(cd "$DIST_DIR" && pwd)/workshop_item.vdf +quit"
 echo "  Then set the preview image on the Workshop page by hand from $PREVIEW_OUT."

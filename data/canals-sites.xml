@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Canal sites. The Canal requires the site marker on its tile, so the engine offers it, to the game's own AI as to the
-  player, only on a tile ui/canals.js has marked. The canal rule itself (a strip of land between two shores, the chain
-  rules of each age) lives in the script because the engine's data cannot express it, and the game's AI obeys only
+  player, only on a tile ui/canals.js has marked. The canal rule itself (a land tile beside water a ship can sail, and
+  each age's longest run) lives in the script because the engine's data cannot express it, and the game's AI obeys only
   the data. Without the marker the AI never weighs the building at all.
   The marker has no feature class, since a class shifts the owner's flat-tile bonus. It gives way to other buildings
   (Removable) and yields what bare land yields (data/canals-sites.sql). No map places it (PlacementDensity 0).
