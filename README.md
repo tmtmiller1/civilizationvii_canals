@@ -122,8 +122,8 @@ Canal, one-tile canals, building one and what happens when it opens), Canal Site
 
 - flat or hill land the settlement owns, not a navigable river tile;
 - a tile the settlement works, a bare tile within its build ring, or an urban tile whose buildings are all from an
-  earlier age, which the canal replaces; a tile holding a building of the current age, or an ageless one, is not
-  offered;
+  earlier age, which the canal replaces; a tile holding a building of the current age, an ageless one or a Dam
+  isn't offered;
 - beside water a ship can sail: sea, lake or navigable river on at least one side; water nothing can enter is not a
   way in: ice, or a natural wonder standing in the sea, such as Thera; a settlement's own center beside the tile
   counts as well, so a city or town can dig a canal from its center out;
@@ -331,26 +331,40 @@ Known limits:
 ## Layout
 
 ```
-canals.modinfo                      data and one script
-data/canals.xml                     the three Canal buildings: cost, citizen, yields, districts
+canals.modinfo                      the data, and the three UI scripts each of the main menu and the game loads
+data/canals.xml                     the Canal buildings: cost, citizen, yields, districts
 data/canals-antiquity.xml           each age's tech unlock, loaded only while that age is in use
 data/canals-exploration.xml
 data/canals-modern.xml
+data/canals-sites.xml               the canal-site markers a Canal needs on its tile
+data/canals-sites.sql               gives a marked tile the yields of the same land without the marker
+data/canals-ai.xml                  how much the game's AI values a Canal on a marked site
+data/canals-icons.xml               the Canal icons
 data/canals-civilopedia.xml         the Canals pages in the Civilopedia's Game Concepts section
 ui/canals.js                        the mod: placement, commit, completion, looks, locks,
-                                    ship limit (off), saving, AI canals, safety sweep
+                                    ship limit (off), saving, canal sites, safety sweep
+ui/canals-settings.js               which canal rules are in play, by age or one-tile (imported by the scripts below)
+ui/canals-options.js                the Canal rules row in Options, Add-ons, in the main menu and in a game
 ui/canals-shell.js                  main menu: puts the player's autosave frequency back
+ui/settings-keeper.js               Tower Settings Keeper, copied unchanged from its own repo
+icons/                              each age's Canal icon at 256, 128 and 64 pixels
 text/en_us/CanalsText.xml           name, description, placement messages and the Civilopedia text
 text/<lang>/CanalsText.xml          the same text in each of 11 other languages (see text/README.md)
 tests/pedia-pages.test.mjs          checks every Civilopedia page has text to draw (npm run pedia)
 tests/i18n.test.mjs                 checks every translation has every tag, placeholder and markup (npm run i18n)
+tests/canal-rules.test.mjs          the site rule, the channel geometry and the AI's canal worth on a fake map (npm run rules)
+tests/fake-game.mjs                 the fake map and game calls those tests run against
 devtools/gen-glossary.py            pulls the game's own translations of game terms into devtools/glossary/ (local, not committed)
 docs/verification-runs.md           every step and the run behind it
+docs/compatibility.md               what Canals touches, and what happens beside other kinds of mod
+docs/split-plan.md                  how ui/canals.js is to be split into modules (not started)
 docs/steam-workshop-description.txt the Workshop page text
 docs/workshop-preview.png           the mod icon and Workshop preview (rendered from workshop-preview.svg)
 gallery/                            the screenshots used above
 scripts/build_readme_pdf.sh         builds README.pdf from this file (npm run readme:pdf)
+scripts/make-icons.mjs              draws the Canal icons into art/ and icons/
 scripts/steam-changelog.mjs         renders CHANGELOG.md into CHANGELOG.steam.txt for the Workshop
+eslint.config.js                    the lint rules for ui/ (npm run lint; not shipped)
 release.sh                          builds the release zip and the Workshop manifest into dist/
 CHANGELOG.md                        what changed in each version
 README.pdf                          this file, typeset

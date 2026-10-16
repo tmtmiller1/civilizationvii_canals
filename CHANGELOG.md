@@ -4,6 +4,15 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [Unreleased]
+
+- Ageless buildings keep their tile. Since 1.5.0 a tile holding an ageless building from an earlier age, such as a
+  unique building or a wonder, could be offered as a Canal site, and ordering the Canal there took the building away.
+  The check for the ageless tag always came back empty. Now it reads the tag the way the game does, and those tiles
+  aren't offered.
+- A Dam from the Dams mod keeps its tile in every age. An Antiquity Dam has no ageless tag, so in Exploration a Canal
+  could be offered on its tile and replace it.
+
 ## [1.5.3] - 2026-10-14
 
 - The license now says that Civilization VII and its art and data belong to Firaxis and 2K, and that the

@@ -1502,14 +1502,40 @@ function onBuildCompleted(data) {
 
 function plotOf(args) { return args && args.X != null && args.Y != null ? { x: args.X, y: args.Y } : null; }
 
+// GameInfo tables have find, filter, forEach and for...of, but no some, every or map: a call to one of those
+// throws, and under safe() every building read as untagged. Read once, the way the game's utilities-tags.js does.
+let typeTags = null;
 function hasTag(type, tag) {
-  return safe(() => GameInfo.TypeTags.some((r) => String(r.Type) === String(type) && String(r.Tag) === tag), false);
+  if (!typeTags) {
+    const read = new Map();
+    for (const r of safe(() => GameInfo.TypeTags, []) || []) {
+      const t = String(r.Type);
+      if (!read.has(t)) read.set(t, new Set());
+      read.get(t).add(String(r.Tag));
+    }
+    if (!read.size) return false;
+    typeTags = read;
+  }
+  return typeTags.has(String(type)) && typeTags.get(String(type)).has(tag);
 }
-/** A building of an earlier age that is not ageless: one the game lets a new building replace. */
+/** Dams' Dam buildings, kept like ageless ones: the Antiquity Dam carries no AGELESS tag. */
+function isDam(type) { return /^BUILDING_DAM_/.test(String(type)); }
+/** A building of an earlier age that is not ageless and not a Dam: one the canal may replace. */
 function isObsolete(type) {
   const def = safe(() => GameInfo.Constructibles.lookup(type), null);
-  if (!def || !def.Age) return false;
+  if (!def || !def.Age || isDam(def.ConstructibleType)) return false;
   return (AGE_RANK[String(def.Age)] || 0) < (AGE_RANK[currentAge()] || 0) && !hasTag(def.ConstructibleType, "AGELESS");
+}
+// Every constructible held to a terrain, biome, feature or resource, read once like the tags above.
+let placementRules = null;
+function placementRuled() {
+  if (placementRules) return placementRules;
+  const read = new Set();
+  for (const table of ["Constructible_RequiredFeatures", "Constructible_RequiredFeatureClasses", "Constructible_ValidTerrains",
+    "Constructible_ValidBiomes", "Constructible_ValidFeatures", "Constructible_ValidResources"])
+    for (const r of safe(() => GameInfo[table], []) || []) read.add(String(r.ConstructibleType));
+  if (read.size) placementRules = read;
+  return read;
 }
 /** A building with no placement rule of its own: the engine's answer for it is where any building may go. */
 function plainBuilding(def) {
@@ -1521,9 +1547,7 @@ function plainBuilding(def) {
   if (def.Age && String(def.Age) !== currentAge()) return false;
   const t = String(def.ConstructibleType);
   if (CANAL_TYPES.includes(t)) return false;
-  const rows = (table) => safe(() => GameInfo[table].some((r) => String(r.ConstructibleType) === t), false);
-  for (const table of ["Constructible_RequiredFeatures", "Constructible_RequiredFeatureClasses", "Constructible_ValidTerrains",
-    "Constructible_ValidBiomes", "Constructible_ValidFeatures", "Constructible_ValidResources"]) if (rows(table)) return false;
+  if (placementRuled().has(t)) return false;
   if (safe(() => GameInfo.Buildings.find((b) => String(b.ConstructibleType) === t).TraitType, null)) return false;
   return true;
 }
