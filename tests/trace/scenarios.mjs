@@ -114,6 +114,31 @@ export const SCENARIOS = {
       reads.push(B.sendRequest(1, 1, { ConstructibleType: ct, X: 3, Y: 3 }));
       return reads;
     } },
+  // a Canal ordered by production, waiting in the queue before it shows on the map: its tile is kept off every other
+  // building's lists and a request aimed at it refused, as on an opened canal, until the Canal leaves the queue (ow7)
+  "install, a queued Canal's tile kept off other buildings": { map: COAST, only: "new",
+    setup: (e) => { own(e); e.tile(2, 1, { district: "DISTRICT_RURAL" }); e.queue(1, EX, 2, 1); },
+    act: (M, e) => {
+      globalThis.Game.CityCommands.canStart = verdicts(e); globalThis.Game.CityOperations.canStart = verdicts(e);
+      M.install();
+      const C = globalThis.Game.CityCommands, B = globalThis.Game.CityOperations;
+      const mk = e.typeIndex("BUILDING_MARKET"); const p = e.plotOf(at(2, 1));
+      const read = () => ({ build: (B.canStart(1, 1, { ConstructibleType: mk }, false).Plots || []).includes(p),
+        buy: (C.canStart(1, 2, { ConstructibleType: mk }, false).Plots || []).includes(p),
+        here: C.canStart(1, 2, { ConstructibleType: mk, X: 2, Y: 1 }, false) });
+      const queued = read();
+      const sent = C.sendRequest(1, 2, { ConstructibleType: mk, X: 2, Y: 1 });
+      e.cities.get(1).queue.length = 0;
+      const freed = read();
+      return { queued, sent, freed };
+    },
+    check: (now) => {
+      const r = now.result;
+      return !r.queued.build && !r.queued.buy && r.queued.here.Success === false
+        && r.queued.here.FailureReasons[0] === "LOC_CANAL_TILE_TAKEN" && r.sent === false
+        && !now.trace.some((l) => /CityCommands\.sendRequest .*"X":2,"Y":1/.test(l))
+        && r.freed.build && r.freed.buy && r.freed.here.Success === true;
+    } },
   "install, short of gold": { map: COAST, options: { gold: 100 },
     setup: (e) => { own(e); e.tile(2, 1, { district: "DISTRICT_RURAL" }); },
     act: (M, e) => {
