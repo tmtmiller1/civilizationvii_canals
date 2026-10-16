@@ -3,6 +3,14 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.5.4 | 2026-10-16 | src 5742b296d0f0 | gen 29554b7474aa ====
+[b]Version 1.5.4 · 16 October 2026[/b]
+• Ageless buildings keep their tile. Since 1.5.0 a tile holding an ageless building from an earlier age, such as a unique building or a wonder, could be offered as a Canal site, and ordering the Canal there took the building away. The check for the ageless tag always came back empty. Now it reads the tag the way the game does, and those tiles aren't offered.
+• A Dam from the Dams mod keeps its tile in every age. An Antiquity Dam has no ageless tag, so in Exploration a Canal could be offered on its tile and replace it.
+• An older building comes back if the Canal order fails. Ordering a Canal on a tile with a building from an earlier age takes that building off, since the canal takes the whole tile. If the game then doesn't take the order, the building is put back straight away; before, it was simply gone. Once the order is in, it works like the game's own rebuilding over old buildings: taking the Canal out of production doesn't bring the old building back.
+• A Canal waiting in a city's production queue keeps its tile. Before it showed on the map, the game could offer that tile to another building, and a Bazaar bought there kept the finished Canal from ever opening. Now the tile isn't offered to anything else while the Canal is queued, and it's offered again if you take the Canal out of the queue.
+• No change in game: the game script, one file of about 1,700 lines, is now ten files of 60 to about 400 lines each. The code was first moved as it was (a script checks that every block of the old file is in exactly one new file), then broken into smaller functions with the same steps in the same order; a test plays each of the mod's sequences against the old script and checks that every call to the game comes out the same.
+
 ==== 1.5.3 | 2026-10-14 | src 3bc72631e2f1 | gen 7e175f1f543f ====
 [b]Version 1.5.3 · 14 October 2026[/b]
 • The license now says that Civilization VII and its art and data belong to Firaxis and 2K, and that the screenshots are there for illustration. The mod itself plays exactly as in 1.5.2.
