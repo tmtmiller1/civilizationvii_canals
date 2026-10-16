@@ -335,6 +335,8 @@ test("overbuild: an earlier-age building goes, an ageless one or a Dam stays", (
   assert.equal(isObsolete("BUILDING_DAM_ANTIQUITY"), false, "an Antiquity Dam");
   assert.equal(isObsolete("BUILDING_ACADEMY"), false, "a building of the age");
   assert.equal(isObsolete("IMPROVEMENT_FARM"), false, "no age at all");
+  assert.equal(isObsolete("BUILDING_GRANARY"), false, "an ageless Granary");
+  assert.equal(isObsolete("BUILDING_BRICKYARD"), true, "a Brickyard another mod took the AGELESS tag off");
   drawMap(`
 ~ ~
  . .
