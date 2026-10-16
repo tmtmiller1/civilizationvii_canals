@@ -56,13 +56,15 @@ function placementRuled() {
   if (read.size) placementRules = read;
   return read;
 }
+/** A placement rule in the building's own row: next to a terrain, a district, a river or a lake, or the like. */
+function placementColumn(def) {
+  return !!(def.AdjacentTerrain || def.AdjacentDistrict || def.RiverPlacement || def.AdjacentLake || def.AdjacentRiver
+    || def.RequiresDistantLands || def.RequiresHomeland || def.ExistingDistrictOnly || def.RequiresAppealPlacement);
+}
 /** A building with no placement rule of its own: the engine's answer for it is where any building may go. */
 function plainBuilding(def) {
   if (String(def.ConstructibleClass) !== "BUILDING") return false;
-  if (def.AdjacentTerrain || def.AdjacentDistrict || def.RiverPlacement || def.AdjacentLake || def.AdjacentRiver)
-    return false;
-  if (def.RequiresDistantLands || def.RequiresHomeland || def.ExistingDistrictOnly || def.RequiresAppealPlacement)
-    return false;
+  if (placementColumn(def)) return false;
   if (def.Age && String(def.Age) !== currentAge()) return false;
   const t = String(def.ConstructibleType);
   if (CANAL_TYPES.includes(t)) return false;
@@ -87,15 +89,18 @@ function enginePlots(cityID, purchase) {
   let plots = null;
   for (const def of safe(() => [...GameInfo.Constructibles].filter(plainBuilding), [])) {
     const ask = () => host.canStart.call(host.host, cityID, host.type, { ConstructibleType: def.$index }, false);
-    const r = safe(ask, null);
-    if (!r || typeof r !== "object" || r.Locked || (r.NeededUnlock != null && r.NeededUnlock !== -1)) continue;
-    const list = (a) => (Array.isArray(a) ? a : []);
-    const all = [...list(r.Plots), ...list(r.ExpandUrbanPlots)];
-    if (!all.length) continue;
-    plots = new Set(all); break;
+    plots = offeredPlots(safe(ask, null));
+    if (plots) break;
   }
   engineListCache.set(key, { at: Date.now(), plots });
   return plots;
+}
+/** The plots a canStart answer offers the building, or null when it's locked or offers none. */
+function offeredPlots(r) {
+  if (!r || typeof r !== "object" || r.Locked || (r.NeededUnlock != null && r.NeededUnlock !== -1)) return null;
+  const list = (a) => (Array.isArray(a) ? a : []);
+  const all = [...list(r.Plots), ...list(r.ExpandUrbanPlots)];
+  return all.length ? new Set(all) : null;
 }
 
 /**
@@ -109,25 +114,31 @@ function enginePlots(cityID, purchase) {
 function eligiblePlots(cityID, anyUnits = false, purchase = null) {
   const city = safe(() => Cities.get(cityID), null);
   if (!city) return [];
-  const out = [];
-  const centre = safe(() => city.location, null);
-  const engine = purchase == null ? null : enginePlots(cityID, purchase);
-  for (const p of safe(() => city.getPurchasedPlots() || [], [])) {
-    const loc = locOf(p);
-    if (unfinishedCanal(cityID, loc)) { out.push(p); continue; }
-    const away = () => safe(() => GameplayMap.getPlotDistance(centre.x, centre.y, loc.x, loc.y), 99);
-    const d = districtAt(loc);
-    if (d === "DISTRICT_URBAN" && engine && !engine.has(p)) continue;
-    if (d !== "DISTRICT_RURAL" && centre && away() > BUILD_RADIUS) continue;
-    if (!isIsthmus(loc) || hasResource(loc) || isParkland(loc)) continue;
-    if (d !== "" && d !== "DISTRICT_RURAL" && d !== "DISTRICT_URBAN") continue;
-    // a building of the age, or an ageless one, keeps its tile; obsolete ones the canal replaces
-    if (occupants(loc).some((o) => !isImprovement(o.type) && !isObsolete(o.type))) continue;
-    if (canalOn(loc) || loadPending().includes(p)) continue;
-    if (!anyUnits && safe(() => (MapUnits.getUnits(loc.x, loc.y) || []).length, 0) > 0) continue;
-    out.push(p);
-  }
-  return out;
+  const s = { centre: safe(() => city.location, null), anyUnits,
+    engine: purchase == null ? null : enginePlots(cityID, purchase) };
+  return safe(() => city.getPurchasedPlots() || [], [])
+    .filter((p) => unfinishedCanal(cityID, locOf(p)) || freshSite(p, s));
+}
+
+/** One of the settlement's tiles judged as a new site (see eligiblePlots). */
+function freshSite(p, s) {
+  const loc = locOf(p);
+  if (!inBuildReach(p, loc, s)) return false;
+  if (!isIsthmus(loc) || hasResource(loc) || isParkland(loc)) return false;
+  // a building of the age, or an ageless one, keeps its tile; obsolete ones the canal replaces
+  if (occupants(loc).some((o) => !isImprovement(o.type) && !isObsolete(o.type))) return false;
+  if (canalOn(loc) || loadPending().includes(p)) return false;
+  return s.anyUnits || safe(() => (MapUnits.getUnits(loc.x, loc.y) || []).length, 0) <= 0;
+}
+
+/** Bare, rural or urban, and within reach: an urban tile where the engine would put a plain building, a rural tile
+ * anywhere the settlement holds, a bare one inside its build ring. */
+function inBuildReach(p, loc, s) {
+  const d = districtAt(loc);
+  if (d !== "" && d !== "DISTRICT_RURAL" && d !== "DISTRICT_URBAN") return false;
+  if (d === "DISTRICT_URBAN" && s.engine && !s.engine.has(p)) return false;
+  const away = () => safe(() => GameplayMap.getPlotDistance(s.centre.x, s.centre.y, loc.x, loc.y), 99);
+  return !(d !== "DISTRICT_RURAL" && s.centre && away() > BUILD_RADIUS);
 }
 
 /**
@@ -196,16 +207,24 @@ function unlockNode(def) {
  * cannot build a locked building.
  */
 function unlockedByMod(pid, def, res) {
-  if (!def || !res || res.Success || res.AlreadyExists || res.InQueue || res.InsufficientFunds) return false;
+  if (refusedForMore(def, res)) return false;
   const node = unlockNode(def);
   if (!node) return false;
-  const needed = res.NeededUnlock != null && res.NeededUnlock !== -1
-    ? safe(() => String(GameInfo.ProgressionTreeNodes.lookup(res.NeededUnlock).ProgressionTreeNodeType), null) : null;
+  const needed = neededNode(res);
   if (needed && needed !== node) return false;
   // On a save the mod was added to, the refusal names no tech and gives no reason at all: {Success: false} (c101).
   // Callers pass only this age's Canal, so a refusal with no reason is the missing unlock, not the wrong age.
   if (!needed && !res.Locked && (res.FailureReasons || []).length) return false;
   return !!safe(() => Players.get(pid).Techs.isNodeUnlocked(node), false);
+}
+/** Nothing to sell: no answer, a yes, or a refusal an unlock wouldn't fix (built, queued, short of gold). */
+function refusedForMore(def, res) {
+  return !def || !res || !!(res.Success || res.AlreadyExists || res.InQueue || res.InsufficientFunds);
+}
+/** The tech a refusal names as missing, or null. */
+function neededNode(res) {
+  if (res.NeededUnlock == null || res.NeededUnlock === -1) return null;
+  return safe(() => String(GameInfo.ProgressionTreeNodes.lookup(res.NeededUnlock).ProgressionTreeNodeType), null);
 }
 function cityOwner(cityID) { return safe(() => Cities.get(cityID).owner, -1); }
 

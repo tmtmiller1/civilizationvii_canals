@@ -1,70 +1,94 @@
 # Splitting ui/canals.js
 
-Status: first cut, 2026-10-15. Nothing has moved. The move waits on an AI soak on the 1.5.x build and on the owner, so
-the behaviour it has to keep is watched first. Tests for the rule and geometry code are in `tests/canal-rules.test.mjs`
-(23 tests on a fake map, `npm run rules`); each was checked to fail when the code it covers is broken in a scratch copy.
+Status, 2026-10-16: steps 1 to 3 done offline and step 5 in part; none of it watched in a game yet. Step 4 waits on the
+owner. The AI soak it waited on ran first (`s13` in `verification-runs.md`, on `d3f2712`).
 
-`ui/canals.js` is 1,676 code lines against the 500-line lint limit, with 48 lint warnings. The build and save paths are
-watched behaviour: a retype during a save crashed in `c71`, the house flicker came from the old commit path, and `we3`
-crashed once with the works dust on. So the split moves code and keeps everything else as it is, in this order:
+`ui/canals.js` was 1,676 code lines against the 500-line lint limit, with 48 lint warnings. The build and save paths
+are watched behaviour: a retype during a save crashed in `c71`, the house flicker came from the old commit path, and
+`we3` crashed once with the works dust on. So the split moves code and keeps everything else as it is, in this order:
 
-1. Tests first (done for the pure code, see above).
-2. A move-only split, function bodies byte for byte the same.
-3. The pure functions broken up under the tests.
-4. The async sequences, one per commit, each watched with its probe. Ask the owner before this step.
-5. The lint rules raised to "error" and the `eslint.config.js` comment rewritten (its TODO names `districtThenBuild`,
-   which 1.5.0 removed, and its "499 counted lines" note is out of date).
+1. Tests first. Done 2026-10-15 (`tests/canal-rules.test.mjs`), added to on 2026-10-16 (below).
+2. A move-only split, function bodies byte for byte the same. Done 2026-10-16.
+3. The pure functions broken up under the tests. Done 2026-10-16.
+4. The async sequences, one per commit, each watched with its probe. Waits on the owner.
+5. The lint rules raised to "error" and the `eslint.config.js` comment rewritten. The comment is done, and
+   `max-lines` is an error now; the rest stay warnings until step 4 is done or set aside.
 
-If the owner would rather leave the engine sequences alone, stop after step 2 and put documented `eslint-disable` lines
-on those functions.
+If the owner would rather leave the engine sequences alone, they get documented `eslint-disable` lines instead, and
+step 5 finishes.
 
-## The modules, first cut
+## The modules
 
-Code lines are counted the way the lint rule counts them (blank and comment lines left out), from the 1.5.3 file.
+Code lines counted the way the lint rule counts them (blank and comment lines left out).
 
-| Module | Code lines | What moves there |
+| Module | Code lines | What's in it |
 | --- | --- | --- |
-| `ui/canals-state.js` | ~61 | The constants (`TAG`, `KEY`, the GameConfiguration keys, `CANAL_TYPES`, `ONE_TILE`, `SETTLE_MS`, `PLACE_MS`, `BUILD_RADIUS`), `log`, `safe`, `sleep`, `J`, `modeRead` with `oneTileMode`, the `state` object, `canalIndex`, `saveInFlight`, `withBlock`, the pending and open records (`loadPending` to `rememberOpen`), `AGE_RANK` with `ageRank` |
-| `ui/canals-map.js` | ~109 | Map reads and the water helpers: `idx` to `isCuttable`, `currentAge`, `isParkland` |
-| `ui/canals-rule.js` | ~105 | The site rule and the AI's worth: `CHAIN_RULES`, `ruleFor`, `placementRule`, `canalPlots`, `isNaturalWater`, `isIsthmus`, `waterSides`, `sailFrom`, `pairWorth`, `canalWorth` and their constants |
-| `ui/canals-look.js` | ~259 | The works dust (`WORKS_VFX`, `showWorks`, `hideWorks`), the channel geometry (`waterSideIndexes` to `runArms`) and the drawing (`orderSides` to `redrawNeighbours`) |
-| `ui/canals-open.js` | ~153 | `flipToCoast`, `localTurnActive`, `notThisTurn`, `keepRuralTile`, `openCanal`, the district helpers (`districtHolder`, `owningCity`, `destroyDistrict`, `createRuralDistrict`), `settleCanalTile` |
-| `ui/canals-repair.js` | ~163 | `repairCitylessDistricts`, `healDistrict`, `queuedHere`, `requeue`, `heldByOwnersCity`, `healCanalTile`, `repairCanalTile` and their constants |
-| `ui/canals-save.js` | ~170 | `retypeCanals` to `keepLandLook`: the save wrap, age end, the autosave hold and the Options slider wrap |
-| `ui/canals-placement.js` | ~293 | `plotOf` to `wrapHost`: `isObsolete`, `enginePlots`, `eligiblePlots`, pricing, the `canStart`, `canStartQuery` and `sendRequest` wraps, `placeCanal` |
-| `ui/canals-sites.js` | ~156 | `aiMajors` to `syncSites`: the markers, the queued orders, `aiSites` |
-| `ui/canals.js` | ~205 | The header comment, `onTurnActivated`, `sweep`, `onBuildCompleted`, the notices and the reload offer, `install`, `uninstall`, the `__canals` global, and the parked ship limit (`TRANSIT_LIMIT`, `wrapUnitSend`) |
+| `ui/canals.js` | 203 | The header comment, `install`, `uninstall`, the `__canals` object, the notices and the reload offer, the turn-start hook, the build-completed hook, the parked ship limit (`TRANSIT_LIMIT`, `wrapUnitSend`) |
+| `ui/canals-state.js` | 59 | The constants, `log`, `safe`, `sleep`, `J`, the one-tile mode read, the pending and open records, the `state` object, `withBlock`, `AGE_RANK` |
+| `ui/canals-map.js` | 117 | Map reads and the water helpers, `isParkland`, `currentAge` |
+| `ui/canals-rule.js` | 113 | `isIsthmus` and the age's run rules, `canalWorth` and the AI's worth helpers |
+| `ui/canals-look.js` | 298 | The works dust (`WORKS_VFX` with `setWorksVfx`), the channel geometry and the drawing |
+| `ui/canals-open.js` | 168 | `flipToCoast`, `openCanal`, `keepRuralTile`, the district helpers, `settleCanalTile` |
+| `ui/canals-repair.js` | 198 | `sweep`, `repairCitylessDistricts`, `healDistrict`, `requeue`, `healCanalTile`, `repairCanalTile` |
+| `ui/canals-save.js` | 187 | `rememberOpen`, the save wrap, the age's end, the held autosave, the Options slider wrap, `keepLandLook` |
+| `ui/canals-placement.js` | 337 | `isObsolete`, `plainBuilding`, `enginePlots`, `eligiblePlots`, pricing, the `canStart`, `canStartQuery` and `sendRequest` wraps, `placeCanal` |
+| `ui/canals-sites.js` | 167 | The site markers, the queued orders, `aiSites`, `syncSites` |
 
-## Things the move has to get right
+Where this differs from the first cut, and why:
 
-- Every new file goes into `ImportFiles` in the `canals-game` group of `canals.modinfo`, imported the way
-  `canals-settings.js` is (`/tower-canals/ui/<file>.js`). A missing entry means the mod loads but its hooks never
-  install, and the game doesn't say why.
-- `release.sh` audits the zip against an allow-list. Its UI line names `canals-(shell|options|settings)` only, so each
-  new file has to be added there (or the pattern widened to `canals(-[a-z]+)?\.js`), or the release stops. Add each
-  file to the `check` script in `package.json` too.
-- The module-level `let`s need one owner each: `WORKS_VFX` in `canals-look.js` (the `__canals.worksVfx` setter has to
-  reach it, so the look module exports a setter), `modeRead` in `canals-state.js`, `wonderFeatures` and
-  `impassableFeatures` in `canals-map.js`, `engineListCache` in `canals-placement.js`.
-- The modules import each other in a circle (placement uses the sites' markers, and the sites use `eligiblePlots`;
-  opening uses `isObsolete` and `drawOverlay`). ES modules allow that as long as only `install()` in `canals.js` runs at
-  load time, and that file loads last. Shared constants (`SITE_FEATURES`, `AGE_RANK`, `CANAL_TYPES`) go in
-  `canals-state.js` so every module reads them after they've been set.
-- `rememberOpen` calls `holdEngineAutosave`, so the records in `canals-state.js` would import the save module. Pass it
-  in, or keep `rememberOpen` with the save code; either way it stays one call in the same place in `openCanal`.
-- `tests/fake-game.mjs` rewrites the one import in `canals.js` and adds an export line to a temporary copy. After the
-  split the modules export their functions themselves, and the loader should map every `/tower-canals/` import to the
-  repo (a `module.registerHooks` resolve hook does it without copying files).
-- Comments to fix on the way: `canals.js:1904` still calls the rule "a strip of land between two shores", and the
-  install log line says "limited to isthmus tiles".
-- Found while writing the tests: in `isIsthmus` the early `if (rule.max <= 1) return false;` is redundant: a tile beside
-  a canal already makes a run of two, which the run-size check refuses under a limit of one. Keep it in the move; step 3
-  may drop it.
+- Nothing imports `canals.js`. It's the script the game loads; if a module imported it under another path the game
+  could run it twice. So `sweep` went to `canals-repair.js` (the save module's `keepLandLook` calls it) and the works
+  dust to `canals-look.js` (`openCanal` and `placeCanal` call it). The `__canals.worksVfx` setter can't assign to an
+  imported binding, so the look module has `setWorksVfx` and the setter calls it. That one line is the only change
+  to the `__canals` object.
+- `rememberOpen` is in `canals-save.js`, next to `holdEngineAutosave`, which it calls. That leaves
+  `canals-state.js` importing nothing of the mod's own, so it's always fully loaded before anything that reads it.
+- The modules import each other in a circle. That's safe because the only code that runs at load time is constant
+  setup that reads `canals-state.js` or its own file, and `install()` in `canals.js`, which the game loads last.
+  The test loader imports the files the same way, `canals.js` first.
+
+## The move, proved
+
+`devtools/split-proof.py` cuts the last one-file `canals.js` (`edf7c8b`) into its 213 top-level blocks, each
+declaration with the comments above it, and looks for each one verbatim in the new files. On the move-only split, 212
+were found in exactly one file. The 213th was the `__canals` object, for the setter line above. After step 3 it also
+lists the functions that were broken up (below) and `aiMajors`, whose block carries the site-markers comment, which
+was corrected (it still described the old two-shore rule). Every async engine sequence is still byte for byte the
+1.5.3 code.
+
+The imports were worked out by ESLint's `no-undef` on the moved files, not by hand, and the lint run after the move
+had no errors and one warning fewer (47: `canals.js` was the only file over `max-lines`).
+
+## Step 3: what was broken up
+
+Each one with the tests green before and after:
+
+- `isIsthmus`: the run it would join (`runJoined`) and the reach to natural water (`reachesNaturalWater`).
+- `channelSides`: `shorePairs` and `everyPair`.
+- `runArms`: `shoreTouches`, `shoreOf`, `branchToShores` and `branchFor`, in the same order of shores and branches.
+- `drawOverlay`: `modelAdder`, `drawCanal` and `drawLayout`, the models added in the same order.
+- `plainBuilding`: `placementColumn`. `enginePlots`: `offeredPlots`. `eligiblePlots`: `freshSite` and
+  `inBuildReach`. `unlockedByMod`: `refusedForMore` and `neededNode`.
+
+New tests went in first and passed on the moved 1.5.3 code: `tests/canal-placement.test.mjs` (which tiles are offered,
+past the build ring, with units, with the engine's list, a queued tile; when the mod sells a locked Canal) and
+`tests/canal-look.test.mjs`, which records every model `drawOverlay` adds for eight maps, four looks and four
+variants (224 drawings, 1,111 models) and compares them with `tests/canal-look.snapshot.json`. Each test file was
+checked to fail on a scratch copy with one rule broken (`CANALS_UI=<folder>` points the loader at a copy).
+`tests/canals-modinfo.test.mjs` checks every imported module is in the game group's `ImportFiles`.
+
+## Step 4: what's left over the limits
+
+33 warnings, all on code that drives the engine: `openCanal`, `settleCanalTile`, `placeCanal`, the `canStart`,
+`canStartQuery` and `sendRequest` wraps, `sweep`, `repairCitylessDistricts`, `healDistrict`, `requeue`,
+`healCanalTile`, `repairCanalTile`, `putFeature`, `syncSites`, `queuedCanalOrders` (it reads every AI's build queue;
+a test needs the fake to grow players and queues), `install`, `uninstall`, and the parked `wrapUnitSend`. Pull out
+named steps, keep the same order and the same awaits, one function per change, each watched with its probe.
 
 ## Watching it
 
-The move-only split is watched with the crash-soak probes, each on the vanilla side (`tools/crash-soak/run-soak.sh`,
-`MOD=canals`, every other mod off) and the usual-set side (`tower-bench lab`, the registry as it is):
+None of the above has run in a game. The checks are in `WATCH_LIST.md`, group 6b. Each one is run on the vanilla side
+(`tools/crash-soak/run-soak.sh`, `MOD=canals`, every other mod off) and the usual-set side (`tower-bench lab`):
 
 - `wm-game.js`, Exploration seed 9001: purchase and production on a worked rural tile, a town's tile, a bare tile,
   short of gold, and an urban tile holding only an earlier-age building.
@@ -72,4 +96,8 @@ The move-only split is watched with the crash-soak probes, each on the vanilla s
 - `sv-game.js` then `ld-game.js`: a save with a canal open and one pending, loaded again.
 - `ot-game.js`: one-tile mode in each age.
 
-Each run's `[Canals]` lines should match the 1.5.3 runs line for line, apart from times and ids.
+Each run's `[Canals]` lines should match the 1.5.3 runs line for line, apart from times and ids. Before any of them,
+`deploy --prove` should list all ten game files as served.
+
+Comments still to fix: the install log line says "limited to isthmus tiles". It's left as it is until the probes
+have run, since they compare the log line for line.

@@ -78,12 +78,13 @@ export default [
       globals: { ...ENGINE_GLOBALS, ...BROWSER_GLOBALS }
     },
     rules: {
-      // Size and shape rules only warn here. `districtThenBuild`, `eligiblePlots` and
-      // `install` drive the engine through a fixed sequence (buy the plot, place the
-      // district, wait for the build, retype the plot, sweep units) that is known to
-      // work as written, and splitting it to meet a threshold risks breaking the order.
-      // TODO: refactor those three functions, then raise these back to "error" to
-      // match the other tower mods.
+      // Size and shape rules still only warn. What's over them drives the engine through
+      // steps whose order is watched behaviour: the async openings and repairs (openCanal,
+      // placeCanal, settleCanalTile, healDistrict, repairCitylessDistricts and the rest of
+      // canals-repair.js, putFeature and syncSites), sweep, the canStart, canStartQuery and
+      // sendRequest wraps, install and uninstall, and the parked ship limit (wrapUnitSend).
+      // Each is split on its own and watched in a game (docs/split-plan.md, step 4); then
+      // these go back to "error" to match the other tower mods.
       complexity: ["warn", 10],
       "max-statements": ["warn", 18],
       "max-depth": ["warn", 4],
@@ -91,10 +92,8 @@ export default [
         "warn",
         { max: 50, skipBlankLines: true, skipComments: true, IIFEs: true }
       ],
-      // Also a warning. Expanding the dense one-liners for max-len left the script at 499
-      // counted lines against a limit of 500, so as an error the next added line would
-      // fail the gate. Same size debt as above.
-      "max-lines": ["warn", { max: 500, skipBlankLines: true, skipComments: true }],
+      // every file has been under it since canals.js was split into modules
+      "max-lines": ["error", { max: 500, skipBlankLines: true, skipComments: true }],
       // the rest are errors, as in the other tower mods
       "max-len": [
         "error",

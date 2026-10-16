@@ -12,6 +12,10 @@ were tried before this design, the probes and the harness runs live in the autho
   aren't offered.
 - A Dam from the Dams mod keeps its tile in every age. An Antiquity Dam has no ageless tag, so in Exploration a Canal
   could be offered on its tile and replace it.
+- No change in game: the game script, one file of about 1,700 lines, is now ten files of 60 to 340 lines each,
+  with the code moved as it was (a script checks that every block of the old file is in exactly one new file).
+  The parts that only work things out (the site rule, which tiles are offered, the drawn canal) are broken into
+  smaller functions, with new tests holding them to what 1.5.3 did.
 
 ## [1.5.3] - 2026-10-14
 

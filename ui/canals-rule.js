@@ -50,9 +50,14 @@ function isIsthmus(loc, rule = placementRule()) {
   const besideCanal = RING.some((d) => { const n = neighborIn(loc, d); return n && canals.has(idx(n)); });
   if (!besideCanal) return waterStretches(loc) >= 1;
   if (rule.max <= 1) return false;
-  const me = idx(loc);
-  // the run of canal tiles this tile would join
-  const comp = new Set([me]); const queue = [loc];
+  const comp = runJoined(loc, canals);
+  if (comp.size > rule.max) return false;
+  return reachesNaturalWater(comp, canals);
+}
+
+/** The run of canal tiles a tile would join: its plot and every canal plot connected to it. */
+function runJoined(loc, canals) {
+  const comp = new Set([idx(loc)]); const queue = [loc];
   while (queue.length) {
     const c = queue.pop();
     for (const d of RING) {
@@ -60,15 +65,14 @@ function isIsthmus(loc, rule = placementRule()) {
       const p = idx(n); if (canals.has(p) && !comp.has(p)) { comp.add(p); queue.push(n); }
     }
   }
-  if (comp.size > rule.max) return false;
-  // every tile of the run must reach natural water through the run
-  const dist = new Map(); const q2 = [];
-  for (const p of comp) {
-    const l = locOf(p);
-    if (RING.some((d) => { const n = neighborIn(l, d); return n && isNaturalWater(n, canals); })) {
-      dist.set(p, 1); q2.push(p);
-    }
-  }
+  return comp;
+}
+
+/** Every tile of the run reaches natural water through the run. */
+function reachesNaturalWater(comp, canals) {
+  const besideWater = (l) => RING.some((d) => { const n = neighborIn(l, d); return n && isNaturalWater(n, canals); });
+  const q2 = [...comp].filter((p) => besideWater(locOf(p)));
+  const dist = new Map(q2.map((p) => [p, 1]));
   while (q2.length) {
     const p = q2.shift(); const l = locOf(p);
     for (const d of RING) {

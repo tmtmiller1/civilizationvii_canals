@@ -123,25 +123,34 @@ function channelSides(loc, water, links) {
     const best = others.reduce((b, i) => (ringGap(i, canal[0]) > ringGap(b, canal[0]) ? i : b), others[0]);
     return [canal[0], best].sort((a, b) => a - b);
   }
-  const groups = waysIn(loc, others);
-  const pairs = [];
-  if (groups.length >= 2) {
-    for (let g = 0; g < groups.length; g++) for (let h = g + 1; h < groups.length; h++)
-      for (const i of groups[g]) for (const j of groups[h]) pairs.push([i, j]);
-  } else {
-    // one continuous shore that holds two bodies of water (qualified by area, not by stretch): split by area
-    for (let g = 0; g < others.length; g++) for (let h = g + 1; h < others.length; h++) {
-      const a = areaOf(neighborIn(loc, RING[others[g]])), b = areaOf(neighborIn(loc, RING[others[h]]));
-      if (a !== b) pairs.push([others[g], others[h]]);
-    }
-  }
+  let pairs = shorePairs(loc, others);
   if (!pairs.length) {
     if (others.length <= 2) return others;
-    for (let g = 0; g < others.length; g++)
-      for (let h = g + 1; h < others.length; h++) pairs.push([others[g], others[h]]);
+    pairs = everyPair(others);
   }
   pairs.sort((p, q) => ringGap(q[0], q[1]) - ringGap(p[0], p[1]) || (p[0] + p[1]) - (q[0] + q[1]));
   return pairs[0].slice().sort((a, b) => a - b);
+}
+
+/** Every two sides of the list, in order. */
+function everyPair(sides) {
+  const pairs = [];
+  for (let g = 0; g < sides.length; g++) for (let h = g + 1; h < sides.length; h++) pairs.push([sides[g], sides[h]]);
+  return pairs;
+}
+
+/** The pairs of sides a channel may join: one from each of two ways in. */
+function shorePairs(loc, others) {
+  const groups = waysIn(loc, others);
+  if (groups.length < 2) {
+    // one continuous shore that holds two bodies of water (qualified by area, not by stretch): split by area
+    const area = (i) => areaOf(neighborIn(loc, RING[i]));
+    return everyPair(others).filter(([a, b]) => area(a) !== area(b));
+  }
+  const pairs = [];
+  for (let g = 0; g < groups.length; g++) for (let h = g + 1; h < groups.length; h++)
+    for (const i of groups[g]) for (const j of groups[h]) pairs.push([i, j]);
+  return pairs;
 }
 
 /** The opened canal tiles joined to this one, itself included: one waterway, drawn as one. */
@@ -211,13 +220,37 @@ function runArms(run) {
   for (const t of run) {
     const water = waterSideIndexes(t);
     arms.set(idx(t), channelSides(t, water, links.get(idx(t))));
-    const cliffs = (open.get(idx(t)) || {}).cliffs || [];
-    for (const i of water) {
-      const n = neighborIn(t, RING[i]);
-      if (n && !inRun.has(idx(n))) touch.push({ plot: idx(t), side: i, w: idx(n), cliff: cliffs.includes(i) });
-    }
+    touch.push(...shoreTouches(t, water, inRun, (open.get(idx(t)) || {}).cliffs || []));
   }
+  branchToShores(touch, arms);
+  return arms;
+}
+
+/** One branch to each shore no arm reaches yet, added to `arms`. */
+function branchToShores(touch, arms) {
   const wp = [...new Set(touch.map((x) => x.w))];
+  const find = shoreOf(wp);
+  const reached = new Set(touch.filter((x) => arms.get(x.plot).includes(x.side)).map((x) => find(x.w)));
+  for (const shore of [...new Set(wp.map(find))]) {
+    if (reached.has(shore)) continue;
+    const best = branchFor(touch.filter((x) => find(x.w) === shore), arms);
+    if (best) { arms.set(best.plot, [...arms.get(best.plot), best.side].sort((a, b) => a - b)); reached.add(shore); }
+  }
+}
+
+/** A run tile's water sides that face water outside the run, each as { plot, side, w (the water's plot), cliff }. */
+function shoreTouches(t, water, inRun, cliffs) {
+  const out = [];
+  for (const i of water) {
+    const n = neighborIn(t, RING[i]);
+    if (n && !inRun.has(idx(n))) out.push({ plot: idx(t), side: i, w: idx(n), cliff: cliffs.includes(i) });
+  }
+  return out;
+}
+
+/** The water plots around a run joined into shores: two touching plots of the same body of water are one shore (a
+ * settlement centre joins none). Returns the lookup from a plot to its shore. */
+function shoreOf(wp) {
   const parent = new Map(wp.map((p) => [p, p]));
   const find = (p) => { while (parent.get(p) !== p) p = parent.get(p); return p; };
   for (let a = 0; a < wp.length; a++) for (let b = a + 1; b < wp.length; b++) {
@@ -226,25 +259,24 @@ function runArms(run) {
     if (safe(() => GameplayMap.getPlotDistance(A.x, A.y, B.x, B.y), 9) !== 1 || areaOf(A) !== areaOf(B)) continue;
     parent.set(find(wp[a]), find(wp[b]));
   }
-  const reached = new Set(touch.filter((x) => arms.get(x.plot).includes(x.side)).map((x) => find(x.w)));
-  for (const shore of [...new Set(wp.map(find))]) {
-    if (reached.has(shore)) continue;
-    const key = (x) => {
-      const a = arms.get(x.plot);
-      const gap = a.length ? Math.min(...a.map((i) => ringGap(i, x.side))) : 3;
-      return [a.length, x.cliff ? 1 : 0, -gap, x.plot, x.side];
-    };
-    // A tile never takes a branch that would give it a fifth arm: a junction's canals always meet on it (never
-    // pruned, however many there are), but a branch on top of four would read as a star again.
-    const room = (x) => find(x.w) === shore && arms.get(x.plot).length < MAX_ARMS_WITH_BRANCH;
-    const best = touch.filter(room).sort((p, q) => {
-      const a = key(p), b = key(q);
-      for (let k = 0; k < a.length; k++) if (a[k] !== b[k]) return a[k] - b[k];
-      return 0;
-    })[0];
-    if (best) { arms.set(best.plot, [...arms.get(best.plot), best.side].sort((a, b) => a - b)); reached.add(shore); }
-  }
-  return arms;
+  return find;
+}
+
+/** Of one shore's touches, the one to branch from: fewest arms, no cliff, the widest angle to the tile's arms. */
+function branchFor(touches, arms) {
+  const key = (x) => {
+    const a = arms.get(x.plot);
+    const gap = a.length ? Math.min(...a.map((i) => ringGap(i, x.side))) : 3;
+    return [a.length, x.cliff ? 1 : 0, -gap, x.plot, x.side];
+  };
+  // A tile never takes a branch that would give it a fifth arm: a junction's canals always meet on it (never
+  // pruned, however many there are), but a branch on top of four would read as a star again.
+  const room = (x) => arms.get(x.plot).length < MAX_ARMS_WITH_BRANCH;
+  return touches.filter(room).sort((p, q) => {
+    const a = key(p), b = key(q);
+    for (let k = 0; k < a.length; k++) if (a[k] !== b[k]) return a[k] - b[k];
+    return 0;
+  })[0];
 }
 
 /**
@@ -344,29 +376,43 @@ function drawOverlay(loc, age, cliffs) {
   const look = (AGE_LOOKS[age === ONE_TILE ? currentAge() : age] || AGE_LOOKS.AGE_ANTIQUITY)[plot % 3];
   const group = safe(() => WorldUI.createModelGroup("Canals_" + plot), null);
   if (!group) return false;
+  drawCanal(modelAdder(group, loc), { loc, plot, look, sides, water, cliffs });
+  overlays.set(plot, group);
+  return true;
+}
+
+/** add(asset, offset, scale, angle): one model on the tile, following the terrain. */
+function modelAdder(group, loc) {
   const plotRef = { i: loc.x, j: loc.y };
-  const add = (asset, off, scale, angle) => safe(() => group.addModelAtPlot(asset, plotRef, off || { x: 0, y: 0, z: 0 },
+  return (asset, off, scale, angle) => safe(() => group.addModelAtPlot(asset, plotRef, off || { x: 0, y: 0, z: 0 },
     { placement: PlacementMode.TERRAIN, followTerrain: true, needsShadows: true, scale, angle }));
-  const a0 = armAngle(sides[0]);
+}
+
+/** The canal's models, in the order they're added: the house layout, the arms, the locks, the quay, the boats. */
+function drawCanal(add, c) {
+  const a0 = armAngle(c.sides[0]);
+  drawLayout(add, c, a0);
+  for (const i of c.sides) add(ARM_ASSET, null, 1, armAngle(i));
+  if (state.openedHere.has(c.plot) && c.cliffs && c.cliffs.length)
+    drawLocks(add, c.sides, c.cliffs, canalSideIndexes(c.loc));
+  drawProps(add, c.look, c.sides, a0);
+  // Boats on the tiles that meet open water or a junction; a straight middle reach of a longer canal stays clear.
+  const s = c.sides;
+  if (s.length !== 2 || (s[1] - s[0] + 6) % 6 !== 3 || c.plot % 2 === 0) add(BOATS_ASSET, null, 0.7, a0);
+}
+
+function drawLayout(add, c, a0) {
   // A canal saved as Coast is drawn by the next load as shallow sea, where whatever stood on a bank would stand in the
   // water (the house layout read as a drowned street, lab c64). Canals are saved as land now (keepLandLook), so that
   // happens only to a canal from a save made before this version, until it is saved again. The cliff faces the locks
   // dress are drawn only until the next load, whatever the terrain.
-  const landMesh = state.landMesh.has(plot);
+  const landMesh = state.landMesh.has(c.plot);
   // The house layout is a corridor between two shores; a junction of three or more channels gets none, and nor does
   // a tile with water all round, where the houses would stand on no bank.
-  if (landMesh && look.layout && sides.length <= 2 && water.length <= 2) {
-    const L = layoutFor(sides); add(L, null, 1, a0);
-    if (look.attachments) add(L + look.attachments, null, 1, a0);
-    if (look.decal) add(L + look.decal, null, 1, a0);
-  }
-  for (const i of sides) add(ARM_ASSET, null, 1, armAngle(i));
-  if (state.openedHere.has(plot) && cliffs && cliffs.length) drawLocks(add, sides, cliffs, canalSideIndexes(loc));
-  drawProps(add, look, sides, a0);
-  // Boats on the tiles that meet open water or a junction; a straight middle reach of a longer canal stays clear.
-  if (sides.length !== 2 || (sides[1] - sides[0] + 6) % 6 !== 3 || plot % 2 === 0) add(BOATS_ASSET, null, 0.7, a0);
-  overlays.set(plot, group);
-  return true;
+  if (!(landMesh && c.look.layout && c.sides.length <= 2 && c.water.length <= 2)) return;
+  const L = layoutFor(c.sides); add(L, null, 1, a0);
+  if (c.look.attachments) add(L + c.look.attachments, null, 1, a0);
+  if (c.look.decal) add(L + c.look.decal, null, 1, a0);
 }
 
 function clearOverlay(loc) {

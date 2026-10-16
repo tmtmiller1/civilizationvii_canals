@@ -13,8 +13,8 @@ import {
 // canal sites
 //
 // The Canal requires a site marker on its tile (data/canals-sites.xml, Constructible_RequiredFeatures), so the engine
-// offers it, to the game's own AI as to the player, only on a tile this script has marked. The canal rule itself (a
-// strip of land between two shores, each age's chain rule) is the script's: the engine's data cannot express it, and
+// offers it, to the game's own AI as to the player, only on a tile this script has marked. The canal rule itself (land
+// beside water a ship can sail, each age's longest run) is the script's: the engine's data cannot express it, and
 // the game's AI obeys only the data. Runs m1-m7 (2026-09-29): with the marker required, the AI weighed and built the
 // building on marked tiles only, over 12 turns and through a save; growth still offers a marked tile; the marker holds
 // no yield of its own, so the tile yields what it did.

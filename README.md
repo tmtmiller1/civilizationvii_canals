@@ -338,8 +338,16 @@ data/canals-sites.sql               gives a marked tile the yields of the same l
 data/canals-ai.xml                  how much the game's AI values a Canal on a marked site
 data/canals-icons.xml               the Canal icons
 data/canals-civilopedia.xml         the Canals pages in the Civilopedia's Game Concepts section
-ui/canals.js                        the mod: placement, commit, completion, looks, locks,
-                                    ship limit (off), saving, canal sites, safety sweep
+ui/canals.js                        the game script: installs the hooks, the notices, the ship limit (off)
+ui/canals-state.js                  the constants, the log, the save's pending and open records, session state
+ui/canals-map.js                    map reads and the water helpers
+ui/canals-rule.js                   the site rule and what a canal is worth to the AI
+ui/canals-placement.js              where a Canal may go, the production and purchase wraps, the order
+ui/canals-open.js                   opening a finished Canal: the retype, the rural tile, the district
+ui/canals-look.js                   the works dust, the channel's arms and the drawn canal
+ui/canals-repair.js                 the turn-start sweep and the repair of districts without a city
+ui/canals-save.js                   canals as land in every save, the age's end, the mod's own autosave
+ui/canals-sites.js                  the site markers the engine and the AI go by
 ui/canals-settings.js               which canal rules are in play, by age or one-tile (imported by the scripts below)
 ui/canals-options.js                the Canal rules row in Options, Add-ons, in the main menu and in a game
 ui/canals-shell.js                  main menu: puts the player's autosave frequency back
@@ -350,11 +358,14 @@ text/<lang>/CanalsText.xml          the same text in each of 11 other languages 
 tests/pedia-pages.test.mjs          checks every Civilopedia page has text to draw (npm run pedia)
 tests/i18n.test.mjs                 checks every translation has every tag, placeholder and markup (npm run i18n)
 tests/canal-rules.test.mjs          the site rule, the channel geometry and the AI's canal worth on a fake map (npm run rules)
+tests/canal-placement.test.mjs      which of a settlement's tiles are offered, and when the mod sells a locked Canal
+tests/canal-look.test.mjs           every model the drawn canal is made of, against canal-look.snapshot.json
+tests/canals-modinfo.test.mjs       every module the game script imports is listed in the modinfo (npm run modinfo)
 tests/fake-game.mjs                 the fake map and game calls those tests run against
 devtools/gen-glossary.py            pulls the game's own translations of game terms into devtools/glossary/ (local, not committed)
 docs/verification-runs.md           every step and the run behind it
 docs/compatibility.md               what Canals touches, and what happens beside other kinds of mod
-docs/split-plan.md                  how ui/canals.js is to be split into modules (not started)
+docs/split-plan.md                  how ui/canals.js was split into modules, and what's left of it
 docs/steam-workshop-description.txt the Workshop page text
 docs/workshop-preview.png           the mod icon and Workshop preview (rendered from workshop-preview.svg)
 gallery/                            the screenshots used above

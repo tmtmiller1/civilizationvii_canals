@@ -68,11 +68,11 @@ AdjacentDistrict = 'DISTRICT_CITY_CENTER' WHERE ConstructibleClass = 'BUILDING'`
 full-tile buildings), run at a very high LoadOrder so it lands after every other mod. The Canal is a `BUILDING` with no
 terrain rows, so the update catches it, and the engine then takes a Canal only on a tile touching the city centre.
 
-What 1.5.x does with that, read from `ui/canals.js`:
+What 1.5.x does with that, read from `ui/canals-placement.js`:
 
 - The list. Urban tiles come from the engine's own list for a plain building of the age (`enginePlots`), and under such
   a mod that list holds only tiles beside the centre too. Worked rural tiles and bare tiles in the build ring are added
-  without asking the engine (`eligiblePlots`, `canals.js:1577-1578`), so those further out are still offered.
+  without asking the engine (`inBuildReach`, called from `eligiblePlots`), so those further out are still offered.
 - The order. `placeCanal` gives a bare tile a rural district, puts the site marker on, and waits up to two seconds for
   the engine's yes for that tile. The engine refuses (the tile isn't beside the centre), so the mod logs the refusal
   with the engine's answer, lifts the marker (the feature it replaced comes back) and takes off the district it made.
@@ -111,7 +111,7 @@ holds its marker, so Canals builds the plot list itself.
 - If the other mod refuses only in `sendRequest`, the order is forwarded, the Canal hasn't landed after three seconds,
   and `placeCanal` backs out: the marker lifted, a district it made taken off. An earlier-age building on an urban tile
   is already gone by then. It's taken off just before the order is forwarded, and it isn't put back
-  (`canals.js:1821-1846`).
+  (`placeCanal`).
 
 National Park is handled directly (see 2a). For any other such mod, what would fix the last case is to take the
 earlier-age buildings off once the Canal has landed rather than before the order goes. That changes the order of
