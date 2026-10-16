@@ -16,6 +16,9 @@ were tried before this design, the probes and the harness runs live in the autho
   age takes that building off, since the canal takes the whole tile. If the game then doesn't take the order, the
   building is put back straight away; before, it was simply gone. Once the order is in, it works like the game's
   own rebuilding over old buildings: taking the Canal out of production doesn't bring the old building back.
+- A Canal waiting in a city's production queue keeps its tile. Before it showed on the map, the game could offer that
+  tile to another building, and a Bazaar bought there kept the finished Canal from ever opening. Now the tile isn't
+  offered to anything else while the Canal is queued, and it's offered again if you take the Canal out of the queue.
 - No change in game: the game script, one file of about 1,700 lines, is now ten files of 60 to about 400 lines each.
   The code was first moved as it was (a script checks that every block of the old file is in exactly one new file),
   then broken into smaller functions with the same steps in the same order; a test plays each of the mod's sequences

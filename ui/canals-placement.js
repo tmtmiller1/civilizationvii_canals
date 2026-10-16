@@ -249,15 +249,37 @@ function cannotAfford(cityID, def) {
 /**
  * No other building may stand on an opened canal. The tile is a worked rural tile, so the engine offered it to every
  * building as a place to expand onto, and a player built a Garden on a canal (report, 2026-09-28). It is taken out of
- * every other building's lists, and a request aimed at it is refused.
+ * every other building's lists, and a request aimed at it is refused. The same goes for the tile of a Canal waiting in
+ * the city's queue: the engine offered it to a Bazaar, and the Bazaar bought there kept the finished Canal from
+ * opening (ow7).
  */
-function keepOffCanals(res, args) {
-  const open = new Set(loadOpen().map((e) => e.plot));
-  if (!open.size || !res || typeof res !== "object") return res;
+function keepOffCanals(res, args, cityID) {
+  const taken = canalTiles(cityID);
+  if (!taken.size || !res || typeof res !== "object") return res;
   const loc = plotOf(args);
-  if (loc) return open.has(idx(loc)) ? { ...res, Success: false, FailureReasons: ["LOC_CANAL_TILE_TAKEN"] } : res;
-  const strip = (a) => (Array.isArray(a) ? a.filter((p) => !open.has(p)) : a);
+  if (loc) return taken.has(idx(loc)) ? { ...res, Success: false, FailureReasons: ["LOC_CANAL_TILE_TAKEN"] } : res;
+  const strip = (a) => (Array.isArray(a) ? a.filter((p) => !taken.has(p)) : a);
   return { ...res, Plots: strip(res.Plots), ExpandUrbanPlots: strip(res.ExpandUrbanPlots) };
+}
+/** The opened canals, and the tiles of the Canals in this city's queue. */
+function canalTiles(cityID) {
+  const out = queuedCanalTiles(cityID);
+  for (const e of loadOpen()) out.add(e.plot);
+  return out;
+}
+/**
+ * The tiles of the Canals in the city's build queue, read from the queue each time, so a Canal taken out of it frees
+ * its tile at once. The local player's cities only: the AI's placement is the engine's.
+ */
+function queuedCanalTiles(cityID) {
+  const out = new Set();
+  if (cityOwner(cityID) !== safe(() => GameContext.localPlayerID, -1)) return out;
+  for (const it of safe(() => Cities.get(cityID).BuildQueue.getQueue() || [], [])) {
+    const l = it && it.location;
+    if (!l || l.x == null || l.x < 0 || !(canalDef(it.constructibleType) || canalDef(it.type))) continue;
+    out.add(idx({ x: l.x, y: l.y }));
+  }
+  return out;
 }
 
 /**
@@ -271,7 +293,7 @@ function wrapCanStart(oCan, placeType, purchase) {
     const res = oCan(cityID, type, args, ...rest);
     if (!state.enabled || type !== placeType || !args) return res;
     const def = canalDef(args.ConstructibleType);
-    if (!def) return args.ConstructibleType != null ? keepOffCanals(res, args) : res;
+    if (!def) return args.ConstructibleType != null ? keepOffCanals(res, args, cityID) : res;
     const refused = refusedCanal(cityID, def, res, args, purchase);
     if (refused) return refused;
     const loc = plotOf(args);
@@ -489,20 +511,22 @@ function landed(loc, c, path, local) {
 
 function wrapSendRequest(oSend, path) {
   return function (cityID, type, args, ...rest) {
-    if (onOpenCanal(type, args, path)) return false;
+    if (onCanalTile(cityID, type, args, path)) return false;
     const loc = canalOrderAt(type, args, path);
     if (!loc) return oSend(cityID, type, args, ...rest);
     return orderCanal(cityID, loc, args, path, () => oSend(cityID, type, args, ...rest));
   };
 }
 
-/** Another building's order aimed at an opened canal: refused. */
-function onOpenCanal(type, args, path) {
+/** Another building's order aimed at an opened canal, or at the tile of a Canal in the city's queue: refused. */
+function onCanalTile(cityID, type, args, path) {
   const other = args && args.ConstructibleType != null && !canalIndex(args.ConstructibleType);
   if (!(state.enabled && type === path.type && other)) return false;
   const at = plotOf(args);
-  if (!(at && loadOpen().some((e) => e.plot === idx(at)))) return false;
-  log(`refused a building on the canal at ${at.x},${at.y}`);
+  if (!at) return false;
+  if (loadOpen().some((e) => e.plot === idx(at))) { log(`refused a building on the canal at ${at.x},${at.y}`); return true; }
+  if (!queuedCanalTiles(cityID).has(idx(at))) return false;
+  log(`refused a building on the tile of the Canal queued at ${at.x},${at.y}`);
   return true;
 }
 
