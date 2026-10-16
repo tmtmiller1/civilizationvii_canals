@@ -94,6 +94,16 @@
                     <Item>icons/building_canal_modern_64.png</Item>
                     <Item>ui/canals-options.js</Item>
                     <Item>ui/canals-settings.js</Item>
+                    <!-- the modules canals.js is split into: each one imported is listed, or nothing installs -->
+                    <Item>ui/canals-state.js</Item>
+                    <Item>ui/canals-map.js</Item>
+                    <Item>ui/canals-rule.js</Item>
+                    <Item>ui/canals-look.js</Item>
+                    <Item>ui/canals-open.js</Item>
+                    <Item>ui/canals-repair.js</Item>
+                    <Item>ui/canals-save.js</Item>
+                    <Item>ui/canals-placement.js</Item>
+                    <Item>ui/canals-sites.js</Item>
                 </ImportFiles>
                 <UpdateIcons><Item>data/canals-icons.xml</Item></UpdateIcons>
                 <UIScripts>

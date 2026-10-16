@@ -6,12 +6,13 @@
   "type": "module",
   "scripts": {
     "lint": "npx --yes eslint \"ui/**/*.js\" --no-error-on-unmatched-pattern",
-    "check": "node --check ui/canals.js && node --check ui/canals-settings.js && node --check ui/canals-options.js && node --check ui/canals-shell.js",
+    "check": "for f in ui/canals*.js; do node --check \"$f\" || exit 1; done",
     "pedia": "node ./tests/pedia-pages.test.mjs",
     "i18n": "node --test tests/i18n.test.mjs",
-    "rules": "node --test tests/canal-rules.test.mjs",
-    "verify": "npm run lint && npm run check && npm run pedia && npm run i18n && npm run rules",
-    "test": "node --test tests/i18n.test.mjs tests/canal-rules.test.mjs && npm run pedia",
+    "rules": "node --test tests/canal-rules.test.mjs tests/canal-placement.test.mjs tests/canal-look.test.mjs",
+    "modinfo": "node --test tests/canals-modinfo.test.mjs",
+    "verify": "npm run lint && npm run check && npm run pedia && npm run i18n && npm run rules && npm run modinfo",
+    "test": "node --test tests/i18n.test.mjs tests/canal-rules.test.mjs tests/canal-placement.test.mjs tests/canal-look.test.mjs tests/canals-modinfo.test.mjs && npm run pedia",
     "release:gate": "npm run verify",
     "readme:pdf": "bash scripts/build_readme_pdf.sh"
   }
