@@ -4,7 +4,7 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
-## [Unreleased]
+## [1.5.4] - 2026-10-16
 
 - Ageless buildings keep their tile. Since 1.5.0 a tile holding an ageless building from an earlier age, such as a
   unique building or a wonder, could be offered as a Canal site, and ordering the Canal there took the building away.
