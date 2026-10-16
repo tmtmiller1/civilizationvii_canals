@@ -12,10 +12,14 @@ were tried before this design, the probes and the harness runs live in the autho
   aren't offered.
 - A Dam from the Dams mod keeps its tile in every age. An Antiquity Dam has no ageless tag, so in Exploration a Canal
   could be offered on its tile and replace it.
-- No change in game: the game script, one file of about 1,700 lines, is now ten files of 60 to 340 lines each,
-  with the code moved as it was (a script checks that every block of the old file is in exactly one new file).
-  The parts that only work things out (the site rule, which tiles are offered, the drawn canal) are broken into
-  smaller functions, with new tests holding them to what 1.5.3 did.
+- An older building comes back if the Canal order fails. Ordering a Canal on a tile with a building from an earlier
+  age takes that building off, since the canal takes the whole tile. If the game then doesn't take the order, the
+  building is put back straight away; before, it was simply gone. Once the order is in, it works like the game's
+  own rebuilding over old buildings: taking the Canal out of production doesn't bring the old building back.
+- No change in game: the game script, one file of about 1,700 lines, is now ten files of 60 to about 400 lines each.
+  The code was first moved as it was (a script checks that every block of the old file is in exactly one new file),
+  then broken into smaller functions with the same steps in the same order; a test plays each of the mod's sequences
+  against the old script and checks that every call to the game comes out the same.
 
 ## [1.5.3] - 2026-10-14
 

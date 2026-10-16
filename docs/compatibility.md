@@ -26,7 +26,7 @@ Everything a conflict could come through. A mod has to touch one of these to con
 | Autosave | While a canal is open, stores the player's autosave frequency as 1000 + their value (so the engine skips its own) and writes the autosave itself at the start of the player's turn. `ui/canals-shell.js` restores the value at the main menu. |
 | Options screen | Wraps `Options.addOption` so the autosave slider shows the player's own value, and adds a "Canal rules" row to the shared Mods category in Options, Add-ons (`ui/canals-options.js`). |
 | Map | `WorldBuilder.MapPlots.setTerrain` on each opened canal tile (land and Coast, as above); clears the tile's feature when the canal opens. `setFeature` places and lifts the site markers on AI sites, ordered and queued Canals and opened canals, and puts back the vegetation, wetland or floodplain a marker replaced. |
-| Players' cities | Creates and destroys districts and constructibles (`CREATE_ELEMENT`, `DESTROY_ELEMENT`): a rural district for a bare tile before an order, earlier-age buildings taken off at an order, the fishing boat and the urban teardown at an opening, districts without a city rebuilt for their city. Also `purchasePlot`, `addRuralPopulation` and the city's `EXPAND` command for the canal's citizen, the build queue's `RemoveAt` and `MoveTo` to put an order back on a healed tile, and `grantYield` (gold) for a Canal the mod sells itself. |
+| Players' cities | Creates and destroys districts and constructibles (`CREATE_ELEMENT`, `DESTROY_ELEMENT`): a rural district for a bare tile before an order, earlier-age buildings taken off at an order and put back if its Canal never reaches the map, the fishing boat and the urban teardown at an opening, districts without a city rebuilt for their city. Also `purchasePlot`, `addRuralPopulation` and the city's `EXPAND` command for the canal's citizen, the build queue's `RemoveAt` and `MoveTo` to put an order back on a healed tile, and `grantYield` (gold) for a Canal the mod sells itself. |
 | Saved game state | GameConfiguration keys `Canals_Pending_v1`, `Canals_Open_v1`, `Canals_Sites_v1`, `Canals_DistrictsChecked_v1`, `Canals_Told_*`, and `ModOptions_tower-canals` (the game's canal rules). |
 | Shared settings | The `modSettings` localStorage entry Tower's other mods use, under `tower-canals` (the main menu's canal rules). |
 | Globals | Sets `globalThis.__canals`; reads `globalThis.__towerNationalPark`. |
@@ -37,7 +37,7 @@ Everything a conflict could come through. A mod has to touch one of these to con
 | --- | --- | --- |
 | Gives every building a placement adjacency (ring or compact-city mods) | Sites away from the centre are offered, then refused when ordered; the tile is left as it was | Read from code, not run |
 | National Park | Park land is left out of every Canal list and refused, in either load order | Tested on Canals 1.1.0 with a pre-release National Park; rerun owed on 1.5.x |
-| Another script that restricts where buildings go | A rural tile it protects can be offered, then refused; an earlier-age building on an urban tile can be lost if the refusal only comes when the order is sent | Read from code, not run |
+| Another script that restricts where buildings go | A rural tile it protects can be offered, then refused; an earlier-age building on an urban tile taken off for the order is put back when the refusal only comes as it's sent | Read from code and run against a fake engine, not in a game |
 | Dams | Works together, except that an earlier-age Dam may be offered and destroyed | Read from code, not run; unconfirmed, lab check owed |
 | Saves or archives games through `Network.saveGame` | Works; an archiving mod that saves from `SaveComplete` may, in one handler order, save canals as open sea | Read from code, not run |
 | Changes the autosave frequency itself | None found; would fight over the setting | Read from code |
@@ -110,12 +110,13 @@ holds its marker, so Canals builds the plot list itself.
   finding 1 and the tile is left as it was.
 - If the other mod refuses only in `sendRequest`, the order is forwarded, the Canal hasn't landed after three seconds,
   and `placeCanal` backs out: the marker lifted, a district it made taken off. An earlier-age building on an urban tile
-  is already gone by then. It's taken off just before the order is forwarded, and it isn't put back
-  (`placeCanal`).
+  was taken off just before the order was forwarded; since 2026-10-16 it's made again on the tile as the order backs
+  out (`notTaken`, `putBack`), and comes back finished, as a district's buildings do when one is healed (`hl2`).
 
-National Park is handled directly (see 2a). For any other such mod, what would fix the last case is to take the
-earlier-age buildings off once the Canal has landed rather than before the order goes. That changes the order of
-`placeCanal`, a watched sequence, so it needs its own probe.
+National Park is handled directly (see 2a). The order of `placeCanal`, a watched sequence, stays as it was: the
+buildings still come off before the order goes, and the put-back runs only once the order has failed. A Canal that
+got into the queue and is taken out later leaves the old building gone, as the game's own overbuild does (it clears
+the tile at queue time, `engine-closed.md`). Not watched in a game yet.
 
 ### 2a. National Park
 
