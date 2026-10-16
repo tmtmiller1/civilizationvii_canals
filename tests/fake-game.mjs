@@ -14,11 +14,12 @@
 // Area ids are filled in the way the engine leaves them in a game: one per connected body of water and one per
 // landmass, with an opened canal counted as the land it was cut from.
 //
-// loadCanals() imports ui/canals.js (or the copy CANALS_JS names, for a deliberately broken scratch copy) with the
-// mod's own import pointed at ui/canals-settings.js and the functions under test exported. The shipped file is read,
-// never written. `install()` is kept from running by an existing globalThis.__canals.
+// loadCanals() imports the game scripts in ui/ (or in the folder CANALS_UI names, for a deliberately broken scratch
+// copy; it needs a package.json with "type": "module" beside or above it) the way the game loads them: canals.js
+// first, which imports the rest. The mod's absolute "/tower-canals/ui/" imports resolve to the same folder. The shipped
+// files are read, never written. `install()` is kept from running by an existing globalThis.__canals.
 import fs from "node:fs";
-import os from "node:os";
+import { registerHooks } from "node:module";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -71,8 +72,10 @@ const TILE = {
 
 const isWaterTerrain = (t) => t === "TERRAIN_COAST" || t === "TERRAIN_OCEAN";
 
-/** The game state the script reads: the map, the save's GameConfiguration values, the age and National Park. */
-const world = { W: 0, H: 0, tiles: [], config: new Map(), age: 1, parks: null };
+/** The game state the script reads: the map, the save's GameConfiguration values, the age and National Park; the
+ * settlements, the local player's techs, and the model groups drawn. */
+const world = { W: 0, H: 0, tiles: [], config: new Map(), age: 1, parks: null, cities: new Map(), techs: new Set(),
+  groups: [] };
 
 const inside = (x, y) => x >= 0 && y >= 0 && x < world.W && y < world.H;
 const tileAt = (x, y) => (inside(x, y) ? world.tiles[y * world.W + x] : null);
@@ -92,7 +95,7 @@ const GameplayMap = {
     const f = tileAt(x, y).feature;
     return f ? FEATURES.findIndex((r) => r.FeatureType === f) : -1;
   },
-  getResourceType: () => -1,
+  getResourceType: (x, y) => (tileAt(x, y).resource ? 0 : -1),
   isWater: (x, y) => isWaterTerrain(tileAt(x, y).terrain),
   isNavigableRiver: (x, y) => tileAt(x, y).terrain === "TERRAIN_NAVIGABLE_RIVER",
   getAreaId: (x, y) => tileAt(x, y).area,
@@ -132,7 +135,7 @@ const GLOBALS = {
       // Overbuilding (3517656064) deletes it once the age is over
       { ConstructibleType: "BUILDING_GRANARY", Age: "AGE_ANTIQUITY" },
       { ConstructibleType: "BUILDING_BRICKYARD", Age: "AGE_ANTIQUITY" },
-      { ConstructibleType: "IMPROVEMENT_FARM" },
+      { ConstructibleType: "IMPROVEMENT_FARM", ConstructibleClass: "IMPROVEMENT" },
       // and for plainBuilding: one with no placement rule, one each held to a terrain, a feature and a resource,
       // one tied to a civilization's trait
       { ConstructibleType: "BUILDING_MARKET", ConstructibleClass: "BUILDING", Age: "AGE_EXPLORATION" },
@@ -148,6 +151,10 @@ const GLOBALS = {
     Constructible_ValidBiomes: table("ConstructibleType", []),
     Constructible_ValidFeatures: table("ConstructibleType", [{ ConstructibleType: "BUILDING_SAWPIT", FeatureType: "FEATURE_FOREST" }]),
     Constructible_ValidResources: table("ConstructibleType", [{ ConstructibleType: "BUILDING_MINT", ResourceType: "RESOURCE_SILVER" }]),
+    ProgressionTreeNodes: table("ProgressionTreeNodeType", [{ ProgressionTreeNodeType: "NODE_TECH_EX_SHIPBUILDING" },
+      { ProgressionTreeNodeType: "NODE_TECH_EX_CARTOGRAPHY" }]),
+    ProgressionTreeNodeUnlocks: table("TargetType", [{ TargetType: "BUILDING_MARKET",
+      ProgressionTreeNodeType: "NODE_TECH_EX_SHIPBUILDING" }]),
     TypeTags: table("Type", [{ Type: "BUILDING_PALACE", Tag: "AGELESS" }, { Type: "BUILDING_GRANARY", Tag: "AGELESS" },
       { Type: "BUILDING_LIBRARY", Tag: "SCIENCE" }])
   },
@@ -162,7 +169,23 @@ const GLOBALS = {
       return d ? { type: GLOBALS.GameInfo.Districts.lookup(d).$index } : null;
     }
   },
-  MapConstructibles: { getConstructibles: () => [] },
+  MapConstructibles: { getConstructibles: (x, y) => (tileAt(x, y).builds || []).map((type, i) => ({ x, y, i })) },
+  Constructibles: {
+    getByComponentID: (c) => ({ type: GLOBALS.GameInfo.Constructibles.lookup(tileAt(c.x, c.y).builds[c.i]).$index,
+      owner: 0, localId: c.i, complete: true })
+  },
+  MapUnits: { getUnits: (x, y) => tileAt(x, y).units || [] },
+  Cities: { get: (id) => world.cities.get(id) || null },
+  Players: { get: () => ({ Techs: { isNodeUnlocked: (n) => world.techs.has(n) } }) },
+  // a model group records what is drawn into it
+  WorldUI: {
+    createModelGroup: (name) => {
+      const g = { name, models: [], addModelAtPlot: (...a) => g.models.push(a), clear: () => {}, destroy: () => {} };
+      world.groups.push(g);
+      return g;
+    }
+  },
+  PlacementMode: { TERRAIN: "TERRAIN" },
   DirectionTypes: Object.fromEntries(RING.map((d, i) => [d, i])),
   FeatureTypes: { NO_FEATURE: -1 },
   ResourceTypes: { NO_RESOURCE: -1 }
@@ -196,6 +219,7 @@ export function drawMap(picture, { age = 1, parks = null } = {}) {
   const W = rows[0].length;
   if (rows.some((r) => r.length !== W)) throw new Error("fake map: rows of different lengths");
   world.W = W; world.H = rows.length; world.config = new Map(); world.age = age;
+  world.cities = new Map(); world.techs = new Set(); world.groups = [];
   world.parks = parks; world.tiles = [];
   const names = new Map();
   rows.forEach((r, y) => r.forEach((ch, x) => {
@@ -229,6 +253,25 @@ export function drawMap(picture, { age = 1, parks = null } = {}) {
 
 export function plotOf(l) { return l.y * world.W + l.x; }
 
+/** Put things on a tile: `district` (DISTRICT_URBAN or DISTRICT_RURAL), `builds` (constructible types), `units` (any
+ * list), `resource` (true). */
+export function setTile(l, props) { Object.assign(tileAt(l.x, l.y), props); }
+
+/** A settlement of the local player (id, centre) holding the plots listed, or every land plot within three tiles. */
+export function addCity(id, centre, plots = null) {
+  const own = plots || world.tiles.map((_, i) => i).filter((i) => {
+    const x = i % world.W, y = Math.floor(i / world.W);
+    return GameplayMap.getPlotDistance(centre.x, centre.y, x, y) <= 3;
+  });
+  world.cities.set(id, { id, owner: 0, location: { ...centre }, getPurchasedPlots: () => own.slice() });
+}
+
+/** A tech the local player has researched. */
+export function research(node) { world.techs.add(node); }
+
+/** The model groups drawn since the map was laid out: name and every addModelAtPlot call. */
+export function drawn() { return world.groups.map((g) => ({ name: g.name, models: g.models })); }
+
 /** Open a canal on a tile of the current map: coast, on the open record, its land's area id kept. */
 export function openCanal(l) {
   const t = tileAt(l.x, l.y);
@@ -249,18 +292,23 @@ export function setCliffs(l, sides) {
 export function landAgain(l) { tileAt(l.x, l.y).terrain = "TERRAIN_FLAT"; }
 
 const UNDER_TEST = ["isIsthmus", "ruleFor", "isParkland", "runOf", "channelSides", "runArms", "canalWorth",
-  "waterSideIndexes", "isObsolete", "plainBuilding"];
+  "waterSideIndexes", "isObsolete", "plainBuilding", "eligiblePlots", "drawOverlay", "clearOverlay", "unlockedByMod"];
 
-/** Import ui/canals.js (or the file CANALS_JS names) against this fake, with the functions under test exported. */
-export async function loadCanals(file = process.env.CANALS_JS || path.join(ROOT, "ui", "canals.js")) {
+/** Import the game scripts against this fake; the functions under test, gathered from the modules that export them. */
+export async function loadCanals(dir = process.env.CANALS_UI || path.join(ROOT, "ui")) {
   Object.assign(globalThis, GLOBALS);
   if (!globalThis.__canals) globalThis.__canals = { fake: true }; // keeps install() from running
-  const settings = pathToFileURL(path.join(ROOT, "ui", "canals-settings.js")).href;
-  let src = fs.readFileSync(file, "utf8").replace('"/tower-canals/ui/canals-settings.js"', JSON.stringify(settings));
-  const missing = UNDER_TEST.filter((n) => !new RegExp(`export\\s+(async\\s+)?function\\s+${n}\\b`).test(src));
-  if (missing.length) src += `\nexport { ${missing.join(", ")} };\n`;
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "canals-test-"));
-  const copy = path.join(dir, "canals.mjs");
-  fs.writeFileSync(copy, src);
-  try { return await import(pathToFileURL(copy).href); } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+  const MOD = "/tower-canals/ui/";
+  registerHooks({
+    resolve: (spec, ctx, next) => (spec.startsWith(MOD)
+      ? { url: pathToFileURL(path.join(dir, spec.slice(MOD.length))).href, shortCircuit: true } : next(spec, ctx))
+  });
+  await import(pathToFileURL(path.join(dir, "canals.js")).href);
+  const all = {};
+  // the Options row and the main-menu script run in the shell, not here
+  for (const f of fs.readdirSync(dir).filter((x) => /^canals-[a-z]+\.js$/.test(x) && !/-(options|shell)\./.test(x)))
+    Object.assign(all, await import(pathToFileURL(path.join(dir, f)).href));
+  const missing = UNDER_TEST.filter((n) => typeof all[n] !== "function");
+  if (missing.length) throw new Error(`not exported by any module in ${dir}: ${missing.join(", ")}`);
+  return all;
 }
