@@ -11,8 +11,9 @@
     "i18n": "node --test tests/i18n.test.mjs",
     "rules": "node --test tests/canal-rules.test.mjs tests/canal-placement.test.mjs tests/canal-look.test.mjs",
     "modinfo": "node --test tests/canals-modinfo.test.mjs",
-    "verify": "npm run lint && npm run check && npm run pedia && npm run i18n && npm run rules && npm run modinfo",
-    "test": "node --test tests/i18n.test.mjs tests/canal-rules.test.mjs tests/canal-placement.test.mjs tests/canal-look.test.mjs tests/canals-modinfo.test.mjs && npm run pedia",
+    "sequences": "node --test tests/canal-sequences.test.mjs",
+    "verify": "npm run lint && npm run check && npm run pedia && npm run i18n && npm run rules && npm run modinfo && npm run sequences",
+    "test": "node --test tests/i18n.test.mjs tests/canal-rules.test.mjs tests/canal-placement.test.mjs tests/canal-look.test.mjs tests/canals-modinfo.test.mjs tests/canal-sequences.test.mjs && npm run pedia",
     "release:gate": "npm run verify",
     "readme:pdf": "bash scripts/build_readme_pdf.sh"
   }

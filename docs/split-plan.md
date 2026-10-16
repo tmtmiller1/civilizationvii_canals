@@ -1,7 +1,7 @@
 # Splitting ui/canals.js
 
-Status, 2026-10-16: steps 1 to 3 done offline and step 5 in part; none of it watched in a game yet. Step 4 waits on the
-owner. The AI soak it waited on ran first (`s13` in `verification-runs.md`, on `d3f2712`).
+Status, 2026-10-16: all five steps done offline, none of it watched in a game yet. The AI soak the split waited on ran
+first (`s13` in `verification-runs.md`, on `d3f2712`); the owner OK'd step 4 the same day.
 
 `ui/canals.js` was 1,676 code lines against the 500-line lint limit, with 48 lint warnings. The build and save paths
 are watched behaviour: a retype during a save crashed in `c71`, the house flicker came from the old commit path, and
@@ -10,12 +10,9 @@ are watched behaviour: a retype during a save crashed in `c71`, the house flicke
 1. Tests first. Done 2026-10-15 (`tests/canal-rules.test.mjs`), added to on 2026-10-16 (below).
 2. A move-only split, function bodies byte for byte the same. Done 2026-10-16.
 3. The pure functions broken up under the tests. Done 2026-10-16.
-4. The async sequences, one per commit, each watched with its probe. Waits on the owner.
-5. The lint rules raised to "error" and the `eslint.config.js` comment rewritten. The comment is done, and
-   `max-lines` is an error now; the rest stay warnings until step 4 is done or set aside.
-
-If the owner would rather leave the engine sequences alone, they get documented `eslint-disable` lines instead, and
-step 5 finishes.
+4. The async sequences, each checked against the old script by a trace test. Done 2026-10-16; the probes that watch
+   them in a game are still owed (below).
+5. The lint rules raised to "error" and the `eslint.config.js` comment rewritten. Done 2026-10-16: 0 problems.
 
 ## The modules
 
@@ -77,18 +74,34 @@ variants (224 drawings, 1,111 models) and compares them with `tests/canal-look.s
 checked to fail on a scratch copy with one rule broken (`CANALS_UI=<folder>` points the loader at a copy).
 `tests/canals-modinfo.test.mjs` checks every imported module is in the game group's `ImportFiles`.
 
-## Step 4: what's left over the limits
+## Step 4: the engine sequences
 
-33 warnings, all on code that drives the engine: `openCanal`, `settleCanalTile`, `placeCanal`, the `canStart`,
-`canStartQuery` and `sendRequest` wraps, `sweep`, `repairCitylessDistricts`, `healDistrict`, `requeue`,
-`healCanalTile`, `repairCanalTile`, `putFeature`, `syncSites`, `queuedCanalOrders` (it reads every AI's build queue;
-a test needs the fake to grow players and queues), `install`, `uninstall`, and the parked `wrapUnitSend`. Pull out
-named steps, keep the same order and the same awaits, one function per change, each watched with its probe.
+Each one was split into named steps that keep the same order and the same awaits: `openCanal` (`openSite`,
+`readyToOpen`, `siteBefore`, `recordAndDraw`, `rebuildAsRural`), `settleCanalTile` (`placeCitizen`), `placeCanal`
+(`siteTaken`, `takeOffObsolete`, `canalLanded`, `landed`, `notTaken`), the `canStart`, `canStartQuery` and
+`sendRequest` wraps, `repairCitylessDistricts`, `healDistrict`, `requeue`, `healCanalTile`, `repairCanalTile`, `sweep`,
+`putFeature`, `syncSites`, `queuedCanalOrders`, `install`, `uninstall` and the parked `wrapUnitSend`.
+
+They're checked by `tests/canal-sequences.test.mjs`. It plays 34 scenarios (`tests/trace/scenarios.mjs`) against a fake
+engine (`tests/trace/engine.mjs`) where requests land after fixed delays on a virtual clock, once with `canals.js` as it
+was at `edf7c8b` and once with the modules, and compares the two traces: every engine call and `canStart` question with
+its time, every log line, the result, and the map and the save's records at the end. The scenarios cover openings on
+rural and urban tiles, a boat that doesn't land, orders bought, built, refused, never placed and sold by the mod,
+install and the whole order path through the wraps, a turn start, the age's end, every repair, the sweep, the site
+markers, the save wrap and the parked ship limit. V8 coverage of the run left 7 lines of those functions unreached, all
+guards for things the fake doesn't do (a host that can't be wrapped, a terrain the database lacks). The test fails on a
+scratch copy with one step of `openCanal` moved.
+
+It caught one change while this was done: an extracted step awaited on a path where the old code didn't, so a second
+order running alongside sent its request a turn of the event loop earlier. Every extracted step is now awaited only
+where the old code awaited. An extracted async step still adds a microtask turn when it returns; no engine call moves
+in any scenario.
 
 ## Watching it
 
-None of the above has run in a game. The checks are in `WATCH_LIST.md`, group 6b. Each one is run on the vanilla side
-(`tools/crash-soak/run-soak.sh`, `MOD=canals`, every other mod off) and the usual-set side (`tower-bench lab`):
+None of the above has run in a game. The checks are in `WATCH_LIST.md`, group 6b. The trace test runs the code against a
+fake engine, so it holds the order of calls, not what the real engine does with them. Each one is run on the vanilla
+side (`tools/crash-soak/run-soak.sh`, `MOD=canals`, every other mod off) and the usual-set side (`tower-bench lab`):
 
 - `wm-game.js`, Exploration seed 9001: purchase and production on a worked rural tile, a town's tile, a bare tile,
   short of gold, and an urban tile holding only an earlier-age building.

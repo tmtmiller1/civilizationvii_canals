@@ -86,76 +86,104 @@ async function openCanal(loc, owner) {
   if (state.busy.has(plot) || state.hold) return; // held: the next sweep opens it (see keeping the land look)
   if (notThisTurn(loc)) return;
   state.busy.add(plot);
-  try {
-    if (canalOn(loc) && !loadOpen().some((e) => e.plot === plot)) showWorks(loc);
-    const canal = canalOn(loc);
-    if (!canal || !canal.complete) return;
-    const onRecord = loadOpen().some((e) => e.plot === plot);
-    // Coast already: an open canal (the Canal building stays on the finished tile), or a flip that landed after its
-    // wait ran out, which left a Coast tile with an urban Canal and no record; that one is taken up from here.
-    const alreadyWater = terrainOf(loc) === "TERRAIN_COAST";
-    if (alreadyWater && onRecord) return;
-    if (state.saving || onRecord) return; // an open canal, land only while a save runs
-    if (alreadyWater) log(`Canal at ${loc.x},${loc.y}: water already, no record; opened from here`);
-    // Buildings of the age share the tile only on an AI's or a stale tile; obsolete ones the canal replaces (c14).
-    const shared = occupants(loc).some((o) => o.type !== canal.type && !isImprovement(o.type) && !isObsolete(o.type));
-    if (shared || !isIsthmus(loc, ruleFor(canal.type))) {
-      log(`Canal at ${loc.x},${loc.y} ${shared ? "shares its tile with other buildings" : "is not on a canal site"}; left as a building`);
-      forget(plot); return;
-    }
-    const who = owner != null ? owner : canal.owner;
-    const local = GameContext.localPlayerID;
-    const cityId = safe(() => {
-      const c = GameplayMap.getOwningCityFromXY(loc.x, loc.y);
-      return c && c.id !== -1 ? c : null;
-    }, null);
-    // The retype clears the plot's cliff flags but leaves the rock faces drawn; remember which shores were cliffs
-    // so the overlay can dress them as locks.
-    const cliffSides = cliffSideIndexes(loc);
-    const landType = alreadyWater ? "TERRAIN_FLAT" : terrainOf(loc);
-    const age = canal.type === ONE_TILE_CANAL ? ONE_TILE : canal.type === "BUILDING_CANAL_MODERN" ? "AGE_MODERN"
-      : canal.type === "BUILDING_CANAL_EXPLORATION" ? "AGE_EXPLORATION" : "AGE_ANTIQUITY";
-    const flipped = alreadyWater || await flipToCoast(loc);
-    if (!flipped) { log(`Canal at ${loc.x},${loc.y}: terrain did not change; left as a building`); return; }
-    // On record the moment it is water. The rest of this is seconds of engine requests; a save that starts in that
-    // time lands this canal with the others (wrapSaveGame) and the load knows it as a canal, not as open sea with
-    // no record of its own.
-    rememberOpen(plot, age, cliffSides, landType);
-    // Drawn now, not once the tile is settled: the steps below each redraw the hex (the houses go, the plot changes
-    // hands, the rural district, the boat and the Canal land one by one), and with the canal look already over it
-    // they happen under the art rather than in front of a bare hex. The look is a model group of its own, so the
-    // engine's redraws do not touch it; the houses hide it only until they are taken off, a moment later.
-    state.openedHere.add(plot); state.landMesh.add(plot);
-    const drawn = drawOverlay(loc, age, cliffSides);
-    const redrawn = redrawNeighbours(loc);
-    // The engine places the Canal on the district the tile has (cm2, 2026-10-08). On a rural one the Canal already
-    // stands where the finished canal keeps it: the land improvement gives way to the boat and that is all.
-    if (districtAt(loc) === "DISTRICT_RURAL" && await keepRuralTile(loc, who)) {
-      forget(plot);
-      log(`canal opened at ${loc.x},${loc.y} for player ${who} on its rural tile: ${occupants(loc).map((o) => o.type).join(",")} overlay=${drawn} neighboursRedrawn=${redrawn}`);
-      return;
-    }
-    // An urban district (the engine's construction site for a production build on a bare city tile, or a quarter
-    // whose obsolete buildings the canal replaces) draws a block of houses over the hex, which hides the canal (run
-    // c14): the Canal and the district go. The citizen the Canal housed comes back as a pending point and is placed
-    // on the finished canal with the game's own expand order, which makes it a worked rural fishing tile (c23); the
-    // invisible works building of the canal's age then adds its food and gold to the city natively.
-    for (const o of occupants(loc)) if (o.type !== canal.type && !isImprovement(o.type))
-      safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: o.owner, LocalID: o.id }));
-    safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: canal.owner, LocalID: canal.id }));
-    await sleep(300);
-    const did = districtIdAt(loc);
-    if (did) safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "DISTRICT", Owner: did.owner, LocalID: did.id }));
-    await sleep(1200);
-    // Removing the district releases the plot; give it back to the city.
-    if (cityId && safe(() => GameplayMap.getOwner(loc.x, loc.y), -1) !== who) {
-      safe(() => Cities.get(cityId).purchasePlot({ x: loc.x, y: loc.y }));
-      await sleep(1500);
-    }
+  try { await openSite(loc, owner, plot); } finally { state.busy.delete(plot); hideWorks(loc); }
+}
+
+/** The opening itself, the tile held busy (openCanal). */
+async function openSite(loc, owner, plot) {
+  if (canalOn(loc) && !loadOpen().some((e) => e.plot === plot)) showWorks(loc);
+  const canal = canalOn(loc);
+  if (!canal || !canal.complete) return;
+  const ready = readyToOpen(loc, plot, canal);
+  if (!ready) return;
+  const site = siteBefore(loc, owner, canal, ready.alreadyWater);
+  const flipped = ready.alreadyWater || await flipToCoast(loc);
+  if (!flipped) { log(`Canal at ${loc.x},${loc.y}: terrain did not change; left as a building`); return; }
+  const look = recordAndDraw(loc, plot, site);
+  // The engine places the Canal on the district the tile has (cm2, 2026-10-08). On a rural one the Canal already
+  // stands where the finished canal keeps it: the land improvement gives way to the boat and that is all.
+  if (districtAt(loc) === "DISTRICT_RURAL" && await keepRuralTile(loc, site.who)) {
     forget(plot);
-    await settleCanalTile(loc, cityId, who, canal.type);
-    log(`canal opened at ${loc.x},${loc.y} for player ${who}: ${terrainOf(loc)} district=${districtAt(loc) || "none"} owner=${safe(() => GameplayMap.getOwner(loc.x, loc.y))} overlay=${drawn} neighboursRedrawn=${redrawn}`);
-  } finally { state.busy.delete(plot); hideWorks(loc); }
+    log(`canal opened at ${loc.x},${loc.y} for player ${site.who} on its rural tile: ${occupants(loc).map((o) => o.type).join(",")} overlay=${look.drawn} neighboursRedrawn=${look.redrawn}`);
+    return;
+  }
+  await rebuildAsRural(loc, plot, canal, site, look);
+}
+
+/** Whether the finished Canal is to be opened now; { alreadyWater } when it is. */
+function readyToOpen(loc, plot, canal) {
+  const onRecord = loadOpen().some((e) => e.plot === plot);
+  // Coast already: an open canal (the Canal building stays on the finished tile), or a flip that landed after its
+  // wait ran out, which left a Coast tile with an urban Canal and no record; that one is taken up from here.
+  const alreadyWater = terrainOf(loc) === "TERRAIN_COAST";
+  if (alreadyWater && onRecord) return null;
+  if (state.saving || onRecord) return null; // an open canal, land only while a save runs
+  if (alreadyWater) log(`Canal at ${loc.x},${loc.y}: water already, no record; opened from here`);
+  // Buildings of the age share the tile only on an AI's or a stale tile; obsolete ones the canal replaces (c14).
+  const shared = occupants(loc).some((o) => o.type !== canal.type && !isImprovement(o.type) && !isObsolete(o.type));
+  if (shared || !isIsthmus(loc, ruleFor(canal.type))) {
+    log(`Canal at ${loc.x},${loc.y} ${shared ? "shares its tile with other buildings" : "is not on a canal site"}; left as a building`);
+    forget(plot); return null;
+  }
+  return { alreadyWater };
+}
+
+/** What the opening needs from the tile as it was: the owner, its city, the cliffs, the land and the canal's age. */
+function siteBefore(loc, owner, canal, alreadyWater) {
+  const who = owner != null ? owner : canal.owner;
+  const local = GameContext.localPlayerID;
+  const cityId = safe(() => {
+    const c = GameplayMap.getOwningCityFromXY(loc.x, loc.y);
+    return c && c.id !== -1 ? c : null;
+  }, null);
+  // The retype clears the plot's cliff flags but leaves the rock faces drawn; remember which shores were cliffs
+  // so the overlay can dress them as locks.
+  const cliffSides = cliffSideIndexes(loc);
+  const landType = alreadyWater ? "TERRAIN_FLAT" : terrainOf(loc);
+  const age = canal.type === ONE_TILE_CANAL ? ONE_TILE : canal.type === "BUILDING_CANAL_MODERN" ? "AGE_MODERN"
+    : canal.type === "BUILDING_CANAL_EXPLORATION" ? "AGE_EXPLORATION" : "AGE_ANTIQUITY";
+  return { who, local, cityId, cliffSides, landType, age };
+}
+
+/** On record and drawn, the moment the tile is water. */
+function recordAndDraw(loc, plot, site) {
+  // On record the moment it is water. The rest of this is seconds of engine requests; a save that starts in that
+  // time lands this canal with the others (wrapSaveGame) and the load knows it as a canal, not as open sea with
+  // no record of its own.
+  rememberOpen(plot, site.age, site.cliffSides, site.landType);
+  // Drawn now, not once the tile is settled: the steps below each redraw the hex (the houses go, the plot changes
+  // hands, the rural district, the boat and the Canal land one by one), and with the canal look already over it
+  // they happen under the art rather than in front of a bare hex. The look is a model group of its own, so the
+  // engine's redraws do not touch it; the houses hide it only until they are taken off, a moment later.
+  state.openedHere.add(plot); state.landMesh.add(plot);
+  const drawn = drawOverlay(loc, site.age, site.cliffSides);
+  const redrawn = redrawNeighbours(loc);
+  return { drawn, redrawn };
+}
+
+/** The tile rebuilt as a worked rural fishing tile holding the Canal. */
+async function rebuildAsRural(loc, plot, canal, site, look) {
+  const { who, local, cityId } = site;
+  // An urban district (the engine's construction site for a production build on a bare city tile, or a quarter
+  // whose obsolete buildings the canal replaces) draws a block of houses over the hex, which hides the canal (run
+  // c14): the Canal and the district go. The citizen the Canal housed comes back as a pending point and is placed
+  // on the finished canal with the game's own expand order, which makes it a worked rural fishing tile (c23); the
+  // invisible works building of the canal's age then adds its food and gold to the city natively.
+  for (const o of occupants(loc)) if (o.type !== canal.type && !isImprovement(o.type))
+    safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: o.owner, LocalID: o.id }));
+  safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: canal.owner, LocalID: canal.id }));
+  await sleep(300);
+  const did = districtIdAt(loc);
+  if (did) safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "DISTRICT", Owner: did.owner, LocalID: did.id }));
+  await sleep(1200);
+  // Removing the district releases the plot; give it back to the city.
+  if (cityId && safe(() => GameplayMap.getOwner(loc.x, loc.y), -1) !== who) {
+    safe(() => Cities.get(cityId).purchasePlot({ x: loc.x, y: loc.y }));
+    await sleep(1500);
+  }
+  forget(plot);
+  await settleCanalTile(loc, cityId, who, canal.type);
+  log(`canal opened at ${loc.x},${loc.y} for player ${who}: ${terrainOf(loc)} district=${districtAt(loc) || "none"} owner=${safe(() => GameplayMap.getOwner(loc.x, loc.y))} overlay=${look.drawn} neighboursRedrawn=${look.redrawn}`);
 }
 
 
@@ -208,6 +236,21 @@ async function createRuralDistrict(loc, cityId, owner) {
   return false;
 }
 
+/** The citizen the Canal housed, placed on the finished tile with the city's own expand order (settleCanalTile). */
+async function placeCitizen(loc, cityId, plot, city) {
+  safe(() => city.addRuralPopulation(1));
+  await sleep(1500);
+  const can = safe(() => Game.CityCommands.canStart(cityId, CityCommandTypes.EXPAND, {}, false), null);
+  const plots = (can && can.Plots) || [];
+  const k = plots.indexOf(plot);
+  if (k < 0) return;
+  const args = { X: loc.x, Y: loc.y };
+  if (can.ConstructibleTypes && can.ConstructibleTypes[k] != null)
+    args.ConstructibleType = can.ConstructibleTypes[k];
+  safe(() => Game.CityCommands.sendRequest(cityId, CityCommandTypes.EXPAND, args));
+  for (let i = 0; i < 30 && districtAt(loc) === ""; i++) await sleep(100);
+}
+
 /**
  * The finished canal tile: the citizen the Canal housed is placed on it with the city's own expand order (rural
  * district, fishing boats, a worker: c23), then the age's invisible works building is created there. If the
@@ -219,20 +262,7 @@ async function settleCanalTile(loc, cityId, owner, canalType, opts) {
   const plot = idx(loc);
   if (cityId && owner === local && !(opts && opts.repair)) {
     const city = safe(() => Cities.get(cityId), null);
-    if (city) {
-      safe(() => city.addRuralPopulation(1));
-      await sleep(1500);
-      const can = safe(() => Game.CityCommands.canStart(cityId, CityCommandTypes.EXPAND, {}, false), null);
-      const plots = (can && can.Plots) || [];
-      const k = plots.indexOf(plot);
-      if (k >= 0) {
-        const args = { X: loc.x, Y: loc.y };
-        if (can.ConstructibleTypes && can.ConstructibleTypes[k] != null)
-          args.ConstructibleType = can.ConstructibleTypes[k];
-        safe(() => Game.CityCommands.sendRequest(cityId, CityCommandTypes.EXPAND, args));
-        for (let i = 0; i < 30 && districtAt(loc) === ""; i++) await sleep(100);
-      }
-    }
+    if (city) await placeCitizen(loc, cityId, plot, city);
   }
   if (districtAt(loc) === "" && !(await createRuralDistrict(loc, cityId, owner))) return;
   if (!occupants(loc).some((o) => o.type === canalType)) { safe(() => Game.PlayerOperations.sendRequest(local, "CREATE_ELEMENT", { Kind: "CONSTRUCTIBLE", Type: canalType, Location: { x: loc.x, y: loc.y }, Owner: owner })); await sleep(1500); }

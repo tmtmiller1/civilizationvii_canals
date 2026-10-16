@@ -76,21 +76,28 @@ function saveSites(s) { safe(() => Configuration.editGame().setValue(SITES_KEY, 
  * the new one lands. True once the tile reads as asked.
  */
 async function putFeature(loc, f) {
-  const want = f === FeatureTypes.NO_FEATURE ? "" : safe(() => String(GameInfo.Features.lookup(f).FeatureType), "?");
+  const want = featureName(f);
   const at = { x: loc.x, y: loc.y };
   // never while a save is written: the save thread reads the map. Wait it out; a save that runs on is left alone.
   // (Only the write itself: a save that is waiting for an opening to finish must not hold up the opening's marker.)
   for (let k = 0; k < 50 && state.saving; k++) await sleep(100);
   if (state.saving) return false;
-  if (featureOf(loc) && featureOf(loc) !== want) {
-    safe(() => WorldBuilder.MapPlots.setFeature(FeatureTypes.NO_FEATURE, at));
-    for (let k = 0; k < 30 && featureOf(loc); k++) await sleep(100);
-  }
+  if (featureOf(loc) && featureOf(loc) !== want) await clearOtherFeature(loc, at);
   if (want && featureOf(loc) !== want) {
     safe(() => WorldBuilder.MapPlots.setFeature(f, at));
     for (let k = 0; k < 30 && featureOf(loc) !== want; k++) await sleep(100);
   }
   return featureOf(loc) === want;
+}
+
+/** A feature index by name, "" for none. */
+function featureName(f) {
+  return f === FeatureTypes.NO_FEATURE ? "" : safe(() => String(GameInfo.Features.lookup(f).FeatureType), "?");
+}
+/** The feature the tile has taken off first, when it isn't the one wanted (putFeature). */
+async function clearOtherFeature(loc, at) {
+  safe(() => WorldBuilder.MapPlots.setFeature(FeatureTypes.NO_FEATURE, at));
+  for (let k = 0; k < 30 && featureOf(loc); k++) await sleep(100);
 }
 
 /** Put a marker (by default the mode's) on a tile, keeping the feature it replaces; the other marker, there since the
@@ -138,14 +145,7 @@ function queuedType(it) {
 }
 /** The same, with the Canal type each order is for (its marker must stay under it). */
 function queuedCanalOrders() {
-  const types = new Set();
-  for (const t of CANAL_TYPES) {
-    const d = safe(() => GameInfo.Constructibles.lookup(t), null);
-    if (!d) continue;
-    types.add(d.$index);
-    const h = safe(() => GameInfo.Types.lookup(t).Hash, null);
-    if (h != null) types.add(h);
-  }
+  const types = canalKeys();
   const out = new Map();
   const players = aiMajors(); if (state.localId >= 0) players.push(state.localId);
   for (const pid of players) {
@@ -159,6 +159,19 @@ function queuedCanalOrders() {
     }
   }
   return out;
+}
+
+/** Every Canal's constructible index and type hash, the two ways a queue item names its building. */
+function canalKeys() {
+  const types = new Set();
+  for (const t of CANAL_TYPES) {
+    const d = safe(() => GameInfo.Constructibles.lookup(t), null);
+    if (!d) continue;
+    types.add(d.$index);
+    const h = safe(() => GameInfo.Types.lookup(t).Hash, null);
+    if (h != null) types.add(h);
+  }
+  return types;
 }
 
 /** Take the marker off and put back the feature it replaced. */
@@ -212,16 +225,25 @@ async function unmarkStale(want) {
   return removed;
 }
 
+/** Every tile that should hold a marker, with the marker: the AI's sites, queued Canals, the player's orders. */
+function wantedSites() {
+  const want = aiSites();
+  // An order already given keeps the marker of the Canal it is for, whatever the mode is now.
+  const queued = queuedCanalOrders();
+  for (const [p, o] of queued) want.set(p, { pid: o.pid, why: "queued", feature: markerFor(o.type) });
+  for (const p of loadPending()) if (!want.has(p)) want.set(p, { pid: state.localId, why: "ordered", feature: offeredMarker() });
+  return want;
+}
+
+/** Off, a network game, a pass already running, or no marker in the database. */
+function syncWaits() { return !state.enabled || state.multiplayer || state.syncing || siteIndex() == null; }
+
 /** Marks every AI site, every tile of a Canal order or queued Canal, and the opened canals; unmarks the rest. */
 async function syncSites() {
-  if (!state.enabled || state.multiplayer || state.syncing || siteIndex() == null) return;
+  if (syncWaits()) return;
   state.syncing = true;
   try {
-    const want = aiSites();
-    // An order already given keeps the marker of the Canal it is for, whatever the mode is now.
-    const queued = queuedCanalOrders();
-    for (const [p, o] of queued) want.set(p, { pid: o.pid, why: "queued", feature: markerFor(o.type) });
-    for (const p of loadPending()) if (!want.has(p)) want.set(p, { pid: state.localId, why: "ordered", feature: offeredMarker() });
+    const want = wantedSites();
     const added = await markWanted(want);
     const removed = await unmarkStale(want);
     // canals opened before the marker was kept on the tile (Canals 1.2.0 saves), and any that lost it
