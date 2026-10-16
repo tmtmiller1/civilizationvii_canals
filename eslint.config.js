@@ -78,21 +78,17 @@ export default [
       globals: { ...ENGINE_GLOBALS, ...BROWSER_GLOBALS }
     },
     rules: {
-      // Size and shape rules still only warn. What's over them drives the engine through
-      // steps whose order is watched behaviour: the async openings and repairs (openCanal,
-      // placeCanal, settleCanalTile, healDistrict, repairCitylessDistricts and the rest of
-      // canals-repair.js, putFeature and syncSites), sweep, the canStart, canStartQuery and
-      // sendRequest wraps, install and uninstall, and the parked ship limit (wrapUnitSend).
-      // Each is split on its own and watched in a game (docs/split-plan.md, step 4); then
-      // these go back to "error" to match the other tower mods.
-      complexity: ["warn", 10],
-      "max-statements": ["warn", 18],
-      "max-depth": ["warn", 4],
+      // Size and shape rules, as in the other tower mods. The engine sequences were split to meet
+      // them in named steps with the same order and the same awaits;
+      // tests/canal-sequences.test.mjs plays each one against the last single-file script and
+      // compares every engine call.
+      complexity: ["error", 10],
+      "max-statements": ["error", 18],
+      "max-depth": ["error", 4],
       "max-lines-per-function": [
-        "warn",
+        "error",
         { max: 50, skipBlankLines: true, skipComments: true, IIFEs: true }
       ],
-      // every file has been under it since canals.js was split into modules
       "max-lines": ["error", { max: 500, skipBlankLines: true, skipComments: true }],
       // the rest are errors, as in the other tower mods
       "max-len": [

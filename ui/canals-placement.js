@@ -272,37 +272,56 @@ function wrapCanStart(oCan, placeType, purchase) {
     if (!state.enabled || type !== placeType || !args) return res;
     const def = canalDef(args.ConstructibleType);
     if (!def) return args.ConstructibleType != null ? keepOffCanals(res, args) : res;
-    // Not the mode's Canal: refused outright. The engine alone would offer the one-tile Canal outside its mode, since
-    // it has no age and no unlock (and refuse it only for want of a marked site, which this wrapper overrides).
-    if (!isOfferedCanal(def)) return { ...res, Success: false, Plots: [], ExpandUrbanPlots: [], FailureReasons: ["LOC_BUILDING_CONSTRUCT_NO_SUITABLE_LOCATION"] };
-    if (state.multiplayer) return { ...res, Success: false, Plots: [], ExpandUrbanPlots: [], FailureReasons: ["LOC_CANAL_MULTIPLAYER"] };
+    const refused = refusedCanal(cityID, def, res, args, purchase);
+    if (refused) return refused;
     const loc = plotOf(args);
-    if (loc) {
-      if (!isIsthmus(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_NOT_ISTHMUS"] };
-      if (hasResource(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_RESOURCE"] };
-      if (isParkland(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_PARKLAND"] };
-      if (!eligiblePlots(cityID, true, purchase).includes(idx(loc)))
-        return { ...res, Success: false, FailureReasons: ["LOC_BUILDING_CONSTRUCT_NO_SUITABLE_LOCATION"] };
-    }
     const general = loc ? oCan(cityID, type, { ConstructibleType: args.ConstructibleType }, ...rest) : res;
-    let sold = null;
-    if (engineSaysNo(general)) {
-      if (!purchase || !unlockedByMod(cityOwner(cityID), def, general))
-        return { ...general, Plots: [], ExpandUrbanPlots: [] };
-      sold = modPrice(cityID, def);
-    }
-    // a Canal the mod sells itself (see unlockedByMod) reads as unlocked, priced, and short of gold when it is
-    const short = sold ? sold.short : purchase && cannotAfford(cityID, def);
-    const open = sold ? { Locked: false, NeededUnlock: -1, Cost: sold.cost, InsufficientFunds: sold.short }
-      : short ? { InsufficientFunds: true } : {};
-    if (loc) {
-      if (short) return { ...res, ...open, Success: false, FailureReasons: ["LOC_CITY_PURCHASE_INSUFFICIENT_FUNDS"] };
-      return { ...res, ...open, Success: true, FailureReasons: [] };
-    }
-    const plots = eligiblePlots(cityID, false, purchase);
-    const ok = plots.length > 0 && !short;
-    return { ...res, ...open, Plots: plots, ExpandUrbanPlots: [], MountainPlots: [], Success: ok, FailureReasons: plots.length ? [] : ["LOC_BUILDING_CONSTRUCT_NO_SUITABLE_LOCATION"] };
+    return pricedCanal({ cityID, def, res, general, loc, purchase });
   };
+}
+
+/** A Canal refused before the engine is asked about it anywhere: not the mode's, a network game, or not this tile. */
+function refusedCanal(cityID, def, res, args, purchase) {
+  // Not the mode's Canal: refused outright. The engine alone would offer the one-tile Canal outside its mode, since
+  // it has no age and no unlock (and refuse it only for want of a marked site, which this wrapper overrides).
+  if (!isOfferedCanal(def)) return { ...res, Success: false, Plots: [], ExpandUrbanPlots: [], FailureReasons: ["LOC_BUILDING_CONSTRUCT_NO_SUITABLE_LOCATION"] };
+  if (state.multiplayer) return { ...res, Success: false, Plots: [], ExpandUrbanPlots: [], FailureReasons: ["LOC_CANAL_MULTIPLAYER"] };
+  const loc = plotOf(args);
+  if (!loc) return null;
+  if (!isIsthmus(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_NOT_ISTHMUS"] };
+  if (hasResource(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_RESOURCE"] };
+  if (isParkland(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_PARKLAND"] };
+  if (!eligiblePlots(cityID, true, purchase).includes(idx(loc)))
+    return { ...res, Success: false, FailureReasons: ["LOC_BUILDING_CONSTRUCT_NO_SUITABLE_LOCATION"] };
+  return null;
+}
+
+/** The verdict once the engine has answered for the Canal anywhere (`general`): refused, or priced and placed. */
+function pricedCanal(v) {
+  const { cityID, def, general, purchase } = v;
+  let sold = null;
+  if (engineSaysNo(general)) {
+    if (!purchase || !unlockedByMod(cityOwner(cityID), def, general))
+      return { ...general, Plots: [], ExpandUrbanPlots: [] };
+    sold = modPrice(cityID, def);
+  }
+  // a Canal the mod sells itself (see unlockedByMod) reads as unlocked, priced, and short of gold when it is
+  const short = sold ? sold.short : purchase && cannotAfford(cityID, def);
+  const open = sold ? { Locked: false, NeededUnlock: -1, Cost: sold.cost, InsufficientFunds: sold.short }
+    : short ? { InsufficientFunds: true } : {};
+  return canalOffer(v, open, short);
+}
+
+/** For one tile, yes or short of gold; for the settlement, every site it has. */
+function canalOffer(v, open, short) {
+  const { cityID, res, loc, purchase } = v;
+  if (loc) {
+    if (short) return { ...res, ...open, Success: false, FailureReasons: ["LOC_CITY_PURCHASE_INSUFFICIENT_FUNDS"] };
+    return { ...res, ...open, Success: true, FailureReasons: [] };
+  }
+  const plots = eligiblePlots(cityID, false, purchase);
+  const ok = plots.length > 0 && !short;
+  return { ...res, ...open, Plots: plots, ExpandUrbanPlots: [], MountainPlots: [], Success: ok, FailureReasons: plots.length ? [] : ["LOC_BUILDING_CONSTRUCT_NO_SUITABLE_LOCATION"] };
 }
 
 /**
@@ -320,22 +339,28 @@ function wrapCanStartQuery(oQuery, host, placeType) {
     for (const t of CANAL_TYPES) {
       const d = safe(() => GameInfo.Constructibles.lookup(t), null);
       if (!d) continue;
-      if (!isOfferedCanal(d)) {
-        // the other mode's Canal is never listed
-        const k = res.findIndex((e) => e && e.index === d.$index);
-        if (k >= 0) res.splice(k, 1);
-        continue;
-      }
-      const verdict = safe(() => host.canStart(cityID, placeType, { ConstructibleType: d.$index }, false), null);
-      if (!verdict) continue;
-      const entry = res.find((e) => e && e.index === d.$index);
-      if (entry) entry.result = verdict;
-      // short of gold still lists it, greyed with its price, as the game lists any building it cannot afford
-      else if (verdict.Success || (verdict.InsufficientFunds && (verdict.Plots || []).length))
-        res.push({ index: d.$index, result: verdict });
+      listCanal(res, d, () => safe(() => host.canStart(cityID, placeType,
+        { ConstructibleType: d.$index }, false), null));
     }
     return res;
   };
+}
+
+/** One Canal's row in a production or purchase list: dropped for the other mode, else given the mod's verdict. */
+function listCanal(res, d, verdictOf) {
+  if (!isOfferedCanal(d)) {
+    // the other mode's Canal is never listed
+    const k = res.findIndex((e) => e && e.index === d.$index);
+    if (k >= 0) res.splice(k, 1);
+    return;
+  }
+  const verdict = verdictOf();
+  if (!verdict) return;
+  const entry = res.find((e) => e && e.index === d.$index);
+  if (entry) entry.result = verdict;
+  // short of gold still lists it, greyed with its price, as the game lists any building it cannot afford
+  else if (verdict.Success || (verdict.InsufficientFunds && (verdict.Plots || []).length))
+    res.push({ index: d.$index, result: verdict });
 }
 
 /** Whether the city's build queue holds a Canal of this type (given as its index or its type hash). */
@@ -354,13 +379,8 @@ function inQueue(cityID, ctype) {
  * A purchased Canal lands complete with no completion event (c36), so the commit opens it.
  */
 async function placeCanal(cityID, loc, ctype, forward, path) {
-  const soldFor = path.soldFor;
   const local = GameContext.localPlayerID;
   const plot = idx(loc);
-  const engineAccepts = () => safe(() => {
-    const r = path.oCan.call(path.host, cityID, path.type, { ConstructibleType: ctype, X: loc.x, Y: loc.y }, false);
-    return !!(r && r.Success);
-  }, false);
   // A bare tile gets a rural district first, held by the city: the engine then takes the Canal on it as on any
   // worked tile, a town's as a city's, and no urban construction site is ever drawn. (A bare tile left to the engine
   // takes an urban district in a city and is refused in a town: cm2, wm3.)
@@ -370,37 +390,23 @@ async function placeCanal(cityID, loc, ctype, forward, path) {
   }
   const undo = async () => { if (madeDistrict) await destroyDistrict(loc); };
   // the engine takes a Canal only on a marked site (data/canals-sites.xml); a Canal the mod sells itself needs none
-  if (soldFor == null) {
-    if (!await markSite(loc, markerFor((canalDef(ctype) || {}).ConstructibleType))) log(`the site marker did not land at ${loc.x},${loc.y}`);
-    for (let k = 0; k < 20 && !engineAccepts(); k++) await sleep(100);
-    if (!engineAccepts()) {
-      log(`the engine refuses the Canal at ${loc.x},${loc.y}: ${J(safe(() => path.oCan.call(path.host, cityID, path.type, { ConstructibleType: ctype, X: loc.x, Y: loc.y }, false), null))}`);
-      if (plot in loadSites() && !aiSites().has(plot)) await unmarkSite(loc);
-      await undo();
-      return;
-    }
-  }
-  for (const o of occupants(loc)) if (!isImprovement(o.type) && isObsolete(o.type))
-    safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: o.owner, LocalID: o.id }));
+  if (path.soldFor == null && !await siteTaken(cityID, loc, ctype, path)) { await undo(); return; }
+  takeOffObsolete(loc, local);
   remember(plot);
   showWorks(loc);
   forward();
-  const t0 = Date.now();
-  while (Date.now() - t0 < PLACE_MS) {
-    await sleep(100);
-    const c = canalOn(loc);
-    // a production order goes into the queue and reaches the map at once or later (s1, cm2): either is taken
-    if (!c && !path.purchase && inQueue(cityID, ctype)) { log(`Canal queued at ${loc.x},${loc.y}`); hideWorks(loc); return; }
-    if (!c) continue;
-    if (soldFor != null) {
-      safe(() => Players.grantYield(local, YieldTypes.YIELD_GOLD, -soldFor));
-      log(`Canal sold by the mod at ${loc.x},${loc.y} for ${soldFor} gold (its tech was researched before the mod was added)`);
-    }
-    log(`Canal ${path.purchase ? "bought" : "queued"} at ${loc.x},${loc.y} on ${districtAt(loc) || "no district"}`);
-    if (path.purchase && c.complete) setTimeout(() => openCanal(loc, local), SETTLE_MS);
-    else hideWorks(loc);
-    return;
-  }
+  if (await canalLanded(cityID, loc, ctype, path)) return;
+  await notTaken(loc, plot, undo);
+}
+
+/** Every building of an earlier age on the tile taken off: the canal takes the whole tile. */
+function takeOffObsolete(loc, local) {
+  for (const o of occupants(loc)) if (!isImprovement(o.type) && isObsolete(o.type))
+    safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: o.owner, LocalID: o.id }));
+}
+
+/** The engine never placed the forwarded Canal: the works off, the order forgotten, the marker and district undone. */
+async function notTaken(loc, plot, undo) {
   hideWorks(loc);
   log(`the engine did not take the Canal at ${loc.x},${loc.y}`);
   forget(plot);
@@ -408,41 +414,104 @@ async function placeCanal(cityID, loc, ctype, forward, path) {
   await undo();
 }
 
+/** The site marker on, and the engine's own yes for the Canal on this tile waited for; false (marker off) if not. */
+async function siteTaken(cityID, loc, ctype, path) {
+  const plot = idx(loc);
+  const ask = () => safe(() => path.oCan.call(path.host, cityID, path.type,
+    { ConstructibleType: ctype, X: loc.x, Y: loc.y }, false), null);
+  const engineAccepts = () => safe(() => {
+    const r = ask();
+    return !!(r && r.Success);
+  }, false);
+  if (!await markSite(loc, markerFor((canalDef(ctype) || {}).ConstructibleType))) log(`the site marker did not land at ${loc.x},${loc.y}`);
+  for (let k = 0; k < 20 && !engineAccepts(); k++) await sleep(100);
+  if (engineAccepts()) return true;
+  log(`the engine refuses the Canal at ${loc.x},${loc.y}: ${J(ask())}`);
+  if (plot in loadSites() && !aiSites().has(plot)) await unmarkSite(loc);
+  return false;
+}
+
+/** The forwarded order, watched until the Canal is on the map or in the queue (true), or PLACE_MS runs out. */
+async function canalLanded(cityID, loc, ctype, path) {
+  const local = GameContext.localPlayerID;
+  const t0 = Date.now();
+  while (Date.now() - t0 < PLACE_MS) {
+    await sleep(100);
+    const c = canalOn(loc);
+    // a production order goes into the queue and reaches the map at once or later (s1, cm2): either is taken
+    if (!c && !path.purchase && inQueue(cityID, ctype)) { log(`Canal queued at ${loc.x},${loc.y}`); hideWorks(loc); return true; }
+    if (!c) continue;
+    landed(loc, c, path, local);
+    return true;
+  }
+  return false;
+}
+
+/** The Canal is on the map: charged if the mod sold it, and a bought one opened. */
+function landed(loc, c, path, local) {
+  if (path.soldFor != null) {
+    safe(() => Players.grantYield(local, YieldTypes.YIELD_GOLD, -path.soldFor));
+    log(`Canal sold by the mod at ${loc.x},${loc.y} for ${path.soldFor} gold (its tech was researched before the mod was added)`);
+  }
+  log(`Canal ${path.purchase ? "bought" : "queued"} at ${loc.x},${loc.y} on ${districtAt(loc) || "no district"}`);
+  if (path.purchase && c.complete) setTimeout(() => openCanal(loc, local), SETTLE_MS);
+  else hideWorks(loc);
+}
+
 function wrapSendRequest(oSend, path) {
   return function (cityID, type, args, ...rest) {
-    const other = args && args.ConstructibleType != null && !canalIndex(args.ConstructibleType);
-    if (state.enabled && type === path.type && other) {
-      const at = plotOf(args);
-      if (at && loadOpen().some((e) => e.plot === idx(at))) {
-        log(`refused a building on the canal at ${at.x},${at.y}`);
-        return false;
-      }
-    }
-    if (!state.enabled || state.multiplayer || type !== path.type || !args
-      || !canalIndex(args.ConstructibleType)) return oSend(cityID, type, args, ...rest);
-    const loc = plotOf(args);
-    // never prepare a resource tile or park land: the building will be refused, and the district would already have
-    // replaced whatever improvement stood there
-    if (!loc || !isIsthmus(loc) || hasResource(loc) || isParkland(loc)) return oSend(cityID, type, args, ...rest);
-    const def = canalDef(args.ConstructibleType);
-    const general = safe(() => path.oCan.call(path.host, cityID, path.type,
-      { ConstructibleType: args.ConstructibleType }, false), null);
-    if (path.purchase && engineSaysNo(general) && unlockedByMod(cityOwner(cityID), def, general)) {
-      const price = modPrice(cityID, def);
-      if (price.short) { log(`not enough gold for the Canal at ${loc.x},${loc.y} (${price.cost})`); return false; }
-      const place = () => safe(() => Game.PlayerOperations.sendRequest(GameContext.localPlayerID, "CREATE_ELEMENT",
-        { Kind: "CONSTRUCTIBLE", Type: def.ConstructibleType, Location: { x: loc.x, y: loc.y }, Owner: cityOwner(cityID) }));
-      placeCanal(cityID, loc, args.ConstructibleType, place, { ...path, soldFor: price.cost });
-      return true;
-    }
-    // checked before the tile is touched: a purchase the engine refuses for gold would leave its urban district behind
-    if (path.purchase && cannotAfford(cityID, def)) {
-      log(`not enough gold for the Canal at ${loc.x},${loc.y} (${modPrice(cityID, def).cost})`);
-      return false;
-    }
-    placeCanal(cityID, loc, args.ConstructibleType, () => oSend(cityID, type, args, ...rest), path);
-    return true;
+    if (onOpenCanal(type, args, path)) return false;
+    const loc = canalOrderAt(type, args, path);
+    if (!loc) return oSend(cityID, type, args, ...rest);
+    return orderCanal(cityID, loc, args, path, () => oSend(cityID, type, args, ...rest));
   };
+}
+
+/** Another building's order aimed at an opened canal: refused. */
+function onOpenCanal(type, args, path) {
+  const other = args && args.ConstructibleType != null && !canalIndex(args.ConstructibleType);
+  if (!(state.enabled && type === path.type && other)) return false;
+  const at = plotOf(args);
+  if (!(at && loadOpen().some((e) => e.plot === idx(at)))) return false;
+  log(`refused a building on the canal at ${at.x},${at.y}`);
+  return true;
+}
+
+/** The tile of a Canal order the mod places, or null for an order the engine gets as it is. */
+function canalOrderAt(type, args, path) {
+  if (!state.enabled || state.multiplayer || type !== path.type || !args
+    || !canalIndex(args.ConstructibleType)) return null;
+  const loc = plotOf(args);
+  // never prepare a resource tile or park land: the building will be refused, and the district would already have
+  // replaced whatever improvement stood there
+  if (!loc || !isIsthmus(loc) || hasResource(loc) || isParkland(loc)) return null;
+  return loc;
+}
+
+/** A Canal order on a site: sold by the mod, refused for gold, or placed (placeCanal). */
+function orderCanal(cityID, loc, args, path, forward) {
+  const def = canalDef(args.ConstructibleType);
+  const general = safe(() => path.oCan.call(path.host, cityID, path.type,
+    { ConstructibleType: args.ConstructibleType }, false), null);
+  if (path.purchase && engineSaysNo(general) && unlockedByMod(cityOwner(cityID), def, general))
+    return sellCanal(cityID, loc, def, args, path);
+  // checked before the tile is touched: a purchase the engine refuses for gold would leave its urban district behind
+  if (path.purchase && cannotAfford(cityID, def)) {
+    log(`not enough gold for the Canal at ${loc.x},${loc.y} (${modPrice(cityID, def).cost})`);
+    return false;
+  }
+  placeCanal(cityID, loc, args.ConstructibleType, forward, path);
+  return true;
+}
+
+/** A Canal the engine keeps locked though its tech is known: placed by the mod and charged (see unlockedByMod). */
+function sellCanal(cityID, loc, def, args, path) {
+  const price = modPrice(cityID, def);
+  if (price.short) { log(`not enough gold for the Canal at ${loc.x},${loc.y} (${price.cost})`); return false; }
+  const place = () => safe(() => Game.PlayerOperations.sendRequest(GameContext.localPlayerID, "CREATE_ELEMENT",
+    { Kind: "CONSTRUCTIBLE", Type: def.ConstructibleType, Location: { x: loc.x, y: loc.y }, Owner: cityOwner(cityID) }));
+  placeCanal(cityID, loc, args.ConstructibleType, place, { ...path, soldFor: price.cost });
+  return true;
 }
 
 /** Wrap one host's canStart/sendRequest for the operation that places a building through it. */
@@ -459,4 +528,6 @@ function wrapHost(host, type, purchase) {
   return saved;
 }
 
-export { canalDef, eligiblePlots, isObsolete, isOfferedCanal, plainBuilding, unlockNode, unlockedByMod, wrapHost };
+export {
+  canalDef, eligiblePlots, isObsolete, isOfferedCanal, placeCanal, plainBuilding, unlockNode, unlockedByMod, wrapHost
+};

@@ -63,26 +63,37 @@ const TRANSITS_PER_TURN = { AGE_ANTIQUITY: 1, AGE_EXPLORATION: 2, AGE_MODERN: In
 function wrapUnitSend(oSend) {
   return function (unitId, type, args, ...rest) {
     try {
-      if (state.enabled && !state.multiplayer && args && args.X != null && args.Y != null && (type === UnitOperationTypes.MOVE_TO || type === "UNITOPERATION_MOVE_TO")) {
-        const turn = safe(() => Game.turn, -1);
-        if (turn !== state.transitTurn) { state.transitTurn = turn; state.transits = new Map(); }
-        const open = loadOpen();
-        if (open.length) {
-          const plots = safe(() => (Units.getPathTo(unitId, { x: args.X, y: args.Y }) || {}).plots || [], []);
-          const from = safe(() => idx(Units.get(unitId).location), -1);
-          const key = J(unitId);
-          for (const e of open) {
-            if (!plots.includes(e.plot) || e.plot === from) continue;
-            const used = state.transits.get(e.plot) || new Set();
-            const limit = TRANSITS_PER_TURN[e.age] == null ? Infinity : TRANSITS_PER_TURN[e.age];
-            if (!used.has(key) && used.size >= limit) { log(`canal at ${locOf(e.plot).x},${locOf(e.plot).y} has taken its ${limit} ship(s) this turn; move not sent`); return false; }
-            used.add(key); state.transits.set(e.plot, used);
-          }
-        }
-      }
+      if (limitedMove(type, args) && !transitAllowed(unitId, args)) return false;
     } catch (_) { /* never block a move on a script error */ }
     return oSend(unitId, type, args, ...rest);
   };
+}
+/** A move order of the local player's to a plot, while the mod is on in a single-player game. */
+function limitedMove(type, args) {
+  return state.enabled && !state.multiplayer && !!args && args.X != null && args.Y != null
+    && (type === UnitOperationTypes.MOVE_TO || type === "UNITOPERATION_MOVE_TO");
+}
+/** A new turn starts every canal's count of ships again. */
+function newTransitTurn() {
+  const turn = safe(() => Game.turn, -1);
+  if (turn !== state.transitTurn) { state.transitTurn = turn; state.transits = new Map(); }
+}
+/** The ship's path takes no canal past its quota this turn; each canal it passes counts the ship. */
+function transitAllowed(unitId, args) {
+  newTransitTurn();
+  const open = loadOpen();
+  if (!open.length) return true;
+  const plots = safe(() => (Units.getPathTo(unitId, { x: args.X, y: args.Y }) || {}).plots || [], []);
+  const from = safe(() => idx(Units.get(unitId).location), -1);
+  const key = J(unitId);
+  for (const e of open) {
+    if (!plots.includes(e.plot) || e.plot === from) continue;
+    const used = state.transits.get(e.plot) || new Set();
+    const limit = TRANSITS_PER_TURN[e.age] == null ? Infinity : TRANSITS_PER_TURN[e.age];
+    if (!used.has(key) && used.size >= limit) { log(`canal at ${locOf(e.plot).x},${locOf(e.plot).y} has taken its ${limit} ship(s) this turn; move not sent`); return false; }
+    used.add(key); state.transits.set(e.plot, used);
+  }
+  return true;
 }
 function onTurnActivated(d) {
   if (!isLocal(d)) return;
@@ -194,14 +205,32 @@ function whenStarted(fn, delay) {
 // install
 
 function install() {
+  if (!learnCanalTypes()) return false;
+  state.multiplayer = !!safe(() => Configuration.getGame().isNetworkMultiplayer, false);
+  // A game keeps the rules it started with: the main menu's choice is written into the save the first time it loads.
+  if (!state.multiplayer && !safe(gameHasMode, true)) safe(() => pinModeToGame(getMode()));
+  if (!wrapPlacement()) return false;
+  hookSaves();
+  startPlay();
+  const uhost = safe(() => Game.UnitOperations, null);
+  if (TRANSIT_LIMIT && uhost && typeof uhost.sendRequest === "function") { state.originals.unitSend = uhost.sendRequest; uhost.sendRequest = wrapUnitSend(uhost.sendRequest.bind(uhost)); }
+  log(`active${state.multiplayer ? " (network game: canals not offered)" : ""}: Canal placement limited to isthmus tiles; ` +
+    `rules: ${oneTileMode() ? "one-tile canals" : "by age"}`);
+  return true;
+}
+
+/** The Canal buildings' indexes and type hashes, which the wraps know a Canal order by. False when there are none. */
+function learnCanalTypes() {
   for (const t of CANAL_TYPES) {
     const d = safe(() => GameInfo.Constructibles.lookup(t), null);
     if (d) { state.canalIndexes.add(d.$index); safe(() => state.canalIndexes.add(GameInfo.Types.lookup(t).Hash)); }
   }
   if (!state.canalIndexes.size) { log("no Canal buildings in the database; inactive"); return false; }
-  state.multiplayer = !!safe(() => Configuration.getGame().isNetworkMultiplayer, false);
-  // A game keeps the rules it started with: the main menu's choice is written into the save the first time it loads.
-  if (!state.multiplayer && !safe(gameHasMode, true)) safe(() => pinModeToGame(getMode()));
+  return true;
+}
+
+/** The production and purchase hosts wrapped. False when production can't be. */
+function wrapPlacement() {
   const build = wrapHost(safe(() => Game.CityOperations, null), safe(() => CityOperationTypes.BUILD, null), false);
   if (!build) { log("Game.CityOperations not wrappable; inactive"); return false; }
   state.originals = { hosts: [build] };
@@ -209,6 +238,11 @@ function install() {
   const purchase = wrapHost(safe(() => Game.CityCommands, null), safe(() => CityCommandTypes.PURCHASE, null), true);
   if (purchase) state.originals.hosts.push(purchase);
   else log("Game.CityCommands not wrappable; Canals cannot be bought with gold");
+  return true;
+}
+
+/** The completion and save events heard, the local player kept, and the save call wrapped. */
+function hookSaves() {
   safe(() => engine.on("ConstructibleBuildCompleted", onBuildCompleted));
   safe(() => engine.on("StartSaveRequest", onSaveStart));
   safe(() => engine.on("SaveComplete", onSaveDone));
@@ -217,25 +251,19 @@ function install() {
   const net = safe(() => Network, null);
   if (net && typeof net.saveGame === "function") state.originals.saveGame = wrapSaveGame(net);
   else log("Network.saveGame not wrappable; a save made from the menu reloads canals as open water");
+}
+
+/** The land look and the held autosave, the turn and age events, and the notices once the game is up. */
+function startPlay() {
   if (!state.multiplayer) { keepLandLook(); holdEngineAutosave(); wrapOptionsScreen(); }
   safe(() => engine.on("PlayerTurnActivated", onTurnActivated));
   safe(() => engine.on("GameAgeEnded", onAgeEnded));
   safe(() => engine.on("BeforeAgeTransition", onAgeEnded));
   whenStarted(notices, 5000);
-  const uhost = safe(() => Game.UnitOperations, null);
-  if (TRANSIT_LIMIT && uhost && typeof uhost.sendRequest === "function") { state.originals.unitSend = uhost.sendRequest; uhost.sendRequest = wrapUnitSend(uhost.sendRequest.bind(uhost)); }
-  log(`active${state.multiplayer ? " (network game: canals not offered)" : ""}: Canal placement limited to isthmus tiles; ` +
-    `rules: ${oneTileMode() ? "one-tile canals" : "by age"}`);
-  return true;
 }
 
 function uninstall() {
-  for (const h of (state.originals && state.originals.hosts) || []) {
-    h.host.canStart = h.canStart; h.host.sendRequest = h.sendRequest;
-    if (h.canStartQuery) h.host.canStartQuery = h.canStartQuery;
-  }
-  const uhost = safe(() => Game.UnitOperations, null);
-  if (uhost && state.originals && state.originals.unitSend) uhost.sendRequest = state.originals.unitSend;
+  unwrapHosts();
   safe(() => engine.off("StartSaveRequest", onSaveStart));
   safe(() => engine.off("SaveComplete", onSaveDone));
   safe(() => engine.off("PlayerTurnDeactivated", onTurnDeactivated));
@@ -248,6 +276,16 @@ function uninstall() {
   if (opt) opt.host.addOption = opt.add;
   state.enabled = false;
   log("uninstalled");
+}
+
+/** The production, purchase and unit hosts given their own calls back. */
+function unwrapHosts() {
+  for (const h of (state.originals && state.originals.hosts) || []) {
+    h.host.canStart = h.canStart; h.host.sendRequest = h.sendRequest;
+    if (h.canStartQuery) h.host.canStartQuery = h.canStartQuery;
+  }
+  const uhost = safe(() => Game.UnitOperations, null);
+  if (uhost && state.originals && state.originals.unitSend) uhost.sendRequest = state.originals.unitSend;
 }
 
 if (!G[KEY]) {
@@ -269,3 +307,6 @@ if (!G[KEY]) {
   };
   install();
 }
+
+// for the sequence traces (tests/trace): the game imports nothing from this file
+export { install, uninstall, wrapUnitSend };
