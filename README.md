@@ -306,9 +306,6 @@ a marked tile yielded exactly what it did unmarked, through a save and reload.
 
 Not tested:
 
-- A Modern branch built through the real build path: the branch tile was offered, but the engine dropped that one
-  build order with no reason code in the gallery run, so branching was only checked by retyping the tiles
-  directly.
 - The second and third look of each age as whole compositions (their pieces were photographed individually).
 - An AI warship crossing between two seas through a canal: the AI units seen in canals were embarked land units.
 - The age transition through the game's own end-of-age screens: the tested one ran under Autoplay.

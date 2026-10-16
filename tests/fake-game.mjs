@@ -128,6 +128,10 @@ const GLOBALS = {
       { ConstructibleType: "BUILDING_DAM_ANTIQUITY", Age: "AGE_ANTIQUITY" },
       { ConstructibleType: "BUILDING_DAM_EXPLORATION", Age: "AGE_EXPLORATION" },
       { ConstructibleType: "BUILDING_ACADEMY", Age: "AGE_EXPLORATION" },
+      // two Antiquity warehouses: the Granary keeps its AGELESS tag, the Brickyard has lost it the way Warehouse
+      // Overbuilding (3517656064) deletes it once the age is over
+      { ConstructibleType: "BUILDING_GRANARY", Age: "AGE_ANTIQUITY" },
+      { ConstructibleType: "BUILDING_BRICKYARD", Age: "AGE_ANTIQUITY" },
       { ConstructibleType: "IMPROVEMENT_FARM" },
       // and for plainBuilding: one with no placement rule, one each held to a terrain, a feature and a resource,
       // one tied to a civilization's trait
@@ -144,7 +148,7 @@ const GLOBALS = {
     Constructible_ValidBiomes: table("ConstructibleType", []),
     Constructible_ValidFeatures: table("ConstructibleType", [{ ConstructibleType: "BUILDING_SAWPIT", FeatureType: "FEATURE_FOREST" }]),
     Constructible_ValidResources: table("ConstructibleType", [{ ConstructibleType: "BUILDING_MINT", ResourceType: "RESOURCE_SILVER" }]),
-    TypeTags: table("Type", [{ Type: "BUILDING_PALACE", Tag: "AGELESS" },
+    TypeTags: table("Type", [{ Type: "BUILDING_PALACE", Tag: "AGELESS" }, { Type: "BUILDING_GRANARY", Tag: "AGELESS" },
       { Type: "BUILDING_LIBRARY", Tag: "SCIENCE" }])
   },
   Game: { get age() { return world.age; } },
