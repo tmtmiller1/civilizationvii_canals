@@ -4,7 +4,8 @@ the last commit with one game script) is found verbatim in exactly one of the ui
 
 A block is a top-level declaration with the comments and blank lines above it. Blocks that aren't found verbatim are
 listed by name: after the move-only split that was only the __canals object (its worksVfx setter calls the look
-module's setWorksVfx); after the pure functions were broken up, those functions are listed too.
+module's setWorksVfx). The later steps broke functions up on purpose, and those are listed too; what they still do is
+held by the tests (tests/canal-sequences.test.mjs for the engine sequences).
 
     python3 devtools/split-proof.py
     python3 devtools/split-proof.py edf7c8b /path/to/another/ui

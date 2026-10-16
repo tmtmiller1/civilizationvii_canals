@@ -15,13 +15,27 @@ const RUNNER = fileURLToPath(new URL("./trace/run.mjs", import.meta.url));
 const play = async (version, name) => JSON.parse((await run(process.execPath, [RUNNER, version, name],
   { maxBuffer: 64 << 20 })).stdout);
 
-for (const name of Object.keys(SCENARIOS)) {
+// A scenario that names `changed` is one where the modules deliberately do more than the old script (the buildings a
+// failed Canal order took off, put back): the lines it lists as added are taken out of the new trace, and the state
+// lines it names out of both, before the comparison, and its check says what the new lines must show. One marked
+// `only: "new"` plays code the old script doesn't have, and its check alone decides.
+for (const [name, sc] of Object.entries(SCENARIOS)) {
   test(`sequence: ${name}`, async () => {
+    if (sc.only === "new") {
+      const now = await play("new", name);
+      assert.ok(!String(now.result).startsWith("threw"), `threw: ${now.result}`);
+      assert.ok(sc.check(now), "the new behaviour shows in the trace and the state:\n" + now.state.join("\n"));
+      return;
+    }
     const [was, now] = await Promise.all([play("old", name), play("new", name)]);
     assert.ok(was.trace.length > 0, "the old script did something");
     assert.ok(!String(was.result).startsWith("threw"), `the old script threw: ${was.result}`);
-    assert.deepEqual(now.trace, was.trace, "the same engine calls, waits and log lines, at the same times");
+    const ch = sc.changed;
+    const trace = ch ? now.trace.filter((l) => !ch.added.some((re) => re.test(l))) : now.trace;
+    const keep = (st) => (ch ? st.filter((l) => !ch.state.test(l)) : st);
+    assert.deepEqual(trace, was.trace, "the same engine calls, waits and log lines, at the same times");
     assert.deepEqual(now.result, was.result, "the same result");
-    assert.deepEqual(now.state, was.state, "the same map and records at the end");
+    assert.deepEqual(keep(now.state), keep(was.state), "the same map and records at the end");
+    if (ch) assert.ok(ch.check(now), "the change shows:\n" + now.state.join("\n"));
   });
 }

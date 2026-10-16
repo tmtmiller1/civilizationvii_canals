@@ -16,20 +16,21 @@ are watched behaviour: a retype during a save crashed in `c71`, the house flicke
 
 ## The modules
 
-Code lines counted the way the lint rule counts them (blank and comment lines left out).
+Code lines counted the way the lint rule counts them (blank and comment lines left out), after step 4 and the
+put-back below.
 
 | Module | Code lines | What's in it |
 | --- | --- | --- |
-| `ui/canals.js` | 203 | The header comment, `install`, `uninstall`, the `__canals` object, the notices and the reload offer, the turn-start hook, the build-completed hook, the parked ship limit (`TRANSIT_LIMIT`, `wrapUnitSend`) |
+| `ui/canals.js` | 230 | The header comment, `install`, `uninstall`, the `__canals` object, the notices and the reload offer, the turn-start hook, the build-completed hook, the parked ship limit (`TRANSIT_LIMIT`, `wrapUnitSend`) |
 | `ui/canals-state.js` | 59 | The constants, `log`, `safe`, `sleep`, `J`, the one-tile mode read, the pending and open records, the `state` object, `withBlock`, `AGE_RANK` |
 | `ui/canals-map.js` | 117 | Map reads and the water helpers, `isParkland`, `currentAge` |
 | `ui/canals-rule.js` | 113 | `isIsthmus` and the age's run rules, `canalWorth` and the AI's worth helpers |
 | `ui/canals-look.js` | 298 | The works dust (`WORKS_VFX` with `setWorksVfx`), the channel geometry and the drawing |
-| `ui/canals-open.js` | 168 | `flipToCoast`, `openCanal`, `keepRuralTile`, the district helpers, `settleCanalTile` |
-| `ui/canals-repair.js` | 198 | `sweep`, `repairCitylessDistricts`, `healDistrict`, `requeue`, `healCanalTile`, `repairCanalTile` |
+| `ui/canals-open.js` | 186 | `flipToCoast`, `openCanal`, `keepRuralTile`, the district helpers, `settleCanalTile` |
+| `ui/canals-repair.js` | 250 | `sweep`, `repairCitylessDistricts`, `healDistrict`, `requeue`, `healCanalTile`, `repairCanalTile` |
 | `ui/canals-save.js` | 187 | `rememberOpen`, the save wrap, the age's end, the held autosave, the Options slider wrap, `keepLandLook` |
-| `ui/canals-placement.js` | 337 | `isObsolete`, `plainBuilding`, `enginePlots`, `eligiblePlots`, pricing, the `canStart`, `canStartQuery` and `sendRequest` wraps, `placeCanal` |
-| `ui/canals-sites.js` | 167 | The site markers, the queued orders, `aiSites`, `syncSites` |
+| `ui/canals-placement.js` | 402 | `isObsolete`, `plainBuilding`, `enginePlots`, `eligiblePlots`, pricing, the `canStart`, `canStartQuery` and `sendRequest` wraps, `placeCanal`, and the put-back of what a failed Canal order took off |
+| `ui/canals-sites.js` | 180 | The site markers, the queued orders, `aiSites`, `syncSites` |
 
 Where this differs from the first cut, and why:
 
@@ -96,6 +97,25 @@ It caught one change while this was done: an extracted step awaited on a path wh
 order running alongside sent its request a turn of the event loop earlier. Every extracted step is now awaited only
 where the old code awaited. An extracted async step still adds a microtask turn when it returns; no engine call moves
 in any scenario.
+
+## The buildings a Canal order takes off
+
+Owed since 2026-10-15: `placeCanal` takes an earlier-age building off its tile before the order is forwarded, and
+never put it back if the Canal didn't come. The order stays as it was watched: the building still comes off at the
+same point, and nothing new happens before the order goes. If the engine never takes the forwarded Canal, neither on
+the map nor into the queue, `notTaken` makes the building again on the tile after the existing undo (`putBack`). A
+building made by script on a district comes back finished and held by the city (`hl2`, the call `healDistrict`
+uses).
+
+Once the order is in, it's the game's rule. The game's own overbuild clears a tile when the building is queued
+(`engine-closed.md`, `pj7`), and a building taken out of the queue stays on its tile unfinished (`rs1`), so cancelling
+never brings the old one back; a Canal taken out of the queue leaves it gone the same way. (A first version also gave
+the building back at the next turn start when a queued Canal left the queue before it showed on the map; the owner
+chose the game's behaviour instead, and it came out before it was committed.)
+
+`tests/canal-sequences.test.mjs` checks that the one scenario where this acts differs from the old script only by the
+put-back lines; every other scenario, a production order over an old building included, is the old trace line for
+line.
 
 ## Watching it
 

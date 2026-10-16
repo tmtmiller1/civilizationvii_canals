@@ -79,6 +79,9 @@ export const SCENARIOS = {
   "place: refused by the engine": { map: COAST, setup: (e) => own(e),
     act: (M, e) => { globalThis.Game.CityCommands.canStart = verdicts(e, { canal: "never" }); return M.placeCanal(1, at(4, 1), e.typeIndex(EX), forwarder(true, 4, 1, e), pathOf(true)); } },
   "place: the engine never places it": { map: COAST, options: { forwardIgnored: true },
+    // since the old script: the Library the order took off is put back
+    changed: { added: [/CREATE_ELEMENT .*BUILDING_LIBRARY/, /put back at 2,1/], state: /^2,1 /,
+      check: (now) => now.state.includes("2,1 FLAT owner=0 city=1 district=URBAN feature=- builds=BUILDING_LIBRARY") },
     setup: (e) => { own(e); e.tile(2, 1, { district: "DISTRICT_URBAN", builds: ["BUILDING_LIBRARY"] }); },
     act: (M, e) => { globalThis.Game.CityCommands.canStart = verdicts(e); return M.placeCanal(1, at(2, 1), e.typeIndex(EX), forwarder(true, 2, 1, e), pathOf(true)); } },
   "place: sold by the mod": { map: COAST,

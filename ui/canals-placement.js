@@ -13,7 +13,7 @@ import { queuedHere } from "./canals-repair.js";
 import { isIsthmus } from "./canals-rule.js";
 import { aiSites, loadSites, markSite, markerFor, unmarkSite } from "./canals-sites.js";
 import {
-  AGE_RANK, BUILD_RADIUS, CANAL_TYPES, J, ONE_TILE_CANAL, PLACE_MS, SETTLE_MS, canalIndex, forget, loadOpen,
+  AGE_RANK, BUILD_RADIUS, CANAL_TYPES, J, ONE_TILE_CANAL, PLACE_MS, SETTLE_MS, ageRank, canalIndex, forget, loadOpen,
   loadPending, log, oneTileMode, remember, safe, sleep, state
 } from "./canals-state.js";
 
@@ -391,27 +391,56 @@ async function placeCanal(cityID, loc, ctype, forward, path) {
   const undo = async () => { if (madeDistrict) await destroyDistrict(loc); };
   // the engine takes a Canal only on a marked site (data/canals-sites.xml); a Canal the mod sells itself needs none
   if (path.soldFor == null && !await siteTaken(cityID, loc, ctype, path)) { await undo(); return; }
-  takeOffObsolete(loc, local);
+  const taken = takeOffObsolete(loc, local);
   remember(plot);
   showWorks(loc);
   forward();
   if (await canalLanded(cityID, loc, ctype, path)) return;
-  await notTaken(loc, plot, undo);
+  await notTaken(loc, plot, undo, taken);
 }
 
-/** Every building of an earlier age on the tile taken off: the canal takes the whole tile. */
+/** Every building of an earlier age on the tile taken off: the canal takes the whole tile. Returns what was taken. */
 function takeOffObsolete(loc, local) {
-  for (const o of occupants(loc)) if (!isImprovement(o.type) && isObsolete(o.type))
-    safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: o.owner, LocalID: o.id }));
+  const taken = [];
+  for (const o of occupants(loc)) if (!isImprovement(o.type) && isObsolete(o.type)) {
+    taken.push({ type: o.type, owner: o.owner });
+    safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT",
+      { Kind: "CONSTRUCTIBLE", Owner: o.owner, LocalID: o.id }));
+  }
+  return taken;
 }
 
-/** The engine never placed the forwarded Canal: the works off, the order forgotten, the marker and district undone. */
-async function notTaken(loc, plot, undo) {
+// buildings a Canal order took off
+//
+// The order takes the tile's earlier-age buildings off before it's forwarded, as the game's own overbuild clears a
+// tile when the building is queued (engine-closed.md, pj7). If the engine then never takes the Canal, neither on the
+// map nor into the queue, they're made again on the tile: a building made by script on a district comes back
+// finished and held by the city (hl2, healDistrict). Once the order is in, it's the game's rule: a Canal taken out
+// of the queue later leaves the old building gone, as cancelling any overbuild does.
+/** What a Canal order took off, made again on the tile, newest age first. */
+async function putBack(loc, taken) {
+  const types = taken.slice().sort((a, b) => ageRank(b.type) - ageRank(a.type));
+  for (const t of types) {
+    safe(() => Game.PlayerOperations.sendRequest(GameContext.localPlayerID, "CREATE_ELEMENT",
+      { Kind: "CONSTRUCTIBLE", Type: t.type, Location: { x: loc.x, y: loc.y }, Owner: t.owner }));
+    await sleep(300);
+  }
+  const missing = () => types.filter((t) => !occupants(loc).some((o) => o.type === t.type));
+  for (let i = 0; i < 30 && missing().length; i++) await sleep(100);
+  const lost = missing().map((t) => t.type);
+  log(`put back at ${loc.x},${loc.y} what the Canal order took off: ${types.map((t) => t.type).join(",")}` +
+    `${lost.length ? `; NOT put back: ${lost.join(",")}` : ""}`);
+}
+
+/** The engine never placed the forwarded Canal: the works off, the order forgotten, the marker and district undone,
+ * and what the order took off put back. */
+async function notTaken(loc, plot, undo, taken) {
   hideWorks(loc);
   log(`the engine did not take the Canal at ${loc.x},${loc.y}`);
   forget(plot);
   if (plot in loadSites() && !aiSites().has(plot)) await unmarkSite(loc);
   await undo();
+  if (taken.length) await putBack(loc, taken);
 }
 
 /** The site marker on, and the engine's own yes for the Canal on this tile waited for; false (marker off) if not. */
@@ -529,5 +558,6 @@ function wrapHost(host, type, purchase) {
 }
 
 export {
-  canalDef, eligiblePlots, isObsolete, isOfferedCanal, placeCanal, plainBuilding, unlockNode, unlockedByMod, wrapHost
+  canalDef, eligiblePlots, isObsolete, isOfferedCanal, placeCanal, plainBuilding, unlockNode, unlockedByMod,
+  wrapHost
 };
