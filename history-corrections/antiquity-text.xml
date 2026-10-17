@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Goguryeo (INDEPENDENT_ANTIQUITY_12). -->
+<Database>
+    <EnglishText>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ANTIQUITY_12_CHAPTER_HISTORY_PARA_1">
+            <Text>Goguryeo was a kingdom that lasted from the 1st century BCE to 668 CE, spanning what is now northeast China and the northern Korean peninsula; tradition dates its founding by Jumong to 37 BCE. With Baekje and Silla it is counted as one of the Three Kingdoms of Korea, and its name lives on in "Goryeo" and so in "Korea." A mountain kingdom of farmers and horsemen famed for their archery, it fought and traded with Chinese dynasties, the Xianbei, Baekje and Silla, and became one of the strongest powers in Northeast Asia.</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ANTIQUITY_12_CHAPTER_HISTORY_PARA_2">
+            <Text>Gungnae, at modern Ji'an in Jilin Province, China, was Goguryeo's capital for about four centuries, until the court moved to Pyongyang in 427. The Ji'an area preserves royal tombs, painted tombs and the Stele of King Gwanggaeto, key sources for Goguryeo history and art. Goguryeo threw back the armies of Sui and Tang again and again; all three of Emperor Yang of Sui's campaigns failed, and it fell only in 668 to an alliance of Tang and Silla. Historians in both Koreas and most scholars in other countries treat Goguryeo as a Korean kingdom. Since the early 2000s China's Northeast Project has classed it as a "regional state" within Chinese history, and China and South Korea still dispute the question.</Text>
+        </Replace>
+    </EnglishText>
+    <LocalizedText>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ANTIQUITY_12_CHAPTER_HISTORY_PARA_1" Language="zh_Hans_CN">
+            <Text>高句丽（Goguryeo）是公元前1世纪至公元668年存在的王国，疆域横跨今中国东北与朝鲜半岛北部，传说由朱蒙于公元前37年建立。高句丽与百济、新罗并称朝鲜三国，其国名经由后来的王氏高丽（Goryeo）延续下来，西方语言中的“Korea”亦由此而来。高句丽是一个依托山地的王国，民众务农，亦精于骑马，尤以善射著称；它长期与中原王朝、鲜卑、百济、新罗时战时和，往来不绝，逐渐成为东北亚最强大的国家之一。</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ANTIQUITY_12_CHAPTER_HISTORY_PARA_2" Language="zh_Hans_CN">
+            <Text>国内城（Gungnae）位于今中国吉林省集安，作为高句丽都城约四百年，直至427年高句丽迁都平壤。集安一带保存有王陵、壁画墓与好太王碑（又称广开土王碑），是研究高句丽历史与艺术的重要史料。高句丽屡次击退隋唐大军，隋炀帝三征高句丽均告失败，直至668年才被唐与新罗联军所灭。韩国、朝鲜学界和其他国家的多数学者都将高句丽视为朝鲜（韩国）历史上的王国；21世纪初起，中国的“东北工程”将其归为中国历史上的“地方政权”，中韩两国至今仍有争议。</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ANTIQUITY_12_CHAPTER_HISTORY_PARA_1" Language="zh_Hant_HK">
+            <Text>高句麗（Goguryeo）是公元前1世紀至公元668年存在的王國，疆域橫跨今中國東北與朝鮮半島北部，傳說由朱蒙於公元前37年建立。高句麗與百濟、新羅並稱朝鮮三國，其國名經由後來的王氏高麗（Goryeo）延續下來，西方語言中的「Korea」亦由此而來。高句麗是一個依託山地的王國，民眾務農，亦精於騎馬，尤以善射著稱；它長期與中原王朝、鮮卑、百濟、新羅時戰時和，往來不絕，逐漸成為東北亞最強大的國家之一。</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ANTIQUITY_12_CHAPTER_HISTORY_PARA_2" Language="zh_Hant_HK">
+            <Text>國內城（Gungnae）位於今中國吉林省集安，作為高句麗都城約四百年，直至427年高句麗遷都平壤。集安一帶保存有王陵、壁畫墓與好太王碑（又稱廣開土王碑），是研究高句麗歷史與藝術的重要史料。高句麗屢次擊退隋唐大軍，隋煬帝三征高句麗均告失敗，直至668年才被唐與新羅聯軍所滅。南北韓學界和其他國家的多數學者都將高句麗視為韓國歷史上的王國；21世紀初起，中國的「東北工程」將其歸為中國歷史上的「地方政權」，中韓兩國至今仍有爭議。</Text>
+        </Replace>
+    </LocalizedText>
+</Database>

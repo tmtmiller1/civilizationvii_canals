@@ -44,7 +44,7 @@ fi
 
 echo "==> Syntax-checking the shipped XML"
 if command -v xmllint >/dev/null 2>&1; then
-    xmllint --noout "$MODINFO" data/*.xml text/en_us/*.xml
+    xmllint --noout "$MODINFO" data/*.xml text/en_us/*.xml history-corrections/*.xml
 fi
 
 # Steam publishedfileid, kept outside dist/ so it survives `rm -rf dist`. Absent until the first upload.
@@ -79,6 +79,7 @@ ALLOW="$ALLOW"'|^'"$MOD_DIR"'/ui/canals\.js$'
 ALLOW="$ALLOW"'|^'"$MOD_DIR"'/ui/(canals-(shell|options|settings|state|map|rule|look|open|repair|save|placement|sites)|settings-keeper)\.js$'
 ALLOW="$ALLOW"'|^'"$MOD_DIR"'/data/canals(-[a-z]+)?\.(xml|sql)$'
 ALLOW="$ALLOW"'|^'"$MOD_DIR"'/text/[a-z_]+/CanalsText\.xml$'
+ALLOW="$ALLOW"'|^'"$MOD_DIR"'/history-corrections/[a-z-]+-text\.xml$'
 ALLOW="$ALLOW"'|^'"$MOD_DIR"'/icons/building_canal_(ancient|medieval|modern)_(256|128|64)\.png$'
 UNEXPECTED="$(unzip -Z1 "$ZIP_PATH" | grep -vE '/$' | grep -vE "$ALLOW" || true)"
 if [ -n "$UNEXPECTED" ]; then

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- City-States Expanded pages: Ryukyu (ML_EXPLORATION_3), Nanzhao (ML_EXPLORATION_6), Balhae (ML_EXPLORATION_31). -->
+<Database>
+    <EnglishText>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_3_CHAPTER_HISTORY_PARA_1">
+            <Text>Ryukyu was an island kingdom in the archipelago between Taiwan and Kyushu, centred on Okinawa and at its height reaching from the Amami Islands in the north to the Sakishima Islands in the south. In the 14th century Okinawa was divided among three rival kingdoms, Hokuzan, Chuzan and Nanzan, each sending its own tribute missions to Ming China. In 1429 Sho Hashi, king of Chuzan, completed their unification and ruled the new kingdom from Shuri Castle. Standing at the crossroads of East Asian sea routes, Ryukyu prospered through entrepot trade, and a bell cast for the main hall of Shuri Castle in 1458 says the kingdom made its ships "a bridge to all nations."</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_3_CHAPTER_HISTORY_PARA_2">
+            <Text>The kingdom sent tribute to Ming and later Qing China, whose emperors invested its kings, while trading with Japan, Korea and the states of Southeast Asia. Shuri Castle, blending Chinese, Japanese and local Ryukyuan styles, became the symbol of the kingdom's culture. In 1609 the Japanese domain of Satsuma invaded, and from then on Ryukyu was controlled by Satsuma while it kept up its tribute to China, hiding Satsuma's control from the Chinese envoys. Japan abolished the kingdom in 1879 and made it Okinawa Prefecture; Qing China protested but never reversed it.</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_6_CHAPTER_HISTORY_PARA_1">
+            <Text>Nanzhao was a powerful kingdom of the 8th and 9th centuries in what is now Yunnan, China. Its royal house came from the Mengshe zhao of the Wuman people, and great Baiman families held high office. The capital moved from Mengshe (modern Weishan) to Taihe near modern Dali in 739, and to Yangjumie in 779. With Tang backing Nanzhao absorbed the other five zhaos and unified the Erhai region; it then played Tang China and Tibet against one another and crushed Tang armies in 751 and 754. Its kings at times took Tang titles and at times allied with Tibet. Chinese historians class Nanzhao as a "regional ethnic state" of the Tang era, while most historians elsewhere treat it as an independent kingdom.</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_6_CHAPTER_HISTORY_PARA_2">
+            <Text>Standing astride the Southern Silk Road, Nanzhao traded busily with Tang China, Tibet, the Pyu kingdom and the states of Southeast Asia, its economy combining rice farming, the horse trade and metalwork. A devout Buddhist realm, it is closely linked to monuments such as the Three Pagodas of Chongsheng Temple near Dali. Nanzhao fell in 902, and after a few short-lived dynasties the Dali Kingdom ruled Yunnan from 937 until the Mongol conquest of 1253. The Yuan made Yunnan a province in 1274, and it has been ruled from China ever since.</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_31_CHAPTER_HISTORY_PARA_1">
+            <Text>Balhae (Bohai in Chinese) was a kingdom of the 7th to 10th centuries covering what is now northeast China, the northern Korean peninsula and part of the Russian Far East. It was founded in 698 by Dae Jo-yeong. The Old Book of Tang calls him "of a separate branch of Goguryeo," while the New Book of Tang says Balhae was "originally Sumo Mohe attached to Goguryeo"; his followers included both Goguryeo refugees and Mohe tribes. First called Jin, the state took the name Balhae after Tang named Dae Jo-yeong Prince of Bohai Commandery in 713. Its kings wrote to Japan as heirs of Goguryeo, and its Upper Capital (Shangjing Longquanfu, near modern Ning'an, Heilongjiang) was laid out on the model of Tang Chang'an. At its height Balhae was known as the "flourishing land east of the sea."</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_31_CHAPTER_HISTORY_PARA_2">
+            <Text>Balhae took up Tang institutions, Buddhism and architecture while keeping Goguryeo and Mohe traditions; its heated ondol floors and stone-chambered tombs show clear Goguryeo features. At a crossroads of Northeast Asia, it exchanged envoys and trade with Tang, Japan and Silla. In 926 the Khitan Liao conquered Balhae and set a Khitan prince over the conquered land as the Dongdan kingdom. Much of Balhae's elite, its crown prince among them, fled to Goryeo, while those who stayed were absorbed over time into the Khitan, Jurchen and Han Chinese populations. Both Koreas count Balhae as part of their history, Chinese scholarship classes it as a "regional ethnic state" of the Tang, and China and South Korea still dispute the question.</Text>
+        </Replace>
+    </EnglishText>
+    <LocalizedText>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_3_CHAPTER_HISTORY_PARA_1" Language="zh_Hans_CN">
+            <Text>琉球（Ryukyu）是位于台湾岛与九州之间的群岛王国，以冲绳岛为中心，鼎盛时北起奄美群岛、南至先岛群岛。14世纪，冲绳岛上北山、中山、南山三国鼎立，各自向明朝朝贡。1429年，中山王尚巴志完成统一，以首里城为王都。琉球地处东亚海上航路的十字路口，因转口贸易而繁荣。1458年为首里城正殿铸造的铜钟铭文称琉球“以舟楫为万国之津梁”，此钟因而被称为“万国津梁之钟”。</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_3_CHAPTER_HISTORY_PARA_2" Language="zh_Hans_CN">
+            <Text>琉球王国向明清两朝朝贡并接受册封，同时与日本、朝鲜及东南亚各国通商。首里城融合中国、日本与琉球本地风格，是琉球文化的象征。1609年日本萨摩藩入侵，此后琉球受萨摩控制，同时继续向中国朝贡，并对中国册封使隐瞒受萨摩控制一事。1879年日本废除琉球王国，设立冲绳县；清朝曾提出抗议，但未能改变结果。</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_6_CHAPTER_HISTORY_PARA_1" Language="zh_Hans_CN">
+            <Text>南诏（Nanzhao）是8至9世纪称雄于今中国云南地区的强大王国，王室出自乌蛮蒙舍诏，白蛮大姓亦在国中居要职。都城初在蒙舍（今巍山），739年迁太和城（今大理附近），779年再迁羊苴咩城。南诏起初在唐朝支持下吞并其余五诏、统一洱海地区，此后在唐与吐蕃两大势力之间纵横捭阖，并于751年和754年两次大败唐军。南诏诸王时而接受唐朝封号，时而与吐蕃结盟。中国史学界将其视为唐代的“地方民族政权”，其他国家的多数史学家则视之为独立王国。</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_6_CHAPTER_HISTORY_PARA_2" Language="zh_Hans_CN">
+            <Text>南诏地处南方丝绸之路的枢纽，与唐、吐蕃、骠国及东南亚诸国贸易往来频繁，经济兼有稻作农业、马匹贸易与金属工艺。南诏崇信佛教，大理崇圣寺三塔等建筑即与其密切相关。902年南诏灭亡，经数个短暂王朝后，大理国于937年建立，统治云南直至1253年被蒙古征服。1274年元朝设立云南行省，此后云南一直归中国管辖。</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_31_CHAPTER_HISTORY_PARA_1" Language="zh_Hans_CN">
+            <Text>渤海（朝鲜语称Balhae）是7至10世纪的王国，疆域包括今中国东北、朝鲜半岛北部与俄罗斯远东一部分，698年由大祚荣建立。关于大祚荣的出身，《旧唐书》称他“本高丽别种”，《新唐书》则称渤海“本粟末靺鞨附高丽者”（两书中的“高丽”均指高句丽），其部众既有高句丽遗民，也有靺鞨诸部。渤海初称震国，713年唐封大祚荣为渤海郡王，此后称渤海国。渤海诸王致日本的国书自称承继高句丽。上京龙泉府（今黑龙江宁安渤海镇附近）仿唐长安规划建造。渤海极盛时被誉为“海东盛国”。</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_31_CHAPTER_HISTORY_PARA_2" Language="zh_Hans_CN">
+            <Text>渤海吸收唐朝的制度、佛教与建筑，同时保留高句丽与靺鞨的传统，其火炕（温突）与石室墓带有明显的高句丽特征。渤海地处东北亚交通要道，与唐、日本、新罗有使节与贸易往来。926年渤海为契丹（辽）所灭，辽在其故地设东丹国，以契丹皇子为王。渤海世子等大批贵族投奔王建所建的高丽（Goryeo），留在故地的遗民则逐渐融入契丹、女真与汉人之中。韩国和朝鲜都将渤海视为本国历史的一部分，中国学界则将其定位为唐代的“地方民族政权”，中韩两国至今仍有争议。</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_3_CHAPTER_HISTORY_PARA_1" Language="zh_Hant_HK">
+            <Text>琉球（Ryukyu）是位於台灣島與九州之間的群島王國，以沖繩島為中心，鼎盛時北起奄美群島、南至先島群島。14世紀，沖繩島上北山、中山、南山三國鼎立，各自向明朝朝貢。1429年，中山王尚巴志完成統一，以首里城為王都。琉球地處東亞海上航路的十字路口，因轉口貿易而繁榮。1458年為首里城正殿鑄造的銅鐘銘文稱琉球「以舟楫為萬國之津梁」，此鐘因而被稱為「萬國津梁之鐘」。</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_3_CHAPTER_HISTORY_PARA_2" Language="zh_Hant_HK">
+            <Text>琉球王國向明清兩朝朝貢並接受冊封，同時與日本、朝鮮及東南亞各國通商。首里城融合中國、日本與琉球本地風格，是琉球文化的象徵。1609年日本薩摩藩入侵，此後琉球受薩摩控制，同時繼續向中國朝貢，並對中國冊封使隱瞞受薩摩控制一事。1879年日本廢除琉球王國，設立沖繩縣；清朝曾提出抗議，但未能改變結果。</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_6_CHAPTER_HISTORY_PARA_1" Language="zh_Hant_HK">
+            <Text>南詔（Nanzhao）是8至9世紀稱雄於今中國雲南地區的強大王國，王室出自烏蠻蒙舍詔，白蠻大姓亦在國中居要職。都城初在蒙舍（今巍山），739年遷太和城（今大理附近），779年再遷羊苴咩城。南詔起初在唐朝支持下吞併其餘五詔、統一洱海地區，此後在唐與吐蕃兩大勢力之間縱橫捭闔，並於751年和754年兩次大敗唐軍。南詔諸王時而接受唐朝封號，時而與吐蕃結盟。中國史學界將其視為唐代的「地方民族政權」，其他國家的多數史學家則視之為獨立王國。</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_6_CHAPTER_HISTORY_PARA_2" Language="zh_Hant_HK">
+            <Text>南詔地處南方絲綢之路的樞紐，與唐、吐蕃、驃國及東南亞諸國貿易往來頻繁，經濟兼有稻作農業、馬匹貿易與金屬工藝。南詔崇信佛教，大理崇聖寺三塔等建築即與其密切相關。902年南詔滅亡，經數個短暫王朝後，大理國於937年建立，統治雲南直至1253年被蒙古征服。1274年元朝設立雲南行省，此後雲南一直歸中國管轄。</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_31_CHAPTER_HISTORY_PARA_1" Language="zh_Hant_HK">
+            <Text>渤海（韓語稱Balhae）是7至10世紀的王國，疆域包括今中國東北、朝鮮半島北部與俄羅斯遠東一部分，698年由大祚榮建立。關於大祚榮的出身，《舊唐書》稱他「本高麗別種」，《新唐書》則稱渤海「本粟末靺鞨附高麗者」（兩書中的「高麗」均指高句麗），其部眾既有高句麗遺民，也有靺鞨諸部。渤海初稱震國，713年唐封大祚榮為渤海郡王，此後稱渤海國。渤海諸王致日本的國書自稱承繼高句麗。上京龍泉府（今黑龍江寧安渤海鎮附近）仿唐長安規劃建造。渤海極盛時被譽為「海東盛國」。</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_ML_EXPLORATION_31_CHAPTER_HISTORY_PARA_2" Language="zh_Hant_HK">
+            <Text>渤海吸收唐朝的制度、佛教與建築，同時保留高句麗與靺鞨的傳統，其火炕（溫突）與石室墓帶有明顯的高句麗特徵。渤海地處東北亞交通要道，與唐、日本、新羅有使節與貿易往來。926年渤海為契丹（遼）所滅，遼在其故地設東丹國，以契丹皇子為王。渤海世子等大批貴族投奔王建所建的高麗（Goryeo），留在故地的遺民則逐漸融入契丹、女真與漢人之中。南北韓都將渤海視為本國歷史的一部分，中國學界則將其定位為唐代的「地方民族政權」，中韓兩國至今仍有爭議。</Text>
+        </Replace>
+    </LocalizedText>
+</Database>

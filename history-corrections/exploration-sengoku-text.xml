@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ryukyu from the Sengoku DLC (INDEPENDENT_EXPLORATION_13), first paragraph only. -->
+<Database>
+    <EnglishText>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_EXPLORATION_13_CHAPTER_HISTORY_PARA_1">
+            <Text>Ryukyu, known in Chinese as Liuqiu, is a chain of islands stretching between Kyushu and Taiwan, and for centuries it was an independent maritime kingdom at the crossroads of East Asian trade. In 1429 the kings of Chuzan, based at Shuri, unified Okinawa's three rival kingdoms, and Ryukyu became a remarkable commercial power, its ships carrying goods between China, Japan, Korea and Southeast Asia. Though small, it kept tributary relations with Ming and Qing China and, after Satsuma's invasion in 1609, answered to Japanese lords as well, balancing between larger powers. Its court cultivated Chinese learning, music and crafts alongside its own distinct island culture.</Text>
+        </Replace>
+    </EnglishText>
+    <LocalizedText>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_EXPLORATION_13_CHAPTER_HISTORY_PARA_1" Language="zh_Hans_CN">
+            <Text>琉球（Ryukyu）群岛介于九州与台湾之间，数百年间曾是东亚贸易十字路口上一个独立的海上王国。1429年，以首里为根据地的中山王统一了冲绳岛上鼎立的三国，琉球由此成为令人瞩目的商业强国，其船只往来于中国、日本、朝鲜与东南亚之间。琉球虽是小国，却与明清两朝保持朝贡关系，1609年萨摩入侵后又须听命于日本领主，在大国之间周旋。其宫廷在保持自身独特岛屿文化的同时，也研习中国的学问、音乐与工艺。</Text>
+        </Replace>
+        <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_EXPLORATION_13_CHAPTER_HISTORY_PARA_1" Language="zh_Hant_HK">
+            <Text>琉球（Ryukyu）群島介於九州與台灣之間，數百年間曾是東亞貿易十字路口上一個獨立的海上王國。1429年，以首里為根據地的中山王統一了沖繩島上鼎立的三國，琉球由此成為令人矚目的商業強國，其船隻往來於中國、日本、朝鮮與東南亞之間。琉球雖是小國，卻與明清兩朝保持朝貢關係，1609年薩摩入侵後又須聽命於日本領主，在大國之間周旋。其宮廷在保持自身獨特島嶼文化的同時，也研習中國的學問、音樂與工藝。</Text>
+        </Replace>
+    </LocalizedText>
+</Database>

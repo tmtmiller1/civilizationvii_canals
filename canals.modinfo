@@ -27,6 +27,27 @@
         <Criteria id="antiquity-age-current"><AgeInUse>AGE_ANTIQUITY</AgeInUse></Criteria>
         <Criteria id="exploration-age-current"><AgeInUse>AGE_EXPLORATION</AgeInUse></Criteria>
         <Criteria id="modern-age-current"><AgeInUse>AGE_MODERN</AgeInUse></Criteria>
+        <!-- Civilopedia History Corrections: the history text on six independent-power pages from Civilopedia
+             Expanded: Independents. Each group needs that mod in use, so without it the game's pages are left as
+             they are. The text in history-corrections/ is a copy kept in step with the standalone mod. -->
+        <Criteria id="history-corrections-antiquity">
+            <ModInUse>maple-leaves-civilopedia-expanded</ModInUse>
+            <AgeInUse>AGE_ANTIQUITY</AgeInUse>
+        </Criteria>
+        <Criteria id="history-corrections-exploration">
+            <ModInUse>maple-leaves-civilopedia-expanded</ModInUse>
+            <AgeInUse>AGE_EXPLORATION</AgeInUse>
+        </Criteria>
+        <Criteria id="history-corrections-exploration-sengoku">
+            <ModInUse>maple-leaves-civilopedia-expanded</ModInUse>
+            <AgeInUse>AGE_EXPLORATION</AgeInUse>
+            <ModInUse>sengoku</ModInUse>
+        </Criteria>
+        <Criteria id="history-corrections-exploration-mlcs">
+            <ModInUse>maple-leaves-civilopedia-expanded</ModInUse>
+            <AgeInUse>AGE_EXPLORATION</AgeInUse>
+            <ModInUse>ml-city-states-expanded</ModInUse>
+        </Criteria>
     </ActionCriteria>
     <ActionGroups>
         <ActionGroup id="canals-shell" scope="shell" criteria="always">
@@ -126,6 +147,48 @@
         <ActionGroup id="canals-modern" scope="game" criteria="modern-age-current">
             <Properties><LoadOrder>151</LoadOrder></Properties>
             <Actions><UpdateDatabase><Item>data/canals-modern.xml</Item></UpdateDatabase></Actions>
+        </ActionGroup>
+        <!-- Civilopedia History Corrections, loaded at 1000 to come after Civilopedia Expanded's groups (10, 100
+             and 210). Text only. -->
+        <ActionGroup id="history-corrections-antiquity-text" scope="game" criteria="history-corrections-antiquity">
+            <Properties>
+                <LoadOrder>1000</LoadOrder>
+            </Properties>
+            <Actions>
+                <UpdateText>
+                    <Item>history-corrections/antiquity-text.xml</Item>
+                </UpdateText>
+            </Actions>
+        </ActionGroup>
+        <ActionGroup id="history-corrections-exploration-text" scope="game" criteria="history-corrections-exploration">
+            <Properties>
+                <LoadOrder>1000</LoadOrder>
+            </Properties>
+            <Actions>
+                <UpdateText>
+                    <Item>history-corrections/exploration-text.xml</Item>
+                </UpdateText>
+            </Actions>
+        </ActionGroup>
+        <ActionGroup id="history-corrections-exploration-sengoku-text" scope="game" criteria="history-corrections-exploration-sengoku">
+            <Properties>
+                <LoadOrder>1000</LoadOrder>
+            </Properties>
+            <Actions>
+                <UpdateText>
+                    <Item>history-corrections/exploration-sengoku-text.xml</Item>
+                </UpdateText>
+            </Actions>
+        </ActionGroup>
+        <ActionGroup id="history-corrections-exploration-mlcs-text" scope="game" criteria="history-corrections-exploration-mlcs">
+            <Properties>
+                <LoadOrder>1000</LoadOrder>
+            </Properties>
+            <Actions>
+                <UpdateText>
+                    <Item>history-corrections/exploration-mlcs-text.xml</Item>
+                </UpdateText>
+            </Actions>
         </ActionGroup>
     </ActionGroups>
 </Mod>
