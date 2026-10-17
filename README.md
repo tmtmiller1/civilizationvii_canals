@@ -308,8 +308,8 @@ Not tested:
 
 - The second and third look of each age as whole compositions (their pieces were photographed individually).
 - An AI warship crossing between two seas through a canal: the AI units seen in canals were embarked land units.
-- The age transition through the game's own end-of-age screens: the tested one ran under Autoplay.
-- A ship's path through a canal after an age transition.
+- The game's own end-of-age screens: an age change without Autoplay carried both kinds of canal over and a ship
+  still sailed through after, but that game showed none of those screens.
 - Canal sites in an Antiquity or a Modern game. The same site rule covers all three ages' Canals; the AI's own
   canals were only tested in Exploration games.
 
