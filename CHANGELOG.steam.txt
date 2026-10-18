@@ -3,6 +3,11 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.5.5 | 2026-10-17 | src 5eb0bef57702 | gen 97ac0de99a87 ====
+[b]Version 1.5.5 · 17 October 2026[/b]
+• License: from this version the mod is under the Tower Mod License 1.0, in LICENSE. You can still play it, read the code and change your own copy for your own games. Reuploading it, reusing its code in other projects and using it to train AI need my written permission. Earlier versions stay under MIT, and ui/settings-keeper.js stays MIT so other mods can keep embedding it.
+• Carries Civilopedia History Corrections. With Civilopedia Expanded: Independents on, six East Asian history pages in the Civilopedia (Goguryeo, the Oirat, two Ryukyu pages, Nanzhao and Balhae) give each side where historians in different countries disagree, and a few factual errors are fixed. With it off, the game's pages stay as they are.
+
 ==== 1.5.4 | 2026-10-16 | src 5742b296d0f0 | gen 29554b7474aa ====
 [b]Version 1.5.4 · 16 October 2026[/b]
 • Ageless buildings keep their tile. Since 1.5.0 a tile holding an ageless building from an earlier age, such as a unique building or a wonder, could be offered as a Canal site, and ordering the Canal there took the building away. The check for the ageless tag always came back empty. Now it reads the tag the way the game does, and those tiles aren't offered.

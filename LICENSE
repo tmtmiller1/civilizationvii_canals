@@ -1,3 +1,75 @@
+Tower Mod License 1.0
+
+Canals, a mod for Sid Meier's Civilization VII
+Copyright (c) 2026 tmtmiller ("Tower")
+
+Sid Meier's Civilization VII and its art, data and other assets belong to Firaxis Games and 2K (Take-Two Interactive),
+and this license doesn't cover them. Any screenshots of the game here are included for illustration, and any short
+passages quoted from the game's own files are still theirs.
+
+Versions up to and including 1.5.4, and anything published in the repository before this license replaced the MIT
+License, were released under MIT, and anyone who has a copy of them can keep using that copy under MIT. This license
+covers every version released after 1.5.4.
+
+All rights are reserved, apart from the permissions below.
+
+What you're welcome to do
+
+You can download, install and play this mod, whether you got it from Steam Workshop or from its GitHub repository. You
+can read the source to see how it works, change your own copy for your own games, and share screenshots, videos, links
+and reviews. On GitHub you can view and fork the repository as GitHub's Terms of Service allow.
+
+What needs my written permission first
+
+Anything else you'd like to do with the code, art or text needs my written permission first. That includes uploading a
+copy or a changed version anywhere (Steam Workshop, Nexus Mods, CivFanatics, another repository), copying parts of it
+into another mod or project, and selling it or anything built from it.
+
+Machine learning and AI
+
+That permission also covers machine learning and AI uses. Using this work, in whole or in part, to train, fine-tune,
+test or improve an AI or machine learning model, putting it in a dataset collected for that, or handing it to an AI
+tool so the tool can reproduce or adapt it for another project all need my written permission, and I'm not giving it
+at this time. Asking an AI tool to explain the mod, or to help with your own copy for your own games, is fine.
+
+Text and data mining
+
+I expressly reserve the rights to text and data mining of this work under Article 4(3) of Directive (EU) 2019/790 and
+the national laws that put it into effect, including section 44b(3) of the German Copyright Act (UrhG). The
+reservation applies to every copy of the work, wherever it's hosted or downloaded from.
+
+Material under its own terms
+
+ui/settings-keeper.js is Tower's shared settings library. Other mods embed it, so that one file stays under the MIT
+License, printed in full at the end of this file.
+
+Civilopedia corrections. This mod replaces some Civilopedia text written by other mods, and only while those mods are
+switched on. I may add corrections at any time, in any update, to any mod whose text I judge, in my sole discretion,
+to be bigoted, genocide-denying or otherwise historically inaccurate. The mods and pages it corrects right now are
+listed in the README, under Civilopedia History Corrections. Running this mod alongside any of them means you accept
+those replacements, including any added later. The replacement text is my own writing; only the page tags it attaches
+to come from the mods it corrects. Switch this mod off and those pages read as their authors wrote them.
+
+Rights that others already hold
+
+This license covers what I hold rights in. Take-Two, Valve and GitHub each have rights under their own terms (the
+Take-Two Terms of Service, the Steam Subscriber Agreement and the GitHub Terms of Service), and those stay as they
+are.
+
+Use at your own risk
+
+The mod comes as it is, without any warranty. You use it at your own risk, and as far as the law allows, I'm not
+liable for any harm that comes from using it, including lost or damaged saves.
+
+Asking for permission
+
+Open an issue on this mod's GitHub repository or message Tower on Steam. Permission counts when I've written back
+saying yes to your specific use.
+
+--------------------------------------------------------------------------------
+
+ui/settings-keeper.js
+
 MIT License
 
 Copyright (c) 2026 tmtmiller
@@ -19,9 +91,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Sid Meier's Civilization VII and its art, data and other assets belong to Firaxis Games and 2K (Take-Two
-Interactive), and this license doesn't cover them. Any screenshots of the game here are included for illustration,
-and any short passages quoted from the game's own files are still theirs.

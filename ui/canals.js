@@ -290,7 +290,7 @@ function unwrapHosts() {
 
 if (!G[KEY]) {
   G[KEY] = {
-    version: "1.5.4",
+    version: "1.5.5",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
     uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen, localTurnActive,

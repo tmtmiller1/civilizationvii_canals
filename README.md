@@ -393,6 +393,32 @@ historians in different countries disagree, and a few factual errors are fixed. 
 they are. The text is in `history-corrections/`, in English, Simplified Chinese and Traditional Chinese. Every Tower mod
 that carries it writes the same text, so running several of them together is fine.
 
+Those paragraphs were replaced because they didn't hold up. Some repeated Chinese state historiography as settled
+fact, or recast a question most historians consider answered as still open. Some got basic dates and places wrong. And
+the Oirat page called a genocide, the Qing destruction of most of the Dzungar people in 1755-1757, a "pacification."
+I'm not leaving that in place. More corrections to Civilopedia Expanded may be added at any time, in any update.
+Corrections may also be added for any other mod whose text I judge, in my sole discretion, to be bigoted,
+genocide-denying or otherwise historically inaccurate. Running this mod alongside any of them means you accept those
+replacements, including any added later. Switch this mod off and their pages read as their authors wrote them.
+
 ## Credits
 
 Built by Tower.
+
+## License
+
+Up to version 1.5.4 this mod was MIT, and copies of those versions stay MIT. Versions after 1.5.4 are under the Tower
+Mod License 1.0 in [LICENSE](LICENSE), written in plain English.
+
+You're welcome to play it, read the code to see how it works, and change your own copy for your own games. If you'd
+like to reupload it, put parts of it in your own mod, or use it some other way, ask me first: open an issue here or
+message Tower on Steam. `ui/settings-keeper.js` stays MIT so other mods can keep embedding it.
+
+I don't want this mod's code, text or art used to train AI models, collected into AI training sets, or handed to AI
+tools to copy into other projects, and the license doesn't allow it without my written permission. I also reserve the
+rights to text and data mining of this work under Article 4(3) of the EU's Directive 2019/790.
+
+Because the source is on GitHub, GitHub and its affiliates (Microsoft included) have their own license to it under
+GitHub's Terms of Service, and since April 2026 that covers training their AI. Valve and Take-Two have the rights
+their own terms give them. Sid Meier's Civilization VII and its assets belong to Firaxis Games and 2K. Material from
+other people is listed in [LICENSE](LICENSE).

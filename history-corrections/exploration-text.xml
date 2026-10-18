@@ -3,15 +3,15 @@
 <Database>
     <EnglishText>
         <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_EXPLORATION_18_CHAPTER_HISTORY_PARA_2">
-            <Text>Dzungaria is the basin north of the Tianshan and south of the Altai, the core pastureland of the Oirat Dzungars. Under leaders such as Galdan and Tsewang Rabtan, the Dzungar Khanate at times controlled southern Xinjiang, parts of Mongolia and Central Asia, fighting the Qing, Russia and the Kazakhs. In 1755–1757 the Qing conquered the khanate. The Qianlong Emperor ordered the Dzungars wiped out, and between Qing armies, smallpox and flight the great majority of a people some 600,000 strong were dead or scattered within a few years; many historians call it a genocide. Dzungaria was resettled from elsewhere in the empire, and the map of Central Asia changed for good.</Text>
+            <Text>Dzungaria, the basin between the Altai Mountains and the Tianshan, was the homeland of the Dzungars, the leading Oirat people of the 17th and 18th centuries. Under rulers such as Galdan Boshugtu and Tsewang Rabtan their khanate made war on the Qing empire, the Russians and the Kazakh hordes, and at times held the Tarim Basin, Tibet and much of western Mongolia. The Qing destroyed it in 1755–1757. The Qianlong Emperor ordered the Dzungars exterminated, and Qing troops, smallpox and starvation killed most of a people of perhaps 600,000, while survivors fled to Russia or the Kazakh steppe; many historians call this a genocide. The emptied land was resettled with soldiers and farmers from elsewhere in the empire, and Central Asia was redrawn for good.</Text>
         </Replace>
     </EnglishText>
     <LocalizedText>
         <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_EXPLORATION_18_CHAPTER_HISTORY_PARA_2" Language="zh_Hans_CN">
-            <Text>准噶尔盆地位于天山以北、阿尔泰山以南，是卫拉特（厄鲁特）蒙古准噶尔部的核心牧地。准噶尔汗国在噶尔丹、策妄阿拉布坦等首领治下，一度控制南疆、蒙古与中亚部分地区，与清朝、俄国及哈萨克等势力反复交战。1755—1757年，清朝征服准噶尔汗国。乾隆帝下令消灭准噶尔人，在清军征讨、天花与逃亡的共同作用下，原有约六十万人的准噶尔部，数年之间绝大部分死亡或流散，许多历史学家称之为种族灭绝。此后准噶尔地区由帝国各地移民重新充实，中亚的格局从此永久改变。</Text>
+            <Text>准噶尔盆地介于阿尔泰山与天山之间，是准噶尔人的故乡；准噶尔部是17至18世纪卫拉特蒙古中最强盛的一支。在噶尔丹·博硕克图与策妄阿拉布坦等统治者治下，准噶尔汗国与清朝、俄国及哈萨克人连年交战，一度占据塔里木盆地、西藏及蒙古西部大片地区。1755至1757年，清朝将其彻底摧毁。乾隆帝下令剿灭准噶尔人，清军的屠戮、天花与饥荒夺去了这个约六十万人的民族中大多数人的性命，幸存者逃往俄国或哈萨克草原；许多历史学家称之为种族灭绝。人口空虚的土地随后由帝国各地迁来的兵丁与农户重新充实，中亚的版图从此彻底改变。</Text>
         </Replace>
         <Replace Tag="LOC_PEDIA_PAGE_INDEPENDENT_EXPLORATION_18_CHAPTER_HISTORY_PARA_2" Language="zh_Hant_HK">
-            <Text>準噶爾盆地位於天山以北、阿爾泰山以南，是衛拉特（厄魯特）蒙古準噶爾部的核心牧地。準噶爾汗國在噶爾丹、策妄阿拉布坦等首領治下，一度控制南疆、蒙古與中亞部分地區，與清朝、俄國及哈薩克等勢力反覆交戰。1755—1757年，清朝征服準噶爾汗國。乾隆帝下令消滅準噶爾人，在清軍征討、天花與逃亡的共同作用下，原有約六十萬人的準噶爾部，數年之間絕大部分死亡或流散，許多歷史學家稱之為種族滅絕。此後準噶爾地區由帝國各地移民重新充實，中亞的格局從此永久改變。</Text>
+            <Text>準噶爾盆地介於阿爾泰山與天山之間，是準噶爾人的故鄉；準噶爾部是17至18世紀衛拉特蒙古中最強盛的一支。在噶爾丹·博碩克圖與策妄阿拉布坦等統治者治下，準噶爾汗國與清朝、俄國及哈薩克人連年交戰，一度佔據塔里木盆地、西藏及蒙古西部大片地區。1755至1757年，清朝將其徹底摧毀。乾隆帝下令剿滅準噶爾人，清軍的屠戮、天花與饑荒奪去了這個約六十萬人的民族中大多數人的性命，倖存者逃往俄國或哈薩克草原；許多歷史學家稱之為種族滅絕。人口空虛的土地隨後由帝國各地遷來的兵丁與農戶重新充實，中亞的版圖從此徹底改變。</Text>
         </Replace>
     </LocalizedText>
 </Database>
