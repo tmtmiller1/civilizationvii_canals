@@ -41,8 +41,8 @@ import { eligiblePlots, unlockNode, unlockedByMod, wrapHost } from "./canals-pla
 import { repairCitylessDistricts, sweep } from "./canals-repair.js";
 import { canalWorth, isIsthmus, waterSides } from "./canals-rule.js";
 import {
-  autosaveName, autosaveParams, holdEngineAutosave, isLocal, keepLandLook, onAgeEnded, onSaveDone, onSaveStart,
-  onTurnDeactivated, wrapOptionsScreen, wrapSaveGame, writeAutosave
+  autosaveName, autosaveParams, isLocal, keepLandLook, onAgeEnded, onSaveDone, onSaveStart, onTurnBegin, onTurnEnd,
+  releaseEngineAutosave, wrapSaveGame
 } from "./canals-save.js";
 import {
   aiMajors, aiSites, loadSites, markCanalTile, markSite, queuedCanalOrders, queuedCanalPlots, syncSites,
@@ -97,8 +97,6 @@ function transitAllowed(unitId, args) {
 }
 function onTurnActivated(d) {
   if (!isLocal(d)) return;
-  holdEngineAutosave();
-  writeAutosave();
   setTimeout(sweep, SETTLE_MS);
   setTimeout(syncSites, 3000); // after the autosave and the sweep
 }
@@ -247,16 +245,18 @@ function hookSaves() {
   safe(() => engine.on("StartSaveRequest", onSaveStart));
   safe(() => engine.on("SaveComplete", onSaveDone));
   state.localId = safe(() => GameContext.localPlayerID, -1);
-  safe(() => engine.on("PlayerTurnDeactivated", onTurnDeactivated));
   const net = safe(() => Network, null);
   if (net && typeof net.saveGame === "function") state.originals.saveGame = wrapSaveGame(net);
   else log("Network.saveGame not wrappable; a save made from the menu reloads canals as open water");
 }
 
-/** The land look and the held autosave, the turn and age events, and the notices once the game is up. */
+/** The land look, the turn and age events, and the notices once the game is up. */
 function startPlay() {
-  if (!state.multiplayer) { keepLandLook(); holdEngineAutosave(); wrapOptionsScreen(); }
+  releaseEngineAutosave();
+  if (!state.multiplayer) keepLandLook();
   safe(() => engine.on("PlayerTurnActivated", onTurnActivated));
+  safe(() => engine.on("TurnEnd", onTurnEnd));
+  safe(() => engine.on("TurnBegin", onTurnBegin));
   safe(() => engine.on("GameAgeEnded", onAgeEnded));
   safe(() => engine.on("BeforeAgeTransition", onAgeEnded));
   whenStarted(notices, 5000);
@@ -266,14 +266,13 @@ function uninstall() {
   unwrapHosts();
   safe(() => engine.off("StartSaveRequest", onSaveStart));
   safe(() => engine.off("SaveComplete", onSaveDone));
-  safe(() => engine.off("PlayerTurnDeactivated", onTurnDeactivated));
   safe(() => engine.off("PlayerTurnActivated", onTurnActivated));
+  safe(() => engine.off("TurnEnd", onTurnEnd));
+  safe(() => engine.off("TurnBegin", onTurnBegin));
   safe(() => engine.off("GameAgeEnded", onAgeEnded));
   safe(() => engine.off("BeforeAgeTransition", onAgeEnded));
   const net = safe(() => Network, null);
   if (net && state.originals && state.originals.saveGame) net.saveGame = state.originals.saveGame;
-  const opt = state.originals && state.originals.addOption;
-  if (opt) opt.host.addOption = opt.add;
   state.enabled = false;
   log("uninstalled");
 }
@@ -290,7 +289,7 @@ function unwrapHosts() {
 
 if (!G[KEY]) {
   G[KEY] = {
-    version: "1.5.5",
+    version: "1.5.6",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
     uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen, localTurnActive,

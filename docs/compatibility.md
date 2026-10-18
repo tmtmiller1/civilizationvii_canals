@@ -23,8 +23,8 @@ Everything a conflict could come through. A mod has to touch one of these to con
 | `Game.CityOperations` / `Game.CityCommands` | Wraps `canStart`, `canStartQuery` and `sendRequest` on both hosts. For a Canal the offered plots are the engine's own list for a plain building of the age (its urban tiles) plus the settlement's worked rural tiles and the bare tiles in its build ring, narrowed by the site rule. An order goes through `placeCanal`: a rural district for a bare tile, the site marker, the engine's own per-plot yes, earlier-age buildings taken off, then the order forwarded. For every other building it removes opened canal tiles from the plot list and refuses a request aimed at one. |
 | `Game.UnitOperations.sendRequest` | Not wrapped since 1.5.2: the per-turn transit quota is off (`TRANSIT_LIMIT`). When on, wraps it to hold the local player's `MOVE_TO` orders to the quota, and never blocks on its own error. |
 | `Network.saveGame` | Wraps it: canals are turned back to land on the map before any save is sent, and back to Coast on `SaveComplete`. |
-| Autosave | While a canal is open, stores the player's autosave frequency as 1000 + their value (so the engine skips its own) and writes the autosave itself at the start of the player's turn. `ui/canals-shell.js` restores the value at the main menu. |
-| Options screen | Wraps `Options.addOption` so the autosave slider shows the player's own value, and adds a "Canal rules" row to the shared Mods category in Options, Add-ons (`ui/canals-options.js`). |
+| Autosave | The engine's own, untouched. Canals go to land in the `TurnEnd` handler, about 90 ms before the engine's autosave starts (`te1`), and Coast again at `TurnBegin`. `ui/canals-shell.js` and install put back a frequency a 1.5.5 game left held (1000 + the player's value). |
+| Options screen | Adds a "Canal rules" row to the shared Mods category in Options, Add-ons (`ui/canals-options.js`). |
 | Map | `WorldBuilder.MapPlots.setTerrain` on each opened canal tile (land and Coast, as above); clears the tile's feature when the canal opens. `setFeature` places and lifts the site markers on AI sites, ordered and queued Canals and opened canals, and puts back the vegetation, wetland or floodplain a marker replaced. |
 | Players' cities | Creates and destroys districts and constructibles (`CREATE_ELEMENT`, `DESTROY_ELEMENT`): a rural district for a bare tile before an order, earlier-age buildings taken off at an order and put back if its Canal never reaches the map, the fishing boat and the urban teardown at an opening, districts without a city rebuilt for their city. Also `purchasePlot`, `addRuralPopulation` and the city's `EXPAND` command for the canal's citizen, the build queue's `RemoveAt` and `MoveTo` to put an order back on a healed tile, and `grantYield` (gold) for a Canal the mod sells itself. |
 | Saved game state | GameConfiguration keys `Canals_Pending_v1`, `Canals_Open_v1`, `Canals_Sites_v1`, `Canals_DistrictsChecked_v1`, `Canals_Told_*`, and `ModOptions_tower-canals` (the game's canal rules). |
@@ -40,7 +40,7 @@ Everything a conflict could come through. A mod has to touch one of these to con
 | Another script that restricts where buildings go | A rural tile it protects can be offered, then refused; an earlier-age building on an urban tile taken off for the order is put back when the refusal only comes as it's sent | Read from code and run against a fake engine, not in a game |
 | Dams | Works together, except that an earlier-age Dam may be offered and destroyed | Read from code, not run; unconfirmed, lab check owed |
 | Saves or archives games through `Network.saveGame` | Works; an archiving mod that saves from `SaveComplete` may, in one handler order, save canals as open sea | Read from code, not run |
-| Changes the autosave frequency itself | None found; would fight over the setting | Read from code |
+| Changes the autosave frequency itself | Works; Canals reads the setting only to put back a value its own 1.5.5 left held | Read from code |
 | Edits terrain or features during play | A canal tile edited away comes back as water; a site marker comes back at the next turn start | Read from code, not run |
 | Replaces the production or purchase screen | Works if it builds its lists through the engine calls, which every one found does | Read from code; one price edge not run |
 | Wraps `Options.addOption` or `UnitOperations.sendRequest` | Chains cleanly | Read from code |
@@ -211,7 +211,8 @@ Canals still counts the first save as running and passes the second straight on,
 to Coast while that second save is starting. The archived copy would then reload its canals as open sea, and a retype
 that meets a save being written is what crashed run `c71`. The test above shows which order the game uses.
 
-Canals' own autosaves are written with the autosave category, so a mod that counts autosaves sees them.
+The engine's autosave is written between `TurnEnd` and `TurnBegin`, outside the wrap; the canals go to land in the
+`TurnEnd` handler, about 90 ms before it starts (`te1`), so it holds them as land too.
 
 A mod that captured `Network.saveGame` into a variable before Canals loaded would bypass the wrapper, and its saves
 would reload canals as open sea. None in the corpus does.
@@ -220,10 +221,9 @@ would reload canals as open sea. None in the corpus does.
 
 Status: read from code. None found in the corpus.
 
-While a canal is open, Canals holds the engine's autosave by storing the frequency as 1000 plus the player's value,
-and re-applies that at every turn change. A mod that also sets the frequency would be overwritten each turn, and its
-value would be read by Canals as the player's own. If such a mod appears, the fix is to agree on reading the frequency
-modulo 1000.
+Since the version after 1.5.5 Canals leaves the frequency alone. Up to 1.5.5 it held the engine's autosave by storing
+the frequency as 1000 plus the player's value; the only thing left of that is a check at the main menu and at install
+that puts such a value back, which a mod of its own setting the frequency would see once at most.
 
 ### 6. Mods that edit terrain or features during play
 

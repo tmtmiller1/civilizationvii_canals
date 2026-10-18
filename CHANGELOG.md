@@ -4,6 +4,21 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.5.6] - 2026-10-18
+
+- No more freeze at the start of your turn once a canal is open. Up to 1.5.5 the mod wrote the autosave itself at
+  that moment, and a save made from a script stops the game for as long as it takes: over a second on a Huge map late
+  in an age, on every turn. The game writes its own autosaves again, on your frequency and keep count, between the
+  end of one turn and the start of the next, where you're already waiting on the AI; the canals turn to land just
+  before it and are water again as your turn begins, so saves still hold them as canals. If a game from an earlier
+  version left your autosave setting changed, it's put back when the mod next loads.
+- Smoother turn starts on big maps. At the start of each turn Canals checks every AI settlement for tiles worth a
+  canal. On a Huge map late in an age that check held the game still for over a tenth of a second. It now runs a bit
+  at a time between frames, and finds the same tiles.
+- The production and purchase lists, and the game's building checks, do a little less work once you have a canal:
+  Canals reads what stands on each tile once per check instead of three times, and works out its list of plain
+  buildings once per age instead of every second.
+
 ## [1.5.5] - 2026-10-17
 
 - License: from this version the mod is under the Tower Mod License 1.0, in LICENSE. You can still play it, read the

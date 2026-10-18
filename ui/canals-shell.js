@@ -1,8 +1,8 @@
 // Main menu side of Canals.
 //
-// While a game with an open canal runs, the mod holds the engine's autosave by storing its frequency as 1000 + the
-// player's own value (see holdEngineAutosave in canals.js). This script runs whenever the main menu loads, after a
-// game, a crash or a fresh start, and puts the player's value back, so the setting never outlives the game.
+// Up to 1.5.5, while a game with an open canal ran, the mod held the engine's autosave by storing its frequency as
+// 1000 + the player's own value. The setting is the player's, so a value left that way by an older version is put
+// back whenever the main menu loads, after a game, a crash or a fresh start.
 
 const AUTOSAVE_HELD = 1000;
 

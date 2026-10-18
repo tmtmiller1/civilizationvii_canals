@@ -15,6 +15,15 @@ const RUNNER = fileURLToPath(new URL("./trace/run.mjs", import.meta.url));
 const play = async (version, name) => JSON.parse((await run(process.execPath, [RUNNER, version, name],
   { maxBuffer: 64 << 20 })).stdout);
 
+// The old script held the engine's autosave (frequency 1000 + the player's) and wrote its own; the modules leave the
+// autosave to the engine and land the canals at TurnEnd (te1). Those lines differ in every scenario that opens a canal
+// or installs, so they are taken out of both traces before the comparison, and the frequency line out of the state;
+// the new state has to show the player's own frequency, never a held one.
+const AUTOSAVE_GONE = [/Configuration\.setAutoSaveFrequency 1001$/, /log \[Canals\] autosave: every /, /engine\.(on|off) PlayerTurnDeactivated$/];
+const AUTOSAVE_CAME = [/engine\.(on|off) (TurnEnd|TurnBegin)$/];
+const FREQUENCY = /^autosave frequency=/;
+const strip = (lines, res) => lines.filter((l) => !res.some((re) => re.test(l)));
+
 // A scenario that names `changed` is one where the modules deliberately do more than the old script (the buildings a
 // failed Canal order took off, put back): the lines it lists as added are taken out of the new trace, and the state
 // lines it names out of both, before the comparison, and its check says what the new lines must show. One marked
@@ -31,11 +40,13 @@ for (const [name, sc] of Object.entries(SCENARIOS)) {
     assert.ok(was.trace.length > 0, "the old script did something");
     assert.ok(!String(was.result).startsWith("threw"), `the old script threw: ${was.result}`);
     const ch = sc.changed;
-    const trace = ch ? now.trace.filter((l) => !ch.added.some((re) => re.test(l))) : now.trace;
-    const keep = (st) => (ch ? st.filter((l) => !ch.state.test(l)) : st);
-    assert.deepEqual(trace, was.trace, "the same engine calls, waits and log lines, at the same times");
+    const trace = strip(ch ? now.trace.filter((l) => !ch.added.some((re) => re.test(l))) : now.trace, AUTOSAVE_CAME);
+    const keep = (st) => strip(ch ? st.filter((l) => !ch.state.test(l)) : st, [FREQUENCY]);
+    assert.deepEqual(trace, strip(was.trace, AUTOSAVE_GONE), "the same engine calls, waits and log lines, at the same times");
     assert.deepEqual(now.result, was.result, "the same result");
     assert.deepEqual(keep(now.state), keep(was.state), "the same map and records at the end");
+    const freq = now.state.find((l) => FREQUENCY.test(l));
+    assert.ok(freq && Number(freq.split("=")[1]) < 1000, "the autosave frequency is the player's: " + freq);
     if (ch) assert.ok(ch.check(now), "the change shows:\n" + now.state.join("\n"));
   });
 }

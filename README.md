@@ -196,10 +196,9 @@ sail through them.
   the land. Move your ships out of the canals before you remove the mod.
 - Added to a game already under way, after the Canal's tech was researched, the game keeps that age's Canal locked.
   The mod then sells it for gold in each settlement's purchase list instead of production, and says so once.
-- While a canal is open the mod writes the autosave itself, at the start of your turn, on your own frequency and keep
-  count. The files carry on the game's own series (AutoSave_01_0072 and onward), so the newest is at the top of the
-  Autosaves tab and is the one Continue loads. The game's own autosave is held meanwhile; your setting is put back
-  whenever the main menu loads.
+- Autosaves are the game's own, on your own frequency and keep count. Up to 1.5.5 the mod wrote them itself at the
+  start of your turn, and that stopped the game for over a second on every turn once a canal was open. If a game
+  from one of those versions left your autosave setting changed, it's put back the next time the mod loads.
 - A save from Canals 1.0.0 holds its canals as open water, so they load drawn as open sea. The mod offers to reload
   at once, which draws them as canals; otherwise they look right after your next save and load.
 - Works with [National Park](https://github.com/tmtmiller1/civilizationvii_national-parks): park land is never offered as a
@@ -268,11 +267,12 @@ Seven steps. The runs behind each of them, on Civilization VII 1.5.0, are in
    save holds the canals as land. The terrain must change before a save starts, never during one: a retype while
    the game is writing a save crashes it. Every save goes through the game's save call, which the mod wraps: the
    canals turn to land, the save is sent once the map reads them as land, and they are coast again when it completes.
-   The game's autosave comes too soon after the AI turns for that, so the mod writes the autosave itself at the start
-   of your turn; the canals are water through every AI turn. After a load they stay land until the game
-   has started and the save the engine makes on loading an autosave is done, then turn coast; the land mesh the
-   load drew stays in place under the mod's channel. When an age ends the canals turn to land and stay land, so
-   the next age, which is built from the map the old one leaves, loads them as land like any save.
+   The game's own autosave is written between the end of one turn and the start of the next, so the canals turn to
+   land as the turn ends and are water again as the next one begins, water through every AI turn. After a load they
+   stay land until the game has started and the save the engine makes on loading an autosave is done, then turn
+   coast; the land mesh the load drew stays in place under the mod's channel. When an age ends the canals turn to
+   land and stay land, so the next age, which is built from the map the old one leaves, loads them as land like any
+   save.
 
 A safety sweep on load and at the start of every turn re-checks every remembered site and every complete Canal
 on the map, so a missed completion event is caught on the next turn. A completed Canal that shares its tile with
@@ -346,11 +346,11 @@ ui/canals-placement.js              where a Canal may go, the production and pur
 ui/canals-open.js                   opening a finished Canal: the retype, the rural tile, the district
 ui/canals-look.js                   the works dust, the channel's arms and the drawn canal
 ui/canals-repair.js                 the turn-start sweep and the repair of districts without a city
-ui/canals-save.js                   canals as land in every save, the age's end, the mod's own autosave
+ui/canals-save.js                   canals as land in every save, the turn's end, the age's end
 ui/canals-sites.js                  the site markers the engine and the AI go by
 ui/canals-settings.js               which canal rules are in play, by age or one-tile (imported by the scripts below)
 ui/canals-options.js                the Canal rules row in Options, Add-ons, in the main menu and in a game
-ui/canals-shell.js                  main menu: puts the player's autosave frequency back
+ui/canals-shell.js                  main menu: puts back an autosave frequency an older version left changed
 ui/settings-keeper.js               Tower Settings Keeper, copied unchanged from its own repo
 icons/                              each age's Canal icon at 256, 128 and 64 pixels
 text/en_us/CanalsText.xml           name, description, placement messages and the Civilopedia text

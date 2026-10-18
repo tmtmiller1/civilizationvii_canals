@@ -166,7 +166,9 @@ export const SCENARIOS = {
     act: (M, e) => { globalThis.Game.CityCommands.canStart = verdicts(e); M.install();
       return globalThis.Game.CityCommands.canStart(1, 2, { ConstructibleType: e.typeIndex(EX) }, false); } },
   "install, then uninstall": { map: COAST, setup: (e) => own(e), act: (M) => { M.install(); M.uninstall(); return Object.keys(globalThis.Game.CityCommands); } },
-  "install, a turn, a Canal completed": { map: COAST,
+  // up to 1.5.5 the turn start wrote the mod's own autosave (land, Network.saveGame, Coast); now the turn start only
+  // sweeps, and the engine's autosave is left to run between the turns (the next scenario)
+  "install, a turn, a Canal completed": { map: COAST, only: "new",
     setup: (e) => { own(e); e.tile(2, 1, { district: "DISTRICT_RURAL", builds: [EX] }); e.tile(5, 1, { district: "DISTRICT_RURAL", builds: [EX] }); pending(e, [[5, 1]]); openRecord(e, [[0, 1]]); e.tile(0, 1, { district: "DISTRICT_RURAL", terrain: "TERRAIN_COAST", builds: [EX, "IMPROVEMENT_FISHING_BOAT"] }); },
     act: async (M, e) => {
       M.install();
@@ -175,7 +177,36 @@ export const SCENARIOS = {
       e.fire("PlayerTurnActivated", { player: 0 });
       await new Promise((r) => setTimeout(r, 30000));
       e.fire("ConstructibleBuildCompleted", { location: at(2, 1), constructibleType: e.typeIndex(EX), constructible: { owner: 0 } });
+    },
+    check: (now) => !now.trace.some((l) => /Network\.saveGame|setAutoSaveFrequency/.test(l))
+      && now.trace.filter((l) => /canal opened at/.test(l)).length === 2
+      && now.state.some((l) => /^0,1 COAST/.test(l)) && now.state.includes("autosave frequency=1") },
+  // the engine's autosave between the turns (te1: StartSaveRequest about 90 ms after TurnEnd, TurnBegin after
+  // SaveComplete): the canals land in the TurnEnd handler, saved as land, Coast again at TurnBegin
+  "install, turn end, the engine's autosave, turn begin": { map: COAST, only: "new",
+    setup: (e) => { own(e); openRecord(e, [[2, 1], [4, 1]]); for (const x of [2, 4]) e.tile(x, 1, { district: "DISTRICT_RURAL", terrain: "TERRAIN_COAST", builds: [EX] }); },
+    act: async (M, e) => {
+      M.install();
+      await new Promise((r) => setTimeout(r, 5000));
+      e.fire("TurnEnd", {}); globalThis.__traceNote(`read ${globalThis.GameplayMap.getTerrainType(2, 1)},${globalThis.GameplayMap.getTerrainType(4, 1)}`);
+      await new Promise((r) => setTimeout(r, 90)); e.fire("StartSaveRequest", {});
+      await new Promise((r) => setTimeout(r, 1400)); e.fire("SaveComplete", {});
+      await new Promise((r) => setTimeout(r, 40)); e.fire("TurnBegin", {});
+      await new Promise((r) => setTimeout(r, 500)); e.fire("PlayerTurnActivated", { player: 0 });
+      await new Promise((r) => setTimeout(r, 5000));
+    },
+    check: (now) => {
+      const t = now.trace; const after = (k, re) => t.findIndex((l, n) => n > k && re.test(l));
+      const end = t.findIndex((l) => /event TurnEnd/.test(l)), save = after(end, /event StartSaveRequest/), done = after(save, /event SaveComplete/);
+      const land = after(end, /setTerrain TERRAIN_FLAT \{"x":2/), land2 = after(end, /setTerrain TERRAIN_FLAT \{"x":4/);
+      const coast = after(save, /setTerrain TERRAIN_COAST \{"x":2/);
+      return end >= 0 && land > end && land < save && land2 > end && land2 < save && coast > done
+        && !t.some((l) => /Network\.saveGame/.test(l)) && now.state.some((l) => /^2,1 COAST/.test(l)) && now.state.some((l) => /^4,1 COAST/.test(l));
     } },
+  // a player coming from 1.5.5 with a game that left the frequency held: their own value is back as the mod installs
+  "install, a frequency 1.5.5 left held": { map: COAST, only: "new", options: { autosave: 1003 }, setup: (e) => own(e),
+    act: (M) => M.install(),
+    check: (now) => now.trace.some((l) => /Configuration\.setAutoSaveFrequency 3$/.test(l)) && now.state.includes("autosave frequency=3") },
   "install, the age ends": { map: COAST, options: { ageOver: true },
     setup: (e) => { own(e); openRecord(e, [[2, 1]]); e.tile(2, 1, { district: "DISTRICT_RURAL", terrain: "TERRAIN_COAST", builds: [EX] }); },
     act: async (M, e) => { M.install(); await new Promise((r) => setTimeout(r, 8000)); e.fire("GameAgeEnded", {}); e.fire("BeforeAgeTransition", {}); } },
@@ -220,6 +251,18 @@ export const SCENARIOS = {
       e.tile(0, 1, { district: "DISTRICT_RURAL", terrain: "TERRAIN_COAST", builds: [EX] });
       e.tile(6, 1, { feature: "FEATURE_CANALS_SITE" }); e.tile(5, 1, { feature: "FEATURE_FOREST" });
       e.config.set("Canals_Sites_v1", JSON.stringify({ [e.plotOf(at(6, 1))]: "" })); },
+    act: async (M) => { await M.syncSites(); return [...M.queuedCanalOrders()]; } },
+  // the same, with three AI settlements and a clock that moves 5 ms at every read, so the modules' AI pass waits for a
+  // frame before each settlement: the markers and records come out as from the pass run whole
+  "sites: the AI pass split over frames": { map: COAST,
+    setup: (e, M) => { own(e); e.queue(1, EX, 4, 1); pending(e, [[1, 1]]); openRecord(e, [[0, 1]]); M.state.localId = 0;
+      e.addCity(2, 1, 6, 3); e.queue(2, EX, 6, 2); e.addCity(3, 1, 0, 3); e.addCity(4, 1, 2, 3);
+      e.cities.get(3).getPurchasedPlots = () => [e.plotOf(at(0, 1)), e.plotOf(at(1, 1)), e.plotOf(at(0, 2))];
+      e.cities.get(4).getPurchasedPlots = () => [e.plotOf(at(2, 1)), e.plotOf(at(3, 1))];
+      e.tile(0, 1, { district: "DISTRICT_RURAL", terrain: "TERRAIN_COAST", builds: [EX] });
+      e.tile(6, 1, { feature: "FEATURE_CANALS_SITE" }); e.tile(5, 1, { feature: "FEATURE_FOREST" });
+      e.config.set("Canals_Sites_v1", JSON.stringify({ [e.plotOf(at(6, 1))]: "" }));
+      let t = 0; globalThis.performance = { now: () => (t += 5) }; },
     act: async (M) => { await M.syncSites(); return [...M.queuedCanalOrders()]; } },
   "sites: a marker over woods, then taken off": { map: COAST, setup: (e) => { own(e); e.tile(5, 1, { feature: "FEATURE_FOREST" }); },
     act: async (M) => { const a = await M.markSite(at(5, 1)); await M.unmarkSite(at(5, 1)); return a; } },

@@ -63,8 +63,6 @@ const state = {
   multiplayer: false, paidTurn: -1, transits: new Map(), transitTurn: -1,
   // the age has ended (GameAgeEnded); the canals stay land for the transition
   ageEnded: false, repairing: false,
-  // the autosave the mod's newest one pushes past the player's keep count, deleted once the new one is written
-  prune: null,
   // canals a save held as Coast (Canals 1.0.0), turned to land as the game loaded
   staleLoad: [],
   // messages shown this session (a network game keeps no record of its own)

@@ -185,13 +185,42 @@ async function unmarkSite(loc) {
 /** Every tile where a canal is worth it to the AI player that owns it, with its worth. */
 function aiSites() {
   const out = new Map();
+  for (const [pid, city] of aiSettlements()) for (const p of eligiblePlots(city.id, true)) addSite(out, pid, p);
+  return out;
+}
+
+/** Each AI major's settlements, as [player, city]. */
+function aiSettlements() {
+  const out = [];
   for (const pid of aiMajors()) {
-    for (const city of safe(() => Players.get(pid).Cities.getCities() || [], [])) {
-      for (const p of eligiblePlots(city.id, true)) {
-        const w = canalWorth(locOf(p));
-        if (w.worth > 0) out.set(p, { pid, why: w.why, feature: offeredMarker() });
-      }
-    }
+    for (const city of safe(() => Players.get(pid).Cities.getCities() || [], [])) out.push([pid, city]);
+  }
+  return out;
+}
+function addSite(out, pid, p) {
+  const w = canalWorth(locOf(p));
+  if (w.worth > 0) out.set(p, { pid, why: w.why, feature: offeredMarker() });
+}
+
+// The same pass in slices of about FRAME_SLICE_MS, a frame drawn between them. Run whole it held the game for
+// 110-130 ms at each turn start on a Huge map at turn 77 (52 AI settlements); one tile's worth, with its search over
+// the water, can take 10 ms or more, so a slice may end between two tiles of a settlement.
+const FRAME_SLICE_MS = 4;
+function clock() { return safe(() => globalThis.performance.now(), Date.now()); }
+/** The next frame, or 50 ms, whichever comes first: a hidden window may draw no frames. */
+function nextFrame() {
+  if (typeof requestAnimationFrame !== "function") return sleep(0);
+  return new Promise((r) => { let done = false; const go = () => { if (!done) { done = true; r(); } };
+    requestAnimationFrame(go); setTimeout(go, 50); });
+}
+async function aiSitesSpread() {
+  const out = new Map();
+  let t0 = clock();
+  const pause = async () => { if (clock() - t0 > FRAME_SLICE_MS) { await nextFrame(); t0 = clock(); } };
+  for (const [pid, city] of aiSettlements()) {
+    await pause();
+    const plots = eligiblePlots(city.id, true);
+    for (const p of plots) { await pause(); addSite(out, pid, p); }
   }
   return out;
 }
@@ -226,8 +255,8 @@ async function unmarkStale(want) {
 }
 
 /** Every tile that should hold a marker, with the marker: the AI's sites, queued Canals, the player's orders. */
-function wantedSites() {
-  const want = aiSites();
+async function wantedSites() {
+  const want = await aiSitesSpread();
   // An order already given keeps the marker of the Canal it is for, whatever the mode is now.
   const queued = queuedCanalOrders();
   for (const [p, o] of queued) want.set(p, { pid: o.pid, why: "queued", feature: markerFor(o.type) });
@@ -243,7 +272,7 @@ async function syncSites() {
   if (syncWaits()) return;
   state.syncing = true;
   try {
-    const want = wantedSites();
+    const want = await wantedSites();
     const added = await markWanted(want);
     const removed = await unmarkStale(want);
     // canals opened before the marker was kept on the tile (Canals 1.2.0 saves), and any that lost it
@@ -256,6 +285,6 @@ async function syncSites() {
 }
 
 export {
-  SITE_FEATURES, aiMajors, aiSites, loadSites, markCanalTile, markSite, markerFor, queuedCanalOrders,
+  SITE_FEATURES, aiMajors, aiSites, aiSitesSpread, loadSites, markCanalTile, markSite, markerFor, queuedCanalOrders,
   queuedCanalPlots, syncSites, thisAgesCanal, unmarkSite
 };

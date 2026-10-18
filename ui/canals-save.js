@@ -14,7 +14,6 @@ function rememberOpen(plot, age, cliffs, land) {
   if (!l.some((e) => e.plot === plot)) {
     l.push({ plot, age, cliffs: cliffs || [], land: land || "TERRAIN_FLAT" });
     safe(() => Configuration.editGame().setValue(OPEN_KEY, JSON.stringify(l)));
-    holdEngineAutosave();
   }
 }
 
@@ -29,9 +28,11 @@ function rememberOpen(plot, age, cliffs, land) {
 // saved cleanly (c74). Every save the UI makes goes through Network.saveGame, which is wrapped: the canals go to land,
 // the save is sent once the map reads them as land, and they are Coast again on SaveComplete.
 //
-// The engine's own autosave comes about 120 ms after TurnEnd, too close for a retype. So while any canal is open the
-// mod holds the engine's autosave (its frequency set out of reach, see holdEngineAutosave) and writes the autosave
-// itself through the wrapped call at the start of the player's turn, on the player's own frequency and keep count.
+// The engine's own autosave is written between TurnEnd and TurnBegin, with StartSaveRequest about 90 ms after TurnEnd
+// (te1, 2026-10-18). A retype to land reads back in 25 ms, so the canals go to land in the TurnEnd handler and the
+// autosave, on the player's own frequency, holds them as land (te1: five turns, the save loaded with none as Coast,
+// no crash); they are Coast again at TurnBegin. Up to 1.5.5 the mod held the engine's autosave instead and wrote its
+// own at the start of the player's turn, and that script save stopped the game for over a second on every turn (lag1).
 // The canals are Coast through every AI turn, so AI ships use them. Nothing retypes a plot while state.hold is set,
 // so a Canal finished in that window opens at the next sweep.
 
@@ -106,7 +107,6 @@ function onSaveDone() {
   if (!state.enabled || state.multiplayer) return;
   state.saving = false; state.pendingSave = false;
   coastAgain();
-  if (state.prune) setTimeout(pruneAutosave, 500);
   if (state.reloadFrom) {
     const name = state.reloadFrom; state.reloadFrom = null;
     setTimeout(() => {
@@ -142,59 +142,29 @@ function wrapSaveGame(host) {
 }
 
 // The engine's autosave frequency is a user setting (UserOptions.txt). While a canal is open it is stored as
-// AUTOSAVE_HELD + the player's own value: out of reach, so the engine writes no autosave (c86: none at 1000), and the
-// player's value can always be read back. ui/canals-shell.js puts the player's value back whenever the main menu
-// loads, so it never outlives the game, a crash included.
+// Up to 1.5.5 the mod held the engine's autosave by storing the player's frequency as 1000 + their value. The value is
+// in the player's settings, so one saved under that version is put back here, as ui/canals-shell.js does at the menu.
 const AUTOSAVE_HELD = 1000;
-
-function user() { return safe(() => Configuration.getUser(), null); }
-function playerAutosaveEvery() {
-  const f = safe(() => user().autoSaveFrequency, 1);
-  return Math.max(1, f >= AUTOSAVE_HELD ? f - AUTOSAVE_HELD : f);
+function releaseEngineAutosave() {
+  const u = safe(() => Configuration.getUser(), null); const f = safe(() => u.autoSaveFrequency, 0);
+  if (f < AUTOSAVE_HELD) return;
+  safe(() => u.setAutoSaveFrequency(Math.max(1, f - AUTOSAVE_HELD)));
+  log(`autosave frequency back to the player's ${Math.max(1, f - AUTOSAVE_HELD)} (was held at ${f})`);
 }
 
-/** While a canal is open, keep the engine's own autosave from being written (re-applied if the player changes it). */
-function holdEngineAutosave() {
+/** The turn is over and the engine's autosave may follow at once: the canals to land first. */
+function onTurnEnd() {
   if (!state.enabled || state.multiplayer || !loadOpen().length) return;
-  const u = user(); const f = safe(() => u.autoSaveFrequency, AUTOSAVE_HELD);
-  if (f >= AUTOSAVE_HELD) return;
-  safe(() => u.setAutoSaveFrequency(AUTOSAVE_HELD + Math.max(1, f)));
-  log(`autosave: every ${Math.max(1, f)} turn(s), written by the mod with the canals as land`);
+  landAhead("turn end");
+}
+/** The new turn: Coast again (not while a save still runs; onSaveDone does it then). */
+function onTurnBegin() {
+  if (!state.enabled || state.multiplayer || !loadOpen().length) return;
+  coastAgain();
 }
 
-// The Options screen reads the frequency straight from the user setting, so while it is held the slider showed the
-// player's value plus 1000. The option is built when the screen first opens (core/ui/options/options.js adds it
-// through Options.addOption); it is wrapped as it is added, so it shows the player's own value, and a value the
-// player picks there is their new setting, held again at once.
-const AUTOSAVE_OPTION = "option-autosavefrequency";
-function wrapAutosaveOption(info) {
-  if (!info || info.canalsWrapped) return;
-  const init = info.initListener; const update = info.updateListener;
-  info.initListener = (o) => {
-    if (init) init(o);
-    const f = safe(() => user().autoSaveFrequency, 0);
-    if (f >= AUTOSAVE_HELD) { o.currentValue = f - AUTOSAVE_HELD; o.formattedValue = `${f - AUTOSAVE_HELD}`; }
-  };
-  info.updateListener = (o, value) => { if (update) update(o, value); holdEngineAutosave(); };
-  info.canalsWrapped = true;
-}
-async function wrapOptionsScreen() {
-  try {
-    const { Options } = await import("/core/ui/options/model-options.js");
-    if (!Options || typeof Options.addOption !== "function") { log("Options model not found; the Options screen shows the held frequency"); return; }
-    const add = Options.addOption;
-    Options.addOption = function (info) {
-      if (info && info.id === AUTOSAVE_OPTION) wrapAutosaveOption(info);
-      return add.call(this, info);
-    };
-    if (state.originals) state.originals.addOption = { host: Options, add };
-    const live = safe(() => Options.data.get(AUTOSAVE_OPTION), null);
-    if (live) { wrapAutosaveOption(live); live.initListener(live); }
-  } catch (e) { log("Options screen not wrapped: " + e); }
-}
-
-/** The engine's own name for an autosave, AutoSave_<age>_<turn> (AutoSave_01_0072: Exploration, turn 72), so the
- * mod's autosaves carry on the game's series in the Autosaves tab and under Continue. */
+/** The engine's own name for an autosave, AutoSave_<age>_<turn> (AutoSave_01_0072: Exploration, turn 72), used by the
+ * reload the mod offers on a save from Canals 1.0.0. */
 function autosaveName(turn) {
   const age = safe(() => GameInfo.Ages.lookup(Game.age).ChronologyIndex, 0);
   return `AutoSave_${String(age).padStart(2, "0")}_${String(turn).padStart(4, "0")}`;
@@ -204,32 +174,8 @@ function autosaveParams(name) {
     Type: SaveTypes.SINGLE_PLAYER, ContentType: SaveFileTypes.GAME_STATE, FileName: name };
 }
 
-/** The player's turn has begun: write the autosave the engine would have written, canals as land. The one that
- * falls past the player's keep count is deleted once the new one is written, as the engine does with its own. */
-function writeAutosave() {
-  if (!state.enabled || state.multiplayer || !loadOpen().length) return;
-  if (safe(() => user().autoSaveFrequency, 0) < AUTOSAVE_HELD) return; // not held: the engine wrote its own
-  const turn = safe(() => Game.turn, 0); const every = playerAutosaveEvery();
-  if (turn % every !== 0) return;
-  const keep = Math.max(1, safe(() => user().autoSaveKeepCount, 10));
-  const name = autosaveName(turn);
-  state.prune = turn - keep * every > 0 ? autosaveName(turn - keep * every) : null;
-  const ok = safe(() => Network.saveGame({ ...autosaveParams(name), Overwrite: true }), false);
-  if (!ok) state.prune = null;
-  log(`autosave: turn ${turn} as ${name} ${ok ? "sent" : "refused"}`);
-}
-
-/** After the mod's autosave is written: delete the one it pushed past the keep count. */
-function pruneAutosave() {
-  const name = state.prune; state.prune = null;
-  if (!name) return;
-  const ok = safe(() => Network.deleteGame(autosaveParams(name)), false);
-  log(`autosave: ${name} ${ok ? "deleted" : "not deleted"} (keep count)`);
-}
-
 // The local player as the game was loaded: GameContext.localPlayerID does not read it while Autoplay runs (c76).
 function isLocal(d) { return !!d && (d.player ?? d.Player) === state.localId; }
-function onTurnDeactivated(d) { if (isLocal(d)) holdEngineAutosave(); }
 
 // Loading an autosave makes the engine save again as the game starts (c78; c79: StartSaveRequest 55 ms after
 // GameStarted, at the Begin Game press). So the canals stay as loaded until the game has started and no save has run
@@ -263,6 +209,6 @@ function keepLandLook() {
 }
 
 export {
-  autosaveName, autosaveParams, coastAgain, holdEngineAutosave, isLocal, keepLandLook, onAgeEnded, onSaveDone,
-  onSaveStart, onTurnDeactivated, rememberOpen, wrapOptionsScreen, wrapSaveGame, writeAutosave
+  autosaveName, autosaveParams, coastAgain, isLocal, keepLandLook, onAgeEnded, onSaveDone, onSaveStart, onTurnBegin,
+  onTurnEnd, releaseEngineAutosave, rememberOpen, wrapSaveGame
 };

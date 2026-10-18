@@ -72,6 +72,16 @@ function plainBuilding(def) {
   if (safe(() => GameInfo.Buildings.find((b) => String(b.ConstructibleType) === t).TraitType, null)) return false;
   return true;
 }
+/** The plain buildings of the age, judged once per age: the database doesn't change in a game. */
+const plainByAge = new Map();
+function plainBuildings() {
+  const age = currentAge();
+  if (plainByAge.has(age)) return plainByAge.get(age);
+  const all = safe(() => [...GameInfo.Constructibles], []);
+  const plain = safe(() => all.filter(plainBuilding), []);
+  if (all.length) plainByAge.set(age, plain);
+  return plain;
+}
 const engineListCache = new Map();
 /**
  * Where the engine lets this settlement put a building right now (urban districts with room, rural tiles it may
@@ -87,7 +97,7 @@ function enginePlots(cityID, purchase) {
   const hit = engineListCache.get(key);
   if (hit && Date.now() - hit.at < 1000) return hit.plots;
   let plots = null;
-  for (const def of safe(() => [...GameInfo.Constructibles].filter(plainBuilding), [])) {
+  for (const def of plainBuildings()) {
     const ask = () => host.canStart.call(host.host, cityID, host.type, { ConstructibleType: def.$index }, false);
     plots = offeredPlots(safe(ask, null));
     if (plots) break;
@@ -116,18 +126,25 @@ function eligiblePlots(cityID, anyUnits = false, purchase = null) {
   if (!city) return [];
   const s = { centre: safe(() => city.location, null), anyUnits,
     engine: purchase == null ? null : enginePlots(cityID, purchase) };
+  // what stands on each tile is read once for both judgements
   return safe(() => city.getPurchasedPlots() || [], [])
-    .filter((p) => unfinishedCanal(cityID, locOf(p)) || freshSite(p, s));
+    .filter((p) => {
+      const loc = locOf(p); const occ = occupants(loc);
+      return unfinishedCanal(cityID, loc, occ) || freshSite(p, s, occ);
+    });
 }
 
-/** One of the settlement's tiles judged as a new site (see eligiblePlots). */
-function freshSite(p, s) {
+/** The Canal among a tile's occupants, or null (canalOn, from a list already read). */
+function canalIn(occ) { return occ.find((o) => CANAL_TYPES.includes(o.type)) || null; }
+
+/** One of the settlement's tiles judged as a new site (see eligiblePlots); `occ` is what stands on it. */
+function freshSite(p, s, occ) {
   const loc = locOf(p);
   if (!inBuildReach(p, loc, s)) return false;
   if (!isIsthmus(loc) || hasResource(loc) || isParkland(loc)) return false;
   // a building of the age, or an ageless one, keeps its tile; obsolete ones the canal replaces
-  if (occupants(loc).some((o) => !isImprovement(o.type) && !isObsolete(o.type))) return false;
-  if (canalOn(loc) || loadPending().includes(p)) return false;
+  if (occ.some((o) => !isImprovement(o.type) && !isObsolete(o.type))) return false;
+  if (canalIn(occ) || loadPending().includes(p)) return false;
   return s.anyUnits || safe(() => (MapUnits.getUnits(loc.x, loc.y) || []).length, 0) <= 0;
 }
 
@@ -147,8 +164,8 @@ function inBuildReach(p, loc, s) {
  * (rs1). The tile now holds a district, a building and a remembered site, so the checks for a fresh site would never
  * offer it again.
  */
-function unfinishedCanal(cityID, loc) {
-  const c = canalOn(loc);
+function unfinishedCanal(cityID, loc, occ) {
+  const c = canalIn(occ);
   if (!c || c.complete || c.owner !== cityOwner(cityID)) return false;
   if (!isOfferedCanal(safe(() => GameInfo.Constructibles.lookup(c.type), null))) return false;
   return !queuedHere(cityID, loc).some((q) => q.type === c.type);
@@ -170,15 +187,24 @@ function engineSaysNo(res) {
   return !locationOnly;
 }
 
+// Each Canal by its constructible index and its type hash, read once: every building check in the game asks this.
+let canalKeys = null;
 /** The Canal of the age being played. The other two stay in the database so a canal dug in an earlier age is still
  * recognised on the map, but they are never offered. */
 function canalDef(type) {
-  for (const t of CANAL_TYPES) {
-    const d = safe(() => GameInfo.Constructibles.lookup(t), null);
-    if (!d) continue;
-    if (d.$index === type || safe(() => GameInfo.Types.lookup(t).Hash, null) === type) return d;
+  if (!canalKeys) {
+    const keys = new Map();
+    for (const t of CANAL_TYPES) {
+      const d = safe(() => GameInfo.Constructibles.lookup(t), null);
+      if (!d) continue;
+      if (!keys.has(d.$index)) keys.set(d.$index, d);
+      const h = safe(() => GameInfo.Types.lookup(t).Hash, null);
+      if (h != null && !keys.has(h)) keys.set(h, d);
+    }
+    if (!keys.size) return null;
+    canalKeys = keys;
   }
-  return null;
+  return canalKeys.get(type) || null;
 }
 function isThisAgesCanal(d) {
   const age = safe(() => String(GameInfo.Ages.lookup(Game.age).AgeType), "");
