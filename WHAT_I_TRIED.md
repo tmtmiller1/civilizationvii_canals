@@ -23,9 +23,10 @@ live in the author's working tree under
 The game runs mod scripts in its UI script engine. The gameplay side, where the map is built and the age transition
 runs, is a separate engine that mods can only reach at map generation and at the age transition, never during a turn.
 
-From the UI side a mod can retype a tile's terrain (the same call the game's Tuner uses), place and remove features,
-buildings and districts, and draw the game's own models on the map. It can't rebuild the map's water areas, write a
-river, move a unit without a path, clear a resource, or make the renderer redraw a hex it has already drawn.
+From the UI side a mod can retype a tile's terrain and biome (the same calls the game's Tuner uses), place and remove
+features, resources, buildings and districts, and draw the game's own models on the map. A new feature, resource or
+biome is drawn at once; a new terrain shape (water, hills, a mountain) is drawn only after the next load. It can't
+rebuild the map's water areas, write a river, or move a unit without a path.
 
 A ship may enter a tile whose terrain is in the game's embarkation table: Coast, Ocean and Navigable River. Coast and
 Ocean carry the terrain's own water flag, which the pathfinder reads straight from the tile. A navigable river is a
@@ -47,6 +48,7 @@ separate river record with its own flow, and the Navigable River terrain is only
 | A "Use Canal" button that teleports the ship | The unit teleport call from a probe, armed at one tile and fired from another | The unit stayed where it was, no error. The only move without a path is destroy and create, which loses health, experience, promotions and identity, and the AI would never use it | Closed, June 2026 |
 | Retype the tile to Coast | `setTerrain` to `TERRAIN_COAST` on a flat tile between two seas, a ship beside it | A path through the tile in the same turn, a real move landed the ship on the far side in the other sea (`c1`, `c4`). A ship also steps between a navigable river tile and the retyped tile, both ways (`c9`). The retype survives a cold reload; the tile's area id stays land, which is why the site rule reads a canal's waters from its neighbours (`c3`) | Shipped, 1.0.0 |
 | Retype a cliff tile | The same on a tile with cliff edges | The retype clears every cliff flag, so ships cross every edge; the cliff rock stays drawn until the next load (`c21`) | Shipped, 1.0.0: cliffs allowed, locks drawn there |
+| Retype the tile to Ocean | `setTerrain` to `TERRAIN_OCEAN` on a land tile, as In-Game Map Editor by Vinay paints it | Every land neighbour turned into Coast at once and lost its forest or resource; beside a capital, the city centre's own tile turned Coast too. Putting the neighbours back made the Ocean tile Coast (`mep1`, `mep2`) | Closed, 2026-10-19: Coast it stays |
 
 ## Getting the Canal ordered and built
 
@@ -61,7 +63,8 @@ separate river record with its own flow, and the Navigable River terrain is only
 | Towns | The purchase path, which the mod hadn't wrapped | A town's purchase list offered plain expansion tiles and refused the site; a bought Canal arrives complete with no completion event (`c36`) | Shipped 1.1.0: the purchase path wrapped, a bought Canal opened by the mod at once (`c37`) |
 | The Canal row missing from a town's list | Read where the list comes from | The list is built from a second query the mod hadn't wrapped, and a failing entry is hidden (`c42`). Wrapped, all three age Canals showed, because a refusal with no reason was read as a yes (`c43`) | Shipped 1.1.0: query wrapped, age and unlock guards (`c44`, `c45`) |
 | Several Canals in one city | Three Canals in a row through the real build path | The third refused as "already exists" until the buildings got the multiple-per-city flag bridges and walls use (`c27`) | Shipped, 1.0.0 |
-| A resource tile as a site | The engine asked directly, with controls | No building of any kind stands on a resource tile, Canal or Grocer, bought or built, and a script can't clear a resource (`c53` to `c55`) | Closed 1.1.0: resource tiles aren't offered |
+| A resource tile as a site | The engine asked directly, with controls | No building of any kind stands on a resource tile, Canal or Grocer, bought or built (`c53` to `c55`) | Resource tiles aren't offered since 1.1.0 |
+| Clearing the resource first | In-Game Map Editor by Vinay clears resources with `WorldBuilder.MapPlots.setResource(-1, plot, 0)`, a call `c54` never tried (it tried `ResourceBuilder`, which doesn't exist on the UI side). On 2026-10-19 I cleared Cotton and Tin beside an Antiquity capital, then bought a Canal on the Cotton tile | Both cleared within 100 ms, their yields dropped, the resource art went from the map at once. The mod offered both tiles and the Canal opened on the Cotton tile in 1.35 s, then held through a turn, a save and a reload (`mep1`) | Works, not built. The player would lose the resource for good, so whether to offer it is a design call |
 | A settlement centre as a canal end | A canal beside a city centre | Ships enter a centre that touches coast, so a canal can end at one (`c35`); but a centre counted as part of the shore merged a neck's two shores (`c48`, `c49`) | Shipped 1.1.0: a centre is a way through of its own (`c50`) |
 | The Canal valid on Ocean only, sites offered by script | A data-only placement restriction | The engine refused the player's own orders on the land tiles (`b1`) | Closed |
 | An unfinished Canal taken out of the queue | Removed from the queue and ordered again | The building stays on its tile with its progress, and the same order takes it up again (`rs1`) | Shipped, 1.4.2 |
@@ -96,6 +99,8 @@ separate river record with its own flow, and the Navigable River terrain is only
 | Route | What I did | What the game did | Where it ended |
 | --- | --- | --- | --- |
 | Let the retype redraw the hex | Retyped and watched | The hex keeps its land mesh for the whole session; a cold reload draws from the save's terrain, so a Coast tile comes back as open sea with the Canal on stilts (`c1`, `c10`). A retype during the load lands after the hex is drawn and changes nothing (`c99b`) | Closed. The canal is drawn by the mod, and saves hold it as land |
+| Give the tile the sea's biome | In-Game Map Editor by Vinay sets `BIOME_MARINE` with every water retype. On 2026-10-19 I retyped land tiles to Coast with and without it | With the marine biome the hex repaints at once to pale seabed sand, still land-shaped with no water, and yields Food 1 and Gold 1 like any coast; without it the Coast tile yields nothing. After a reload, marine Coast beside the sea drew as shallow water and land-biome Coast as a dry sunken hex (`mep1`, `mep2`) | Not used. The canal keeps its land biome, so the ground under the channel stays grass or desert, and its yields come from the Canal building |
+| Setting the feature again to refresh the art | In-Game Map Editor by Vinay sets a tile's feature again to bring foliage back. Tried on a forest tile holding a rural district | The camp and the trees both stopped drawing while the data held both; removing the district drew the forest again by itself (`mep2`) | Closed |
 | The game's river terrain art, placed by script | `STD_NAVIGABLE_RIVER`, `TER_RiverTerrain_Major_01`, the aquatic flat tile, the flood decal and VFX | Nothing drawn (`c11` to `c13`) | Closed |
 | The game's river channel decal | `TER_Decal_RiverPiece_Straight` and `_02`, one per arm, rotated to each shore | A water channel with banks; the rotation mirrors and is corrected. The major-river hex piece draws only river-bed rocks; the water VFX planes draw flat teal shapes | Shipped, 1.0.0 |
 | Age dressing | Harbor, quay, wharf, shipyard and river-city house layouts beside the arms; moored fishing boats at the mouths | Draw as designed; a bridge piece draws a whole bridge-town block. Three looks per age, chosen by tile number (`c16`, `c17`, `c34`). The Modern pieces only draw in a Modern game | Shipped, 1.0.0 |
