@@ -388,8 +388,9 @@ README.pdf                          this file, typeset
 In a running game, `globalThis.__canals.enabled = false` makes every hook pass straight through, and
 `globalThis.__canals.uninstall()` restores the engine's own methods; both are for troubleshooting.
 
-The routes that were tried and set aside, the probes and the harness runs live in the author's working tree
-(`mod_ideas_tested/canals`), outside this folder.
+The routes that were tried and set aside (a navigable river, a new terrain, a teleport, a district slot with a
+specialist) are summed up in [WHAT_I_TRIED.md](WHAT_I_TRIED.md). The probes and the harness runs behind them live in
+the author's working tree (`mod_ideas_tested/canals`), outside this folder.
 
 ## Civilopedia History Corrections
 

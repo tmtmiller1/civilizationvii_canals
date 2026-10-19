@@ -3,6 +3,10 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.6.1 | 2026-10-18 | src 480740d89171 | gen 8dcaf97cc80c ====
+[b]Version 1.6.1 · 18 October 2026[/b]
+• No change in game. A new file at the root of the repository, WHAT_I_TRIED.md, lists every route tried for Canals, grouped by the question each one answers: making the canal a navigable river, a district slot with a specialist, the game's river art, AI canals, saves and age changes, and the rest. Each one says what the game did and where it ended, so a suggestion can be checked against it. The README links to it.
+
 ==== 1.6.0 | 2026-10-18 | src 28e6e1a8673f | gen 2fcd1b1bcd98 ====
 [b]Version 1.6.0 · 18 October 2026[/b]
 • A canal dug in an earlier age can be dug again. In Exploration and Modern the current age's Canal is offered on your opened canals from earlier ages, in the production and purchase lists like any other site, at its usual cost. The old Canal goes with the order and the canal stays open while the work runs, though its food and gold stop until the new Canal finishes; then the tile takes the new age's food and gold and is drawn again in that age's style. Only under the by-age rules: the one-tile Canal has no age to move up to. The game's AI can dig its own canals again the same way, since an opened canal keeps its site marker.
