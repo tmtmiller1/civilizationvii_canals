@@ -4,16 +4,17 @@
 // plan.md).
 "use strict";
 
-import { drawOverlay, hideWorks, redrawNeighbours, showWorks } from "./canals-look.js";
+import { clearOverlay, drawOverlay, hideWorks, redrawNeighbours, showWorks } from "./canals-look.js";
 import {
   canalOn, cliffSideIndexes, districtAt, districtIdAt, featureOf, idx, isImprovement, occupants, terrainOf
 } from "./canals-map.js";
 import { isObsolete } from "./canals-placement.js";
 import { isIsthmus, ruleFor } from "./canals-rule.js";
-import { rememberOpen } from "./canals-save.js";
+import { rememberOpen, renewOpen } from "./canals-save.js";
 import { markCanalTile } from "./canals-sites.js";
 import {
-  ONE_TILE, ONE_TILE_CANAL, forget, loadOpen, log, safe, saveInFlight, sleep, state, withBlock
+  AGE_RANK, CANAL_TYPES, ONE_TILE, ONE_TILE_CANAL, ageRank, forget, loadOpen, log, safe, saveInFlight, sleep, state,
+  withBlock
 } from "./canals-state.js";
 
 /** Retype a land tile to Coast; resolves true when the read confirms it. Never while a save runs (see keeping the
@@ -89,15 +90,21 @@ async function openCanal(loc, owner) {
   try { await openSite(loc, owner, plot); } finally { state.busy.delete(plot); hideWorks(loc); }
 }
 
-/** The opening itself, the tile held busy (openCanal). */
+/** The opening itself, the tile held busy (openCanal): a new canal opened, or an opened one dug again. */
 async function openSite(loc, owner, plot) {
   if (canalOn(loc) && !loadOpen().some((e) => e.plot === plot)) showWorks(loc);
-  const canal = canalOn(loc);
+  const canal = newestCanal(loc);
   if (!canal || !canal.complete) return;
   const ready = readyToOpen(loc, plot, canal);
   if (!ready) return;
-  const site = siteBefore(loc, owner, canal, ready.alreadyWater);
-  const flipped = ready.alreadyWater || await flipToCoast(loc);
+  if (ready.redig) await redigCanal(loc, plot, canal, ready.redig);
+  else await openNew(loc, owner, plot, canal, ready.alreadyWater);
+}
+
+/** A Canal finished on land (or on water with no record): the tile made a canal. */
+async function openNew(loc, owner, plot, canal, alreadyWater) {
+  const site = siteBefore(loc, owner, canal, alreadyWater);
+  const flipped = alreadyWater || await flipToCoast(loc);
   if (!flipped) { log(`Canal at ${loc.x},${loc.y}: terrain did not change; left as a building`); return; }
   const look = recordAndDraw(loc, plot, site);
   // The engine places the Canal on the district the tile has (cm2, 2026-10-08). On a rural one the Canal already
@@ -110,14 +117,15 @@ async function openSite(loc, owner, plot) {
   await rebuildAsRural(loc, plot, canal, site, look);
 }
 
-/** Whether the finished Canal is to be opened now; { alreadyWater } when it is. */
+/** Whether the finished Canal is to be opened now; { alreadyWater } when it is, and { redig: record } when it is a
+ * later age's Canal finished on an opened canal. */
 function readyToOpen(loc, plot, canal) {
-  const onRecord = loadOpen().some((e) => e.plot === plot);
+  const record = loadOpen().find((e) => e.plot === plot) || null;
   // Coast already: an open canal (the Canal building stays on the finished tile), or a flip that landed after its
   // wait ran out, which left a Coast tile with an urban Canal and no record; that one is taken up from here.
   const alreadyWater = terrainOf(loc) === "TERRAIN_COAST";
-  if (alreadyWater && onRecord) return null;
-  if (state.saving || onRecord) return null; // an open canal, land only while a save runs
+  if (alreadyWater && record) return redigOrNothing(plot, canal, record);
+  if (state.saving || record) return null; // an open canal, land only while a save runs
   if (alreadyWater) log(`Canal at ${loc.x},${loc.y}: water already, no record; opened from here`);
   // Buildings of the age share the tile only on an AI's or a stale tile; obsolete ones the canal replaces (c14).
   const shared = occupants(loc).some((o) => o.type !== canal.type && !isImprovement(o.type) && !isObsolete(o.type));
@@ -140,9 +148,52 @@ function siteBefore(loc, owner, canal, alreadyWater) {
   // so the overlay can dress them as locks.
   const cliffSides = cliffSideIndexes(loc);
   const landType = alreadyWater ? "TERRAIN_FLAT" : terrainOf(loc);
-  const age = canal.type === ONE_TILE_CANAL ? ONE_TILE : canal.type === "BUILDING_CANAL_MODERN" ? "AGE_MODERN"
-    : canal.type === "BUILDING_CANAL_EXPLORATION" ? "AGE_EXPLORATION" : "AGE_ANTIQUITY";
-  return { who, local, cityId, cliffSides, landType, age };
+  return { who, local, cityId, cliffSides, landType, age: ageOfCanal(canal.type) };
+}
+
+/** The age an opened canal records: the Canal's own, ONE_TILE for the one-tile Canal. */
+function ageOfCanal(type) {
+  return type === ONE_TILE_CANAL ? ONE_TILE : type === "BUILDING_CANAL_MODERN" ? "AGE_MODERN"
+    : type === "BUILDING_CANAL_EXPLORATION" ? "AGE_EXPLORATION" : "AGE_ANTIQUITY";
+}
+
+/** On an opened canal: a later age's Canal is dug again ({ redig: record }); the canal's own Canal, or an older one,
+ * is nothing new, and a site record left over from an order that came to nothing (taken out of the queue, the old
+ * Canal rebuilt) is dropped. */
+function redigOrNothing(plot, canal, record) {
+  if (ageRank(canal.type) > (AGE_RANK[record.age] || 0)) return { alreadyWater: true, redig: record };
+  forget(plot);
+  return null;
+}
+
+/** The Canal on the tile; with two there (a later age's finished over an older one), the later age's. */
+function newestCanal(loc) {
+  let best = null;
+  for (const o of occupants(loc)) {
+    if (CANAL_TYPES.includes(o.type) && (!best || ageRank(o.type) > ageRank(best.type))) best = o;
+  }
+  return best;
+}
+
+/**
+ * A later age's Canal finished on an opened canal: the player's order (replaceableCanal, canals-placement.js), or
+ * an AI's, since the opened tile keeps its marker and the engine offers the age's Canal there as on any marked tile.
+ * The canal is water already and stays open throughout. The older Canal goes if it is still there (the player's
+ * order took it off; an AI's build may not have), the record takes the new age, and the tile is drawn again in
+ * that age's style. The yields are the new building's own, as on any canal.
+ */
+async function redigCanal(loc, plot, canal, record) {
+  const local = GameContext.localPlayerID;
+  const age = ageOfCanal(canal.type);
+  for (const o of occupants(loc)) if (CANAL_TYPES.includes(o.type) && ageRank(o.type) < ageRank(canal.type))
+    safe(() => Game.PlayerOperations.sendRequest(local, "DESTROY_ELEMENT", { Kind: "CONSTRUCTIBLE", Owner: o.owner, LocalID: o.id }));
+  renewOpen(plot, age);
+  clearOverlay(loc);
+  const drawn = drawOverlay(loc, age, record.cliffs);
+  forget(plot);
+  await markCanalTile(loc);
+  log(`canal at ${loc.x},${loc.y} dug again for player ${canal.owner} in ${age} (was ${record.age}): ` +
+    `${occupants(loc).map((o) => o.type).join(",")} overlay=${drawn}`);
 }
 
 /** On record and drawn, the moment the tile is water. */

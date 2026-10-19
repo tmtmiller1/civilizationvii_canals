@@ -136,6 +136,12 @@ const GLOBALS = {
       { ConstructibleType: "BUILDING_GRANARY", Age: "AGE_ANTIQUITY" },
       { ConstructibleType: "BUILDING_BRICKYARD", Age: "AGE_ANTIQUITY" },
       { ConstructibleType: "IMPROVEMENT_FARM", ConstructibleClass: "IMPROVEMENT" },
+      // the Canals themselves and the boat an opened canal carries, for a canal dug again (replaceableCanal)
+      { ConstructibleType: "BUILDING_CANAL_ANTIQUITY", ConstructibleClass: "BUILDING", Age: "AGE_ANTIQUITY" },
+      { ConstructibleType: "BUILDING_CANAL_EXPLORATION", ConstructibleClass: "BUILDING", Age: "AGE_EXPLORATION" },
+      { ConstructibleType: "BUILDING_CANAL_MODERN", ConstructibleClass: "BUILDING", Age: "AGE_MODERN" },
+      { ConstructibleType: "BUILDING_CANAL_ONE_TILE", ConstructibleClass: "BUILDING" },
+      { ConstructibleType: "IMPROVEMENT_FISHING_BOAT", ConstructibleClass: "IMPROVEMENT" },
       // and for plainBuilding: one with no placement rule, one each held to a terrain, a feature and a resource,
       // one tied to a civilization's trait
       { ConstructibleType: "BUILDING_MARKET", ConstructibleClass: "BUILDING", Age: "AGE_EXPLORATION" },
@@ -272,12 +278,13 @@ export function research(node) { world.techs.add(node); }
 /** The model groups drawn since the map was laid out: name and every addModelAtPlot call. */
 export function drawn() { return world.groups.map((g) => ({ name: g.name, models: g.models })); }
 
-/** Open a canal on a tile of the current map: coast, on the open record, its land's area id kept. */
-export function openCanal(l) {
+/** Open a canal on a tile of the current map: coast, on the open record, its land's area id kept. `age` (0-2) is the
+ * age it was dug in, the map's by default. */
+export function openCanal(l, age = world.age) {
   const t = tileAt(l.x, l.y);
   t.terrain = "TERRAIN_COAST"; t.canal = "open";
   const open = JSON.parse(world.config.get("Canals_Open_v1"));
-  open.push({ plot: plotOf(l), age: AGES[world.age], cliffs: [], land: "TERRAIN_FLAT" });
+  open.push({ plot: plotOf(l), age: AGES[age], cliffs: [], land: "TERRAIN_FLAT" });
   world.config.set("Canals_Open_v1", JSON.stringify(open));
 }
 
@@ -292,7 +299,8 @@ export function setCliffs(l, sides) {
 export function landAgain(l) { tileAt(l.x, l.y).terrain = "TERRAIN_FLAT"; }
 
 const UNDER_TEST = ["isIsthmus", "ruleFor", "isParkland", "runOf", "channelSides", "runArms", "canalWorth",
-  "waterSideIndexes", "isObsolete", "plainBuilding", "eligiblePlots", "drawOverlay", "clearOverlay", "unlockedByMod"];
+  "waterSideIndexes", "isObsolete", "plainBuilding", "eligiblePlots", "drawOverlay", "clearOverlay", "unlockedByMod",
+  "replaceableCanal"];
 
 /** Import the game scripts against this fake; the functions under test, gathered from the modules that export them. */
 export async function loadCanals(dir = process.env.CANALS_UI || path.join(ROOT, "ui")) {

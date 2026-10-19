@@ -16,6 +16,14 @@ function rememberOpen(plot, age, cliffs, land) {
     safe(() => Configuration.editGame().setValue(OPEN_KEY, JSON.stringify(l)));
   }
 }
+/** An opened canal dug again in a later age: its record takes that age (redigCanal); the rest of it stays. */
+function renewOpen(plot, age) {
+  const l = loadOpen(); const e = l.find((x) => x.plot === plot);
+  if (!e || e.age === age) return false;
+  e.age = age;
+  safe(() => Configuration.editGame().setValue(OPEN_KEY, JSON.stringify(l)));
+  return true;
+}
 
 // keeping the land look across loads
 //
@@ -210,5 +218,5 @@ function keepLandLook() {
 
 export {
   autosaveName, autosaveParams, coastAgain, isLocal, keepLandLook, onAgeEnded, onSaveDone, onSaveStart, onTurnBegin,
-  onTurnEnd, releaseEngineAutosave, rememberOpen, wrapSaveGame
+  onTurnEnd, releaseEngineAutosave, rememberOpen, renewOpen, wrapSaveGame
 };

@@ -2,10 +2,10 @@
 // the mod sells a Canal the engine keeps locked (unlockedByMod), on the fake map of tests/fake-game.mjs.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { drawMap, loadCanals, setTile, addCity, research, plotOf } from "./fake-game.mjs";
+import { drawMap, loadCanals, setTile, addCity, research, plotOf, openCanal } from "./fake-game.mjs";
 
 const canals = await loadCanals();
-const { eligiblePlots, unlockedByMod, state } = canals;
+const { eligiblePlots, unlockedByMod, replaceableCanal, state } = canals;
 const sorted = (a) => a.slice().sort((x, y) => x - y);
 
 // Exploration. The settlement is at C; every numbered tile touches the sea. 7 and 9 are past the build ring (4 and 6
@@ -68,6 +68,56 @@ test("eligiblePlots: a queued Canal's tile isn't offered again, and an unknown s
   globalThis.Configuration.editGame().setValue("Canals_Pending_v1", JSON.stringify(pending));
   assert.ok(!eligiblePlots(1).includes(m.plot("1")));
   assert.deepEqual(eligiblePlots(99), []);
+});
+
+// A canal dug again: an opened canal of an earlier age is a site for the age's Canal.
+
+const CANAL_OF_AGE = ["BUILDING_CANAL_ANTIQUITY", "BUILDING_CANAL_EXPLORATION", "BUILDING_CANAL_MODERN"];
+/** An opened canal on a named tile, dug in `age` (0-2) with that age's Canal unless another type is given. */
+function dug(m, name, age, type = CANAL_OF_AGE[age]) {
+  openCanal(m.at(name), age);
+  setTile(m.at(name), { district: "DISTRICT_RURAL", builds: ["IMPROVEMENT_FISHING_BOAT", type], feature: "FEATURE_CANALS_SITE" });
+}
+
+test("eligiblePlots: an opened canal of an earlier age is a site again; one of the age, a later age's or a one-tile canal isn't", () => {
+  const m = drawMap(COAST, { age: 1 });
+  dug(m, "4", 0);                             // Antiquity, in Exploration: dug again
+  dug(m, "5", 1);                             // of the age: kept
+  dug(m, "6", 0, "BUILDING_CANAL_ONE_TILE");  // no age of its own: kept
+  dug(m, "7", 2);                             // a later age's (a save played on): kept
+  addCity(1, m.all("C")[0], ["1", "4", "5", "6", "7"].map(m.plot));
+  assert.deepEqual(sorted(eligiblePlots(1)), named(m, ["1", "4"]));
+});
+
+test("eligiblePlots: in Antiquity no canal is dug again; in Modern both earlier ages' canals are", () => {
+  let m = drawMap(COAST, { age: 0 });
+  dug(m, "4", 0);
+  addCity(1, m.all("C")[0], ["1", "4"].map(m.plot));
+  assert.deepEqual(sorted(eligiblePlots(1)), named(m, ["1"]));
+  m = drawMap(COAST, { age: 2 });
+  dug(m, "4", 0); dug(m, "5", 1); dug(m, "6", 2);
+  addCity(1, m.all("C")[0], ["1", "4", "5", "6"].map(m.plot));
+  assert.deepEqual(sorted(eligiblePlots(1)), named(m, ["1", "4", "5"]));
+});
+
+test("replaceableCanal: an unfinished old Canal, a ship on the tile, or the one-tile rules keep the tile out", async () => {
+  const m = drawMap(COAST, { age: 1 });
+  const occ = (builds) => builds.map((type) => ({ type, owner: 0, id: 1, complete: true }));
+  assert.ok(replaceableCanal(occ(["IMPROVEMENT_FISHING_BOAT", "BUILDING_CANAL_ANTIQUITY"])), "an opened Antiquity canal");
+  assert.equal(replaceableCanal([{ type: "BUILDING_CANAL_ANTIQUITY", owner: 0, id: 1, complete: false }]), null, "unfinished");
+  assert.equal(replaceableCanal(occ(["BUILDING_CANAL_EXPLORATION"])), null, "of the age");
+  assert.equal(replaceableCanal(occ(["BUILDING_CANAL_ONE_TILE"])), null, "no age of its own");
+  assert.equal(replaceableCanal(occ(["IMPROVEMENT_FISHING_BOAT"])), null, "no canal");
+  dug(m, "4", 0); setTile(m.at("4"), { units: [1] });
+  addCity(1, m.all("C")[0], ["1", "4"].map(m.plot));
+  assert.deepEqual(sorted(eligiblePlots(1)), named(m, ["1"]), "a ship in the canal");
+  assert.deepEqual(sorted(eligiblePlots(1, true)), named(m, ["1", "4"]), "units allowed (the site marks)");
+  // one-tile rules: the game's copy of the mode, read at most twice a second
+  globalThis.Configuration.editGame().setValue("ModOptions_tower-canals", JSON.stringify({ mode: "one-tile" }));
+  await new Promise((r) => setTimeout(r, 600));
+  assert.equal(replaceableCanal(occ(["BUILDING_CANAL_ANTIQUITY"])), null, "one-tile rules");
+  setTile(m.at("4"), { units: [] });
+  assert.deepEqual(sorted(eligiblePlots(1)), named(m, ["1"]), "not offered under one-tile rules");
 });
 
 // unlockedByMod: the Market stands in for a Canal; the fake unlocks it with Shipbuilding.

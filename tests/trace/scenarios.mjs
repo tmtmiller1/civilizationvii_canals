@@ -16,6 +16,13 @@ const own = (eng) => { for (let y = 1; y <= 3; y++) for (let x = 0; x < 7; x++) 
 const openRecord = (eng, list) => eng.config.set("Canals_Open_v1", JSON.stringify(list.map(([x, y, land]) =>
   ({ plot: eng.plotOf(at(x, y)), age: "AGE_EXPLORATION", cliffs: [], land: land || "TERRAIN_FLAT" }))));
 const pending = (eng, list) => eng.config.set("Canals_Pending_v1", JSON.stringify(list.map(([x, y]) => eng.plotOf(at(x, y)))));
+// An opened Antiquity canal as it stands in an Exploration game: Coast, its rural district, boat, marker and record.
+const oldCanal = (eng, x, y) => {
+  eng.tile(x, y, { district: "DISTRICT_RURAL", terrain: "TERRAIN_COAST", feature: "FEATURE_CANALS_SITE", builds: ["IMPROVEMENT_FISHING_BOAT", "BUILDING_CANAL_ANTIQUITY"] });
+  eng.config.set("Canals_Open_v1", JSON.stringify([{ plot: eng.plotOf(at(x, y)), age: "AGE_ANTIQUITY", cliffs: [], land: "TERRAIN_FLAT" }]));
+};
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const tileLine = (e, x, y) => e.state().find((l) => l.startsWith(`${x},${y} `)) || "";
 
 // The engine takes a Canal only on a marked tile, a city's tile for a plain building, and expands onto any owned tile.
 function verdicts(eng, { canal = "marked", plain = null } = {}) {
@@ -207,6 +214,63 @@ export const SCENARIOS = {
   "install, a frequency 1.5.5 left held": { map: COAST, only: "new", options: { autosave: 1003 }, setup: (e) => own(e),
     act: (M) => M.install(),
     check: (now) => now.trace.some((l) => /Configuration\.setAutoSaveFrequency 3$/.test(l)) && now.state.includes("autosave frequency=3") },
+  // A canal dug again (replaceableCanal, redigCanal): an opened Antiquity canal in Exploration is offered to the Medieval
+  // Canal and bought there. The Antiquity Canal goes with the order; the tile stays Coast with its boat, district and
+  // marker; the Medieval Canal lands; the record takes the new age and the canal is drawn again; the site is forgotten.
+  "install, a canal dug again by purchase": { map: COAST, only: "new", options: { techs: ["NODE_TECH_EX_SHIPBUILDING"] },
+    setup: (e) => { own(e); oldCanal(e, 2, 1); },
+    act: async (M, e) => {
+      globalThis.Game.CityCommands.canStart = verdicts(e); globalThis.Game.CityOperations.canStart = verdicts(e);
+      M.install();
+      await wait(5000);
+      const C = globalThis.Game.CityCommands; const ct = e.typeIndex(EX); const p = e.plotOf(at(2, 1));
+      const offered = (C.canStart(1, 2, { ConstructibleType: ct }, false).Plots || []).includes(p);
+      const here = C.canStart(1, 2, { ConstructibleType: ct, X: 2, Y: 1 }, false).Success;
+      const old = C.canStart(1, 2, { ConstructibleType: e.typeIndex("BUILDING_CANAL_ANTIQUITY"), X: 2, Y: 1 }, false).Success;
+      const sent = C.sendRequest(1, 2, { ConstructibleType: ct, X: 2, Y: 1 });
+      await wait(6000);
+      return { offered, here, old, sent };
+    },
+    check: (now) => {
+      const r = now.result;
+      return r.offered && r.here === true && r.old === false && r.sent === true
+        && now.trace.some((l) => /DESTROY_ELEMENT .*"LocalID"/.test(l))
+        && now.trace.some((l) => /dug again for player 0 in AGE_EXPLORATION \(was AGE_ANTIQUITY\)/.test(l))
+        && now.state.some((l) => /^2,1 COAST owner=0 city=1 district=RURAL feature=FEATURE_CANALS_SITE builds=IMPROVEMENT_FISHING_BOAT,BUILDING_CANAL_EXPLORATION$/.test(l))
+        && now.state.some((l) => /^config Canals_Open_v1=\[\{"plot":9,"age":"AGE_EXPLORATION"/.test(l))
+        && now.state.includes("config Canals_Pending_v1=[]");
+    } },
+  // The same by production: the order is queued, the old Canal gone. A turn passes before it lands: the sweep keeps
+  // the site, the repair leaves the canal to its queued build instead of rebuilding the old Canal, and the site sync
+  // keeps the marker the queued Canal needs. Then the build completes and the canal is dug again.
+  "install, a canal dug again by production, a turn before it lands": { map: COAST, only: "new", options: { techs: ["NODE_TECH_EX_SHIPBUILDING"] },
+    setup: (e) => { own(e); oldCanal(e, 2, 1); },
+    act: async (M, e) => {
+      globalThis.Game.CityCommands.canStart = verdicts(e); globalThis.Game.CityOperations.canStart = verdicts(e);
+      M.install();
+      await wait(5000);
+      const B = globalThis.Game.CityOperations; const ct = e.typeIndex(EX);
+      const sent = B.sendRequest(1, 1, { ConstructibleType: ct, X: 2, Y: 1 });
+      await wait(4000);
+      const queued = e.cities.get(1).queue.length === 1 && !/BUILDING_CANAL/.test(tileLine(e, 2, 1));
+      e.fire("PlayerTurnDeactivated", { player: 0 }); e.fire("PlayerTurnActivated", { player: 0 });
+      await wait(8000);
+      const held = { marker: /feature=FEATURE_CANALS_SITE/.test(tileLine(e, 2, 1)), pending: e.config.get("Canals_Pending_v1"),
+        canal: /BUILDING_CANAL/.test(tileLine(e, 2, 1)) };
+      e.cities.get(1).queue.length = 0; e.tile(2, 1, { builds: [EX] });
+      e.fire("ConstructibleBuildCompleted", { location: at(2, 1), constructibleType: ct, constructible: { owner: 0 } });
+      await wait(5000);
+      return { sent, queued, held };
+    },
+    check: (now) => {
+      const r = now.result;
+      return r.sent === true && r.queued && r.held.marker && r.held.pending === "[9]" && !r.held.canal
+        && !now.trace.some((l) => /missing; rebuilt|rebuilt for player/.test(l))
+        && now.trace.some((l) => /dug again for player 0 in AGE_EXPLORATION \(was AGE_ANTIQUITY\)/.test(l))
+        && now.state.some((l) => /^2,1 COAST owner=0 city=1 district=RURAL feature=FEATURE_CANALS_SITE builds=IMPROVEMENT_FISHING_BOAT,BUILDING_CANAL_EXPLORATION$/.test(l))
+        && now.state.some((l) => /^config Canals_Open_v1=\[\{"plot":9,"age":"AGE_EXPLORATION"/.test(l))
+        && now.state.includes("config Canals_Pending_v1=[]");
+    } },
   "install, the age ends": { map: COAST, options: { ageOver: true },
     setup: (e) => { own(e); openRecord(e, [[2, 1]]); e.tile(2, 1, { district: "DISTRICT_RURAL", terrain: "TERRAIN_COAST", builds: [EX] }); },
     act: async (M, e) => { M.install(); await new Promise((r) => setTimeout(r, 8000)); e.fire("GameAgeEnded", {}); e.fire("BeforeAgeTransition", {}); } },

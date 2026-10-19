@@ -10,6 +10,7 @@ import {
 } from "./canals-open.js";
 import { isIsthmus, ruleFor } from "./canals-rule.js";
 import { coastAgain } from "./canals-save.js";
+import { queuedCanalPlots } from "./canals-sites.js";
 import {
   CANAL_TYPES, J, ONE_TILE, ONE_TILE_CANAL, ageRank, forget, loadOpen, loadPending, log, safe, sleep, state
 } from "./canals-state.js";
@@ -66,9 +67,11 @@ async function repairOpenCanals() {
   return true;
 }
 
-/** An opened canal, not busy and water, missing its district's city or its Canal. */
+/** An opened canal, not busy and water, missing its district's city or its Canal. One whose Canal is in a build queue
+ * (dug again in a later age: the order took the old Canal off) waits for that build, not for a repair. */
 function brokenCanal(e, loc, h) {
   if (state.busy.has(e.plot) || terrainOf(loc) !== "TERRAIN_COAST") return false;
+  if (h && h.city && !canalOn(loc) && queuedCanalPlots().has(e.plot)) return false;
   return !(h && h.city && canalOn(loc)); // whole
 }
 
@@ -319,7 +322,9 @@ function openPending() {
   for (const plot of loadPending()) {
     const loc = locOf(plot); seen.add(plot);
     const c = canalOn(loc);
-    if (!c) { if (terrainOf(loc) === "TERRAIN_COAST" || districtAt(loc) === "") forget(plot); continue; }
+    // an opened canal with a Canal order on it (dug again) stays a site until that Canal lands or the old one is back
+    const redug = loadOpen().some((e) => e.plot === plot);
+    if (!c) { if (!redug && (terrainOf(loc) === "TERRAIN_COAST" || districtAt(loc) === "")) forget(plot); continue; }
     if (c.complete) openCanal(loc, c.owner);
   }
   return seen;

@@ -4,6 +4,15 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.6.0] - 2026-10-18
+
+- A canal dug in an earlier age can be dug again. In Exploration and Modern the current age's Canal is offered on
+  your opened canals from earlier ages, in the production and purchase lists like any other site, at its usual cost.
+  The old Canal goes with the order and the canal stays open while the work runs, though its food and gold stop until
+  the new Canal finishes; then the tile takes the new age's food and gold and is drawn again in that age's style. Only
+  under the by-age rules: the one-tile Canal has no age to move up to. The game's AI can dig its own canals again the
+  same way, since an opened canal keeps its site marker.
+
 ## [1.5.6] - 2026-10-18
 
 - No more freeze at the start of your turn once a canal is open. Up to 1.5.5 the mod wrote the autosave itself at

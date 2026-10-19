@@ -6,7 +6,7 @@
 
 import { hideWorks, showWorks } from "./canals-look.js";
 import {
-  canalOn, currentAge, districtAt, hasResource, idx, isImprovement, isParkland, locOf, occupants
+  currentAge, districtAt, hasResource, idx, isImprovement, isParkland, locOf, occupants
 } from "./canals-map.js";
 import { createRuralDistrict, destroyDistrict, openCanal } from "./canals-open.js";
 import { queuedHere } from "./canals-repair.js";
@@ -136,15 +136,30 @@ function eligiblePlots(cityID, anyUnits = false, purchase = null) {
 
 /** The Canal among a tile's occupants, or null (canalOn, from a list already read). */
 function canalIn(occ) { return occ.find((o) => CANAL_TYPES.includes(o.type)) || null; }
+/**
+ * An opened canal dug in an earlier age: a site for the age's Canal, which is dug again over it (the old Canal is the
+ * obsolete building the order takes off; the tile stays water and is drawn again for the new age, redigCanal in
+ * canals-open.js). Null for a canal of the age, an unfinished one, and in one-tile mode, whose Canal has no age.
+ */
+function replaceableCanal(occ) {
+  const c = canalIn(occ);
+  return c && c.complete && !oneTileMode() && isObsolete(c.type) ? c : null;
+}
+/** Whether the plot is an opened canal on record. */
+function onRecord(plot) { return loadOpen().some((e) => e.plot === plot); }
+/** The shape of a site: land that passes the water rule, or an opened canal of an earlier age, dug again. */
+function siteShape(loc, occ) { return isIsthmus(loc) || !!replaceableCanal(occ); }
+/** A canal on the tile that is not dug again: of the age, unfinished, or in one-tile mode. */
+function keptCanal(occ) { const c = canalIn(occ); return !!c && c !== replaceableCanal(occ); }
 
 /** One of the settlement's tiles judged as a new site (see eligiblePlots); `occ` is what stands on it. */
 function freshSite(p, s, occ) {
   const loc = locOf(p);
   if (!inBuildReach(p, loc, s)) return false;
-  if (!isIsthmus(loc) || hasResource(loc) || isParkland(loc)) return false;
+  if (!siteShape(loc, occ) || hasResource(loc) || isParkland(loc)) return false;
   // a building of the age, or an ageless one, keeps its tile; obsolete ones the canal replaces
   if (occ.some((o) => !isImprovement(o.type) && !isObsolete(o.type))) return false;
-  if (canalIn(occ) || loadPending().includes(p)) return false;
+  if (keptCanal(occ) || loadPending().includes(p)) return false;
   return s.anyUnits || safe(() => (MapUnits.getUnits(loc.x, loc.y) || []).length, 0) <= 0;
 }
 
@@ -336,7 +351,7 @@ function refusedCanal(cityID, def, res, args, purchase) {
   if (state.multiplayer) return { ...res, Success: false, Plots: [], ExpandUrbanPlots: [], FailureReasons: ["LOC_CANAL_MULTIPLAYER"] };
   const loc = plotOf(args);
   if (!loc) return null;
-  if (!isIsthmus(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_NOT_ISTHMUS"] };
+  if (!siteShape(loc, occupants(loc))) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_NOT_ISTHMUS"] };
   if (hasResource(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_RESOURCE"] };
   if (isParkland(loc)) return { ...res, Success: false, FailureReasons: ["LOC_CANAL_PARKLAND"] };
   if (!eligiblePlots(cityID, true, purchase).includes(idx(loc)))
@@ -424,7 +439,9 @@ function inQueue(cityID, ctype) {
  * A Canal order on its tile: the site marker goes on first, the engine's own verdict is waited for, any obsolete
  * building on the tile is taken off (the canal takes the whole tile), and the order is forwarded. The engine places
  * the Canal on whatever district the tile has, or makes one itself (cm2, 2026-10-08): nothing is built by script.
- * A purchased Canal lands complete with no completion event (c36), so the commit opens it.
+ * A purchased Canal lands complete with no completion event (c36), so the commit opens it. On an opened canal of an
+ * earlier age (replaceableCanal) the same steps run: the tile has its district and its marker, the old Canal is the
+ * obsolete building taken off, and the opening redraws the canal for the new age (redigCanal).
  */
 async function placeCanal(cityID, loc, ctype, forward, path) {
   const local = GameContext.localPlayerID;
@@ -486,7 +503,7 @@ async function notTaken(loc, plot, undo, taken) {
   hideWorks(loc);
   log(`the engine did not take the Canal at ${loc.x},${loc.y}`);
   forget(plot);
-  if (plot in loadSites() && !aiSites().has(plot)) await unmarkSite(loc);
+  if (plot in loadSites() && !aiSites().has(plot) && !onRecord(plot)) await unmarkSite(loc);
   await undo();
   if (taken.length) await putBack(loc, taken);
 }
@@ -504,7 +521,7 @@ async function siteTaken(cityID, loc, ctype, path) {
   for (let k = 0; k < 20 && !engineAccepts(); k++) await sleep(100);
   if (engineAccepts()) return true;
   log(`the engine refuses the Canal at ${loc.x},${loc.y}: ${J(ask())}`);
-  if (plot in loadSites() && !aiSites().has(plot)) await unmarkSite(loc);
+  if (plot in loadSites() && !aiSites().has(plot) && !onRecord(plot)) await unmarkSite(loc);
   return false;
 }
 
@@ -514,7 +531,8 @@ async function canalLanded(cityID, loc, ctype, path) {
   const t0 = Date.now();
   while (Date.now() - t0 < PLACE_MS) {
     await sleep(100);
-    const c = canalOn(loc);
+    // the Canal of the order, by type: the older Canal an order over an opened canal took off may still read for a beat
+    const c = canalOfOrder(loc, ctype);
     // a production order goes into the queue and reaches the map at once or later (s1, cm2): either is taken
     if (!c && !path.purchase && inQueue(cityID, ctype)) { log(`Canal queued at ${loc.x},${loc.y}`); hideWorks(loc); return true; }
     if (!c) continue;
@@ -522,6 +540,12 @@ async function canalLanded(cityID, loc, ctype, path) {
     return true;
   }
   return false;
+}
+
+/** The Canal the order is for, on the tile, or null. */
+function canalOfOrder(loc, ctype) {
+  const want = (canalDef(ctype) || {}).ConstructibleType;
+  return occupants(loc).find((o) => o.type === want) || null;
 }
 
 /** The Canal is on the map: charged if the mod sold it, and a bought one opened. */
@@ -563,7 +587,7 @@ function canalOrderAt(type, args, path) {
   const loc = plotOf(args);
   // never prepare a resource tile or park land: the building will be refused, and the district would already have
   // replaced whatever improvement stood there
-  if (!loc || !isIsthmus(loc) || hasResource(loc) || isParkland(loc)) return null;
+  if (!loc || !siteShape(loc, occupants(loc)) || hasResource(loc) || isParkland(loc)) return null;
   return loc;
 }
 
@@ -608,6 +632,6 @@ function wrapHost(host, type, purchase) {
 }
 
 export {
-  canalDef, eligiblePlots, isObsolete, isOfferedCanal, placeCanal, plainBuilding, unlockNode, unlockedByMod,
-  wrapHost
+  canalDef, eligiblePlots, isObsolete, isOfferedCanal, placeCanal, plainBuilding, replaceableCanal, unlockNode,
+  unlockedByMod, wrapHost
 };

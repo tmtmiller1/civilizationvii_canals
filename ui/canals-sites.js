@@ -243,15 +243,26 @@ async function unmarkStale(want) {
   let removed = 0;
   for (const key of Object.keys(loadSites())) {
     const p = Number(key); const loc = locOf(p);
-    if (isWater(loc)) {
-      if (canalOn(loc)) { if (!isMarked(loc, markerFor(canalOn(loc).type))) await markCanalTile(loc); continue; }
-      if (isMarked(loc)) await putFeature(loc, FeatureTypes.NO_FEATURE);
-      const s = loadSites(); delete s[p]; saveSites(s); continue;
-    }
+    if (isWater(loc)) { await waterSite(p, loc, want); continue; }
     if (want.has(p) || canalOn(loc)) continue;
     await unmarkSite(loc); removed++;
   }
   return removed;
+}
+
+/** A water plot on the list: an opened canal keeps the marker under its Canal; a Canal ordered over an opened canal
+ * (dug again in a later age) holds it until the build lands; other water is dropped, its marker cleared. */
+async function waterSite(p, loc, want) {
+  const c = canalOn(loc);
+  if (c) { if (!isMarked(loc, markerFor(c.type))) await markCanalTile(loc); return; }
+  const w = want.get(p);
+  if (w) {
+    const f = siteIndex(w.feature);
+    if (f != null && !isMarked(loc, w.feature)) await putFeature(loc, f);
+    return;
+  }
+  if (isMarked(loc)) await putFeature(loc, FeatureTypes.NO_FEATURE);
+  const s = loadSites(); delete s[p]; saveSites(s);
 }
 
 /** Every tile that should hold a marker, with the marker: the AI's sites, queued Canals, the player's orders. */

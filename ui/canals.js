@@ -20,7 +20,9 @@
 //      drawn on it from shipped meshes. On a rural tile the Canal stays and a fishing boat replaces the improvement.
 //      On an urban tile the Canal and the district are destroyed and the plot bought back, then the tile is settled
 //      as a worked rural fishing tile holding the Canal. Ships path through at once. A Canal completed on a tile
-//      that is not a site (an AI's, or a stale save) is left alone.
+//      that is not a site (an AI's, or a stale save) is left alone. An opened canal of an earlier age is a site for
+//      the age's Canal: dug again, it stays water, the old Canal goes, and it takes the new age's yields and look
+//      (replaceableCanal, redigCanal).
 //   4. Safety net. On load and at the start of every turn, every remembered tile and every complete Canal on the
 //      map is re-checked, so a missed event is caught on the next turn.
 //   Multiplayer: the terrain retype is a local call, not a networked operation, so in a network game the Canal is
@@ -289,7 +291,7 @@ function unwrapHosts() {
 
 if (!G[KEY]) {
   G[KEY] = {
-    version: "1.5.6",
+    version: "1.6.0",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
     uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen, localTurnActive,

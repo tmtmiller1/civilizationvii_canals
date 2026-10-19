@@ -3,6 +3,10 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.6.0 | 2026-10-18 | src 28e6e1a8673f | gen 2fcd1b1bcd98 ====
+[b]Version 1.6.0 · 18 October 2026[/b]
+• A canal dug in an earlier age can be dug again. In Exploration and Modern the current age's Canal is offered on your opened canals from earlier ages, in the production and purchase lists like any other site, at its usual cost. The old Canal goes with the order and the canal stays open while the work runs, though its food and gold stop until the new Canal finishes; then the tile takes the new age's food and gold and is drawn again in that age's style. Only under the by-age rules: the one-tile Canal has no age to move up to. The game's AI can dig its own canals again the same way, since an opened canal keeps its site marker.
+
 ==== 1.5.6 | 2026-10-18 | src faa40ebca581 | gen 4551cb199916 ====
 [b]Version 1.5.6 · 18 October 2026[/b]
 • No more freeze at the start of your turn once a canal is open. Up to 1.5.5 the mod wrote the autosave itself at that moment, and a save made from a script stops the game for as long as it takes: over a second on a Huge map late in an age, on every turn. The game writes its own autosaves again, on your frequency and keep count, between the end of one turn and the start of the next, where you're already waiting on the AI; the canals turn to land just before it and are water again as your turn begins, so saves still hold them as canals. If a game from an earlier version left your autosave setting changed, it's put back when the mod next loads.

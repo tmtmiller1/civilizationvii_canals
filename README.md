@@ -130,7 +130,8 @@ Canal, one-tile canals, building one and what happens when it opens), Canal Site
 - or beside an existing or queued canal, as the next tile of that run, within the age's longest run;
 - no unit standing on it;
 - no resource on it: a tile holding a resource can take no building, and the Canal is one;
-- not already a canal, dug or queued.
+- not already a canal of the current age, dug or queued; a canal dug in an earlier age is offered again, to be dug
+  over with the current age's Canal (see the next section).
 
 ## What it gives, and what it costs
 
@@ -145,6 +146,12 @@ tile still becomes a rural tile of the city and the citizen is left for you to p
 | Antiquity | 2 | 2 |
 | Exploration | 3 | 4 |
 | Modern | 4 | 6 |
+
+A canal dug in an earlier age can be dug again. In Exploration and Modern the current age's Canal is offered on your
+own opened canals from earlier ages, in the same lists and at its usual cost. The old Canal goes with the order and the
+canal stays open while the work runs, though its food and gold stop until the new Canal finishes; then the tile takes
+the new age's yields and is drawn again in that age's style. A ship sitting in the canal keeps it out of the lists until
+it moves on. Under the one-tile rules nothing is dug again: that Canal has no age to move up to.
 
 Any number of ships can pass a canal each turn, in every age. Up to 1.5.1 an Antiquity canal took one of your ships
 a turn and an Exploration canal two; that limit is still in the script but switched off (`TRANSIT_LIMIT` in
