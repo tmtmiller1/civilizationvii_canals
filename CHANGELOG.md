@@ -4,7 +4,7 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
-## [Unreleased]
+## [1.6.2] - 2026-10-19
 
 - Civilopedia: the Canal Sites requirements and the Ships and Yields page now say that a canal dug in an earlier age
   is offered again and dug over with the current age's Canal, in English and the 11 translations.

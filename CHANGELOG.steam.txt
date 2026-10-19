@@ -3,6 +3,10 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.6.2 | 2026-10-19 | src 1710bbdc660f | gen 93bfe31803b3 ====
+[b]Version 1.6.2 · 19 October 2026[/b]
+• Civilopedia: the Canal Sites requirements and the Ships and Yields page now say that a canal dug in an earlier age is offered again and dug over with the current age's Canal, in English and the 11 translations.
+
 ==== 1.6.1 | 2026-10-18 | src 480740d89171 | gen 8dcaf97cc80c ====
 [b]Version 1.6.1 · 18 October 2026[/b]
 • No change in game. A new file at the root of the repository, WHAT_I_TRIED.md, lists every route tried for Canals, grouped by the question each one answers: making the canal a navigable river, a district slot with a specialist, the game's river art, AI canals, saves and age changes, and the rest. Each one says what the game did and where it ended, so a suggestion can be checked against it. The README links to it.
