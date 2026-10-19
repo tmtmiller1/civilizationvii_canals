@@ -24,7 +24,7 @@ The main menu choice applies to new games, and a game keeps the rules it was fir
 [h2]In both modes[/h2]
 [list]
 [*][b]Cities and towns.[/b] Build it from the production list or buy it with gold; a bought Canal opens at once. A settlement can dig as many canals as it has sites for.
-[*][b]Where it goes.[/b] A land tile beside water a ship can sail (sea, lake or navigable river): a tile the settlement works, a bare tile within its build ring, or an urban tile whose buildings are all from an earlier age, which the canal replaces. A city or town center counts as a canal end.
+[*][b]Where it goes.[/b] A land tile beside water a ship can sail (sea, lake or navigable river): a tile the settlement works, a bare tile within its build ring, or an urban tile whose buildings are all from an earlier age, which the canal replaces. A city or town center counts as a canal end. A canal you dug in an earlier age can be dug again with the current age's Canal, for its yields and look.
 [*][b]A worked tile.[/b] The finished canal is a fishing tile of the city, and the Canal stays on it as a building with its own yields.
 [*][b]Cliffs.[/b] A canal can cut through cliffs. Where the channel meets a cliff shore it steps down through a lock with gates, a gatehouse and a water wheel.
 [*][b]No traffic limit.[/b] Any number of ships can pass a canal each turn.

@@ -11,6 +11,11 @@ were tried before this design, the probes and the harness runs live in the autho
   the game's river art, AI canals, saves and age changes, and the rest. Each one says what the game did and where it
   ended, so a suggestion can be checked against it. The README links to it.
 
+## [Unreleased]
+
+- Civilopedia: the Canal Sites requirements and the Ships and Yields page now say that a canal dug in an earlier age
+  is offered again and dug over with the current age's Canal, in English and the 11 translations.
+
 ## [1.6.0] - 2026-10-18
 
 - A canal dug in an earlier age can be dug again. In Exploration and Modern the current age's Canal is offered on

@@ -44,7 +44,7 @@
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CONTENT_TITLE" Language="zh_Hant_HK"><Text>基礎</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CONTENT_PARA_1" Language="zh_Hant_HK"><Text>運河只能建造在新形成的水域能與船隻可航行水域相連的格位上：緊鄰海洋、湖泊、可航行河流或已開鑿運河的陸地格位。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_TITLE" Language="zh_Hant_HK"><Text>建造條件</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_PARA_1" Language="zh_Hant_HK"><Text>[BLIST][LI]由該[TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]聚落[/TIP]擁有的平坦或崎嶇土地，且位於其可放置建築的範圍內。[LI]至少有一個方向緊鄰船隻可航行的水域：海洋、湖泊或可航行河流；或者緊鄰已開鑿或建造中的運河，作為該運河的下一個格位。[LI]冰與位於海中的自然奇觀（例如錫拉島火山）不算作水域。[LI]不是可航行河流格位。[LI]聚落正在開發的格位、其可放置建築範圍內的空格位，或建築全部來自早先時代的都會格位（這些建築會被運河取代）。目前時代的建築或不限時代的建築會保留其格位。[LI]格位上沒有單位。[LI]格位上沒有資源。[LI]不是現有的運河，無論是已開鑿或建造中。[/LIST]</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_PARA_1" Language="zh_Hant_HK"><Text>[BLIST][LI]由該[TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]聚落[/TIP]擁有的平坦或崎嶇土地，且位於其可放置建築的範圍內。[LI]至少有一個方向緊鄰船隻可航行的水域：海洋、湖泊或可航行河流；或者緊鄰已開鑿或建造中的運河，作為該運河的下一個格位。[LI]冰與位於海中的自然奇觀（例如錫拉島火山）不算作水域。[LI]不是可航行河流格位。[LI]聚落正在開發的格位、其可放置建築範圍內的空格位，或建築全部來自早先時代的都會格位（這些建築會被運河取代）。目前時代的建築或不限時代的建築會保留其格位。[LI]格位上沒有單位。[LI]格位上沒有資源。[LI]不是當前時代現有的運河，無論是已開鑿或建造中。在先前時代開鑿的運河會再次成為候選，可用當前時代的運河重新開鑿。[/LIST]</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_TITLE" Language="zh_Hant_HK"><Text>聚落中心</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_PARA_1" Language="zh_Hant_HK"><Text>與該格位相鄰的城市中心或城鎮中心可算作船隻能夠抵達的水域，因此聚落可以從中心向外開鑿運河，通往海洋或河流。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_RUNS_TITLE" Language="zh_Hant_HK"><Text>更長的運河</Text></Replace>
@@ -61,7 +61,7 @@
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_CONTENT_TITLE" Language="zh_Hant_HK"><Text>通行</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_CONTENT_PARA_1" Language="zh_Hant_HK"><Text>從運河開通的回合起，海上單位與上船單位即可經由運河在其連通的水域之間移動。每回合可有任意數量的船隻通過運河。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_TITLE" Language="zh_Hant_HK"><Text>收益</Text></Replace>
-        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_1" Language="zh_Hant_HK"><Text>完成的運河是其所屬城市的水域格位，作為漁業格位進行工作。其上的運河建築會依開鑿時所處的時代提供額外收益：古代運河+2[icon:YIELD_FOOD]食物與+2[icon:YIELD_GOLD]金幣，中世紀運河+3[icon:YIELD_FOOD]食物與+4[icon:YIELD_GOLD]金幣，現代運河+4[icon:YIELD_FOOD]食物與+6[icon:YIELD_GOLD]金幣。</Text></Replace>
+        <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_1" Language="zh_Hant_HK"><Text>完成的運河是其所屬城市的水域格位，作為漁業格位進行工作。其上的運河建築會依開鑿時所處的時代提供額外收益：古代運河+2[icon:YIELD_FOOD]食物與+2[icon:YIELD_GOLD]金幣，中世紀運河+3[icon:YIELD_FOOD]食物與+4[icon:YIELD_GOLD]金幣，現代運河+4[icon:YIELD_FOOD]食物與+6[icon:YIELD_GOLD]金幣。 在先前時代開鑿的運河可以用當前時代的運河按通常花費重新開鑿。舊運河隨訂單消失，施工期間運河保持通航；新運河建成後，該格位提供新時代的產出，並以新時代的樣式繪製。單格位運河不會重新開鑿。</Text></Replace>
         <Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_2" Language="zh_Hant_HK"><Text>代價是[icon:YIELD_PRODUCTION]生產力或[icon:YIELD_GOLD]金幣、該陸地格位，以及原本位於其上的任何鄉村改良設施。</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_ONE_TILE_NAME" Language="zh_Hant_HK"><Text>運河</Text></Replace>
         <Replace Tag="LOC_BUILDING_CANAL_ONE_TILE_DESCRIPTION" Language="zh_Hant_HK"><Text>在陸地上開闢一條航道。只能建造在緊鄰船隻可航行水域的陸地格位上，且不能緊鄰其他運河。完成後，該格位會變成水域，所有船隻都可以從中穿行，每回合不限數量。各時代通用同一座建築。</Text></Replace>

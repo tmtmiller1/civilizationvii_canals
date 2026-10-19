@@ -168,7 +168,7 @@
             <Text>Requirements</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_RULES_PARA_1">
-            <Text>[BLIST][LI]Flat or hill land owned by the [TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]Settlement[/TIP], within the area where it can place buildings.[LI]Water a ship can sail on at least one side: sea, lake or Navigable River; or a canal already dug or under construction, as the next tile of that canal.[LI]Ice and natural wonders that stand in the sea, such as Thera, do not count as water.[LI]Not a Navigable River tile.[LI]A tile the Settlement works, a bare tile within the area where it can place buildings, or an urban tile whose buildings are all from an earlier age, which the Canal replaces. A building of the current age, or an ageless one, keeps its tile.[LI]No unit on the tile.[LI]No resource on the tile.[LI]Not already a canal, dug or under construction.[/LIST]</Text>
+            <Text>[BLIST][LI]Flat or hill land owned by the [TIP:LOC_PEDIA_CONCEPTS_SETTLEMENT_TOOLTIP]Settlement[/TIP], within the area where it can place buildings.[LI]Water a ship can sail on at least one side: sea, lake or Navigable River; or a canal already dug or under construction, as the next tile of that canal.[LI]Ice and natural wonders that stand in the sea, such as Thera, do not count as water.[LI]Not a Navigable River tile.[LI]A tile the Settlement works, a bare tile within the area where it can place buildings, or an urban tile whose buildings are all from an earlier age, which the Canal replaces. A building of the current age, or an ageless one, keeps its tile.[LI]No unit on the tile.[LI]No resource on the tile.[LI]Not already a canal of the current age, dug or under construction. A canal dug in an earlier age is offered again, to be dug over with the current age's Canal.[/LIST]</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SITES_CHAPTER_CENTER_TITLE">
             <Text>Settlement Centers</Text>
@@ -221,7 +221,7 @@
             <Text>Yields</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_1">
-            <Text>A finished canal is a water tile of its City, worked as a fishing tile. The Canal building on it adds yields by the age it was dug in: +2 [icon:YIELD_FOOD] Food and +2 [icon:YIELD_GOLD] Gold for an Ancient Canal, +3 [icon:YIELD_FOOD] Food and +4 [icon:YIELD_GOLD] Gold for a Medieval Canal, +4 [icon:YIELD_FOOD] Food and +6 [icon:YIELD_GOLD] Gold for a Modern Canal.</Text>
+            <Text>A finished canal is a water tile of its City, worked as a fishing tile. The Canal building on it adds yields by the age it was dug in: +2 [icon:YIELD_FOOD] Food and +2 [icon:YIELD_GOLD] Gold for an Ancient Canal, +3 [icon:YIELD_FOOD] Food and +4 [icon:YIELD_GOLD] Gold for a Medieval Canal, +4 [icon:YIELD_FOOD] Food and +6 [icon:YIELD_GOLD] Gold for a Modern Canal. A canal dug in an earlier age can be dug again with the current age's Canal, at its usual cost. The old Canal goes with the order and the canal stays open while the work runs; when the new Canal finishes, the tile gives the new age's yields and is drawn in its style. With One-tile canals nothing is dug again.</Text>
         </Row>
         <Row Tag="LOC_PEDIA_CONCEPTS_PAGE_CANALS_SHIPPING_CHAPTER_YIELDS_PARA_2">
             <Text>The cost is the [icon:YIELD_PRODUCTION] Production or [icon:YIELD_GOLD] Gold, the land tile, and any rural Improvement that stood on it.</Text>
