@@ -1,0 +1,6 @@
+# Steam Workshop tags, one per line, from the Civilization VII Workshop's own list.
+# Sent with: tower-bench workshop-tags <mod-folder> --yes
+Mod
+Buildings
+Maps
+Gameplay Tweaks
