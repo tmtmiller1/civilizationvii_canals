@@ -127,8 +127,8 @@ function waterStretches(loc) {
  * A tile holding a resource can take no building at all: the engine refuses every building on it, in a city or a
  * town, built or bought, even with an urban district in place, and gives no reason (c53 to c55: Canal,
  * Grocer and Fishing Quay refused on an ivory and a wine tile, all three taken on a plain tile beside them; not one
- * urban tile on the whole map held a resource). The Canal is a building, and a script cannot clear a resource
- * (ResourceBuilder is map-generation only), so such a tile is never offered.
+ * urban tile on the whole map held a resource). The Canal is a building, so such a tile is never offered. A script
+ * can clear the resource first (WorldBuilder.MapPlots.setResource(-1, loc, 0), mep1), but the player would lose it.
  */
 function hasResource(loc) {
   return safe(() => GameplayMap.getResourceType(loc.x, loc.y) !== ResourceTypes.NO_RESOURCE, false);
