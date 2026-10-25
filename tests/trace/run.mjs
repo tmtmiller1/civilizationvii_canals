@@ -1,5 +1,5 @@
 // run.mjs <old|new> <scenario>: play one scenario of tests/trace/scenarios.mjs against the fake engine and print its
-// trace as JSON. "old" is ui/canals.js as it was at the revision REF names (default edf7c8b, the last single-file
+// trace as JSON. "old" is ui/canals.js as it was at the revision REF names (default 358d1e3, the last single-file
 // script); "new" is the modules in ui/. Each run is its own process, so no module state carries over.
 import fs from "node:fs";
 import os from "node:os";
@@ -30,7 +30,7 @@ registerHooks({
 async function load() {
   globalThis.__canals = { fake: true }; // keeps the script's own install() from running at load
   if (version === "old") {
-    const ref = process.env.REF || "edf7c8b";
+    const ref = process.env.REF || "358d1e3";
     let src = execFileSync("git", ["-C", ROOT, "show", `${ref}:ui/canals.js`], { encoding: "utf8" });
     const names = [...src.matchAll(/^(?:async function |function |const |let )([A-Za-z_$][\w$]*)/gm)].map((m) => m[1]);
     src += `\nexport { ${[...new Set(names)].join(", ")} };\n`;

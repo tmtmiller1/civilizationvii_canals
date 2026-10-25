@@ -47,7 +47,7 @@ Where this differs from the first cut, and why:
 
 ## The move, proved
 
-`devtools/split-proof.py` cuts the last one-file `canals.js` (`edf7c8b`) into its 213 top-level blocks, each
+`devtools/split-proof.py` cuts the last one-file `canals.js` (`358d1e3`) into its 213 top-level blocks, each
 declaration with the comments above it, and looks for each one verbatim in the new files. On the move-only split, 212
 were found in exactly one file. The 213th was the `__canals` object, for the setter line above. After step 3 it also
 lists the functions that were broken up (below) and `aiMajors`, whose block carries the site-markers comment, which
@@ -85,7 +85,7 @@ Each one was split into named steps that keep the same order and the same awaits
 
 They're checked by `tests/canal-sequences.test.mjs`. It plays 34 scenarios (`tests/trace/scenarios.mjs`) against a fake
 engine (`tests/trace/engine.mjs`) where requests land after fixed delays on a virtual clock, once with `canals.js` as it
-was at `edf7c8b` and once with the modules, and compares the two traces: every engine call and `canStart` question with
+was at `358d1e3` and once with the modules, and compares the two traces: every engine call and `canStart` question with
 its time, every log line, the result, and the map and the save's records at the end. The scenarios cover openings on
 rural and urban tiles, a boat that doesn't land, orders bought, built, refused, never placed and sold by the mod,
 install and the whole order path through the wraps, a turn start, the age's end, every repair, the sweep, the site

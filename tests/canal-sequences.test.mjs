@@ -1,6 +1,6 @@
 // canal-sequences.test.mjs - Canals: every engine sequence the mod runs (opening a Canal, the order, the repairs, the
 // sweep, the site markers, the save wrap, install) played against a fake engine on a virtual clock, once with the
-// single-file script as it was at edf7c8b and once with the modules in ui/, and the two traces compared: every engine
+// single-file script as it was at 358d1e3 and once with the modules in ui/, and the two traces compared: every engine
 // call with its time, every log line, the result, and the map and records at the end. A change that keeps the steps,
 // the waits and their order gives the same trace. Scenarios: tests/trace/scenarios.mjs.
 import test from "node:test";

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""split-proof.py [revision] [ui dir]: every top-level block of canals.js as it was at <revision> (default edf7c8b,
+"""split-proof.py [revision] [ui dir]: every top-level block of canals.js as it was at <revision> (default 358d1e3,
 the last commit with one game script) is found verbatim in exactly one of the ui/canals*.js game files.
 
 A block is a top-level declaration with the comments and blank lines above it. Blocks that aren't found verbatim are
@@ -8,13 +8,13 @@ module's setWorksVfx). The later steps broke functions up on purpose, and those 
 held by the tests (tests/canal-sequences.test.mjs for the engine sequences).
 
     python3 devtools/split-proof.py
-    python3 devtools/split-proof.py edf7c8b /path/to/another/ui
+    python3 devtools/split-proof.py 358d1e3 /path/to/another/ui
 """
 import os, re, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
-rev = sys.argv[1] if len(sys.argv) > 1 else "edf7c8b"
+rev = sys.argv[1] if len(sys.argv) > 1 else "358d1e3"
 ui = sys.argv[2] if len(sys.argv) > 2 else os.path.join(REPO, "ui")
 src = subprocess.run(["git", "-C", REPO, "show", f"{rev}:ui/canals.js"], capture_output=True, text=True,
                      check=True).stdout
