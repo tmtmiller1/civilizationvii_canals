@@ -4,6 +4,13 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.6.3] - 2026-10-27
+
+- Fixed a crash at the end of a turn in games with an open canal. Right after the game's autosave, Canals turned the
+  canals back into water while the game was still working through the end of the turn, and now and then that
+  crashed the game. The canals now turn back into water when your next turn begins. They look and work the same as
+  before, ships included.
+
 ## [1.6.2] - 2026-10-19
 
 - Civilopedia: the Canal Sites requirements and the Ships and Yields page now say that a canal dug in an earlier age

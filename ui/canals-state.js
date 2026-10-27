@@ -68,7 +68,9 @@ const state = {
   // messages shown this session (a network game keeps no record of its own)
   told: new Set(),
   // the autosave to load once it is written (offerReload)
-  reloadFrom: null
+  reloadFrom: null,
+  // TurnEnd to TurnBegin: the engine is processing the turn, and no map write may meet that (sc1-sc4)
+  turnOver: false
 };
 
 function canalIndex(v) { return state.canalIndexes.has(v); }

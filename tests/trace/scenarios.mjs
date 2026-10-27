@@ -189,7 +189,8 @@ export const SCENARIOS = {
       && now.trace.filter((l) => /canal opened at/.test(l)).length === 2
       && now.state.some((l) => /^0,1 COAST/.test(l)) && now.state.includes("autosave frequency=1") },
   // the engine's autosave between the turns (te1: StartSaveRequest about 90 ms after TurnEnd, TurnBegin after
-  // SaveComplete): the canals land in the TurnEnd handler, saved as land, Coast again at TurnBegin
+  // SaveComplete): the canals land in the TurnEnd handler, saved as land, Coast again at TurnBegin and not on the
+  // autosave's SaveComplete, while the engine is still processing the turn (sc1-sc3)
   "install, turn end, the engine's autosave, turn begin": { map: COAST, only: "new",
     setup: (e) => { own(e); openRecord(e, [[2, 1], [4, 1]]); for (const x of [2, 4]) e.tile(x, 1, { district: "DISTRICT_RURAL", terrain: "TERRAIN_COAST", builds: [EX] }); },
     act: async (M, e) => {
@@ -206,9 +207,36 @@ export const SCENARIOS = {
       const t = now.trace; const after = (k, re) => t.findIndex((l, n) => n > k && re.test(l));
       const end = t.findIndex((l) => /event TurnEnd/.test(l)), save = after(end, /event StartSaveRequest/), done = after(save, /event SaveComplete/);
       const land = after(end, /setTerrain TERRAIN_FLAT \{"x":2/), land2 = after(end, /setTerrain TERRAIN_FLAT \{"x":4/);
+      const begin = after(done, /event TurnBegin/);
       const coast = after(save, /setTerrain TERRAIN_COAST \{"x":2/);
-      return end >= 0 && land > end && land < save && land2 > end && land2 < save && coast > done
+      return end >= 0 && land > end && land < save && land2 > end && land2 < save && done > save && begin > done
+        && coast > begin
         && !t.some((l) => /Network\.saveGame/.test(l)) && now.state.some((l) => /^2,1 COAST/.test(l)) && now.state.some((l) => /^4,1 COAST/.test(l));
+    } },
+  // a Canal finished between the turn's autosave and TurnBegin, while the engine is still processing the turn: no
+  // retype meets that window (sc1-sc3); the Canal opens once the turn has begun
+  "install, a Canal completed between the turn's autosave and turn begin": { map: COAST, only: "new",
+    setup: (e) => { own(e); openRecord(e, [[4, 1]]); e.tile(4, 1, { district: "DISTRICT_RURAL", terrain: "TERRAIN_COAST", builds: [EX] }); e.tile(2, 1, { district: "DISTRICT_RURAL" }); },
+    act: async (M, e) => {
+      M.install();
+      await new Promise((r) => setTimeout(r, 5000));
+      e.fire("TurnEnd", {});
+      await new Promise((r) => setTimeout(r, 90)); e.fire("StartSaveRequest", {});
+      await new Promise((r) => setTimeout(r, 1400)); e.fire("SaveComplete", {});
+      await new Promise((r) => setTimeout(r, 10));
+      e.tile(2, 1, { district: "DISTRICT_RURAL", builds: [EX] });
+      e.fire("ConstructibleBuildCompleted", { location: at(2, 1), constructibleType: e.typeIndex(EX), constructible: { owner: 0 } });
+      await new Promise((r) => setTimeout(r, 2000)); e.fire("TurnBegin", {});
+      await new Promise((r) => setTimeout(r, 500));
+      e.fire("PlayerTurnDeactivated", { player: 0 }); e.fire("PlayerTurnActivated", { player: 0 });
+      await new Promise((r) => setTimeout(r, 30000));
+    },
+    check: (now) => {
+      const t = now.trace; const after = (k, re) => t.findIndex((l, n) => n > k && re.test(l));
+      const done = t.findIndex((l) => /event SaveComplete/.test(l)), begin = after(done, /event TurnBegin/);
+      const inWindow = t.slice(done + 1, begin).some((l) => /setTerrain/.test(l));
+      return done >= 0 && begin > done && !inWindow && after(begin, /setTerrain TERRAIN_COAST \{"x":2/) > begin
+        && now.state.some((l) => /^2,1 COAST/.test(l)) && now.state.some((l) => /^4,1 COAST/.test(l));
     } },
   // a player coming from 1.5.5 with a game that left the frequency held: their own value is back as the mod installs
   "install, a frequency 1.5.5 left held": { map: COAST, only: "new", options: { autosave: 1003 }, setup: (e) => own(e),

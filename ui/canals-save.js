@@ -39,7 +39,11 @@ function renewOpen(plot, age) {
 // The engine's own autosave is written between TurnEnd and TurnBegin, with StartSaveRequest about 90 ms after TurnEnd
 // (te1, 2026-10-18). A retype to land reads back in 25 ms, so the canals go to land in the TurnEnd handler and the
 // autosave, on the player's own frequency, holds them as land (te1: five turns, the save loaded with none as Coast,
-// no crash); they are Coast again at TurnBegin. Up to 1.5.5 the mod held the engine's autosave instead and wrote its
+// no crash); they are Coast again at TurnBegin, not on that autosave's SaveComplete. The engine is still processing the
+// turn between its autosave and TurnBegin, and a retype in that window crashed the game inside setTerrain (sc1, sc2:
+// three crashes in about 120 Exploration turns, one caught mid-retype with the retype done ten times over); held to
+// TurnBegin, 199 turns ran clean (sc3), and 300 saves made in the player's own turn, each followed at once by the
+// retype, ran clean too (sc4). Up to 1.5.5 the mod held the engine's autosave instead and wrote its
 // own at the start of the player's turn, and that script save stopped the game for over a second on every turn (lag1).
 // The canals are Coast through every AI turn, so AI ships use them. Nothing retypes a plot while state.hold is set,
 // so a Canal finished in that window opens at the next sweep.
@@ -76,9 +80,12 @@ function landAhead(why) {
   return n;
 }
 
-/** The hold is over: canals back to Coast (never while a save runs or is about to, nor once the age is over). */
+/**
+ * The hold is over: canals back to Coast. Never while a save runs or is about to, never between TurnEnd and TurnBegin
+ * (the turn's autosave completes inside that window; TurnBegin does it then), nor once the age is over.
+ */
 function coastAgain() {
-  if (state.saving || state.loading || state.pendingSave) return [];
+  if (state.saving || state.loading || state.pendingSave || state.turnOver) return [];
   if (ageIsOver()) { state.hold = true; retypeCanals("land"); return []; }
   state.hold = false;
   return retypeCanals("coast");
@@ -162,11 +169,13 @@ function releaseEngineAutosave() {
 
 /** The turn is over and the engine's autosave may follow at once: the canals to land first. */
 function onTurnEnd() {
+  state.turnOver = true;
   if (!state.enabled || state.multiplayer || !loadOpen().length) return;
   landAhead("turn end");
 }
 /** The new turn: Coast again (not while a save still runs; onSaveDone does it then). */
 function onTurnBegin() {
+  state.turnOver = false;
   if (!state.enabled || state.multiplayer || !loadOpen().length) return;
   coastAgain();
 }
