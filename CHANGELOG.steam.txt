@@ -3,6 +3,10 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.6.4 | 2026-10-29 | src cd301cc09f1b | gen 62dbf6811fc3 ====
+[b]Version 1.6.4 · 29 October 2026[/b]
+• Fixed Repair on a damaged canal. When unrest or an enemy damaged a canal, the Repair button dug a new canal on another of the settlement's tiles instead, over whatever improvement stood there, and the damaged canal stayed damaged. Repair now goes to the damaged canal itself, and its fishing boat can be repaired too.
+
 ==== 1.6.3 | 2026-10-27 | src 3877b6189f17 | gen fa1463a3955f ====
 [b]Version 1.6.3 · 27 October 2026[/b]
 • Fixed a crash at the end of a turn in games with an open canal. Right after the game's autosave, Canals turned the canals back into water while the game was still working through the end of the turn, and now and then that crashed the game. The canals now turn back into water when your next turn begins. They look and work the same as before, ships included.

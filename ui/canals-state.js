@@ -70,7 +70,9 @@ const state = {
   // the autosave to load once it is written (offerReload)
   reloadFrom: null,
   // TurnEnd to TurnBegin: the engine is processing the turn, and no map write may meet that (sc1-sc4)
-  turnOver: false
+  turnOver: false,
+  // tiles the engine answered as a repair, by city, operation and building (noteRepair in canals-placement.js)
+  repairs: new Set()
 };
 
 function canalIndex(v) { return state.canalIndexes.has(v); }

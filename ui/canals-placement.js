@@ -333,6 +333,7 @@ function wrapCanStart(oCan, placeType, purchase) {
   return function (cityID, type, args, ...rest) {
     const res = oCan(cityID, type, args, ...rest);
     if (!state.enabled || type !== placeType || !args) return res;
+    if (noteRepair(cityID, type, args, res)) return res;
     const def = canalDef(args.ConstructibleType);
     if (!def) return args.ConstructibleType != null ? keepOffCanals(res, args, cityID) : res;
     const refused = refusedCanal(cityID, def, res, args, purchase);
@@ -342,6 +343,26 @@ function wrapCanStart(oCan, placeType, purchase) {
     return pricedCanal({ cityID, def, res, general, loc, purchase });
   };
 }
+
+/**
+ * The engine's answer for a damaged building: a repair, on the tiles it names. Kept as it is, for a Canal and for
+ * anything on an opened canal's tile. Swapped for the canal sites, a pillaged canal's Repair dug a new canal on another
+ * of the settlement's tiles at every click and never mended the old one (a player's report, 2026-10-29).
+ */
+function isRepair(res) { return !!(res && res.RepairDamaged); }
+
+/** A repair answer's tiles remembered for the order that follows (repairOrder): the game's Repair asks canStart for
+ * the tiles before it sends one order per tile. True when the answer is a repair. */
+function noteRepair(cityID, type, args, res) {
+  const loc = plotOf(args);
+  const plots = loc ? [idx(loc)] : (isRepair(res) && res.Plots) || [];
+  for (const p of plots) {
+    const key = repairKey(cityID, type, args.ConstructibleType, p);
+    if (isRepair(res)) state.repairs.add(key); else state.repairs.delete(key);
+  }
+  return isRepair(res);
+}
+function repairKey(cityID, type, ctype, plot) { return `${J(cityID)} ${type} ${ctype} ${plot}`; }
 
 /** A Canal refused before the engine is asked about it anywhere: not the mode's, a network game, or not this tile. */
 function refusedCanal(cityID, def, res, args, purchase) {
@@ -401,7 +422,8 @@ function wrapCanStartQuery(oQuery, host, placeType) {
     if (constructibles == null || queryType !== constructibles) return res;
     for (const t of CANAL_TYPES) {
       const d = safe(() => GameInfo.Constructibles.lookup(t), null);
-      if (!d) continue;
+      // a damaged Canal's repair row stays as the engine lists it, of any age or mode
+      if (!d || isRepair((res.find((e) => e && e.index === d.$index) || {}).result)) continue;
       listCanal(res, d, () => safe(() => host.canStart(cityID, placeType,
         { ConstructibleType: d.$index }, false), null));
     }
@@ -561,11 +583,20 @@ function landed(loc, c, path, local) {
 
 function wrapSendRequest(oSend, path) {
   return function (cityID, type, args, ...rest) {
+    if (repairOrder(cityID, type, args, path)) return oSend(cityID, type, args, ...rest);
     if (onCanalTile(cityID, type, args, path)) return false;
     const loc = canalOrderAt(type, args, path);
     if (!loc) return oSend(cityID, type, args, ...rest);
     return orderCanal(cityID, loc, args, path, () => oSend(cityID, type, args, ...rest));
   };
+}
+
+/** An order on a tile the engine last answered as a repair there (noteRepair): sent on as it is. A damaged canal is
+ * water and no site, and an earlier age's one is dug again (its Canal taken off) if the order is placed as a Canal. */
+function repairOrder(cityID, type, args, path) {
+  if (!state.enabled || type !== path.type || !args || args.ConstructibleType == null) return false;
+  const loc = plotOf(args);
+  return !!loc && state.repairs.has(repairKey(cityID, type, args.ConstructibleType, idx(loc)));
 }
 
 /** Another building's order aimed at an opened canal, or at the tile of a Canal in the city's queue: refused. */

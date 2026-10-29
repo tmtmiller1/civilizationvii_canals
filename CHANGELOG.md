@@ -4,6 +4,12 @@ All notable changes to Canals are documented here. This project follows semantic
 were tried before this design, the probes and the harness runs live in the author's working tree
 (`mod_ideas_tested/canals`), outside this folder.
 
+## [1.6.4] - 2026-10-29
+
+- Fixed Repair on a damaged canal. When unrest or an enemy damaged a canal, the Repair button dug a new canal on
+  another of the settlement's tiles instead, over whatever improvement stood there, and the damaged canal stayed
+  damaged. Repair now goes to the damaged canal itself, and its fishing boat can be repaired too.
+
 ## [1.6.3] - 2026-10-27
 
 - Fixed a crash at the end of a turn in games with an open canal. Right after the game's autosave, Canals turned the
