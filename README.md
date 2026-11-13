@@ -37,8 +37,10 @@ A bought Canal is finished at once: the tile turns to water as soon as the purch
 
 On the placement screen the settlement offers its land tiles that touch water a ship can sail (sea, lake,
 navigable river, or a canal already dug): a tile it works, a bare tile within its build ring, or an urban tile
-whose buildings are all from an earlier age. Where the cut goes, and whether it ever meets the far shore, is the
-player's call.
+whose buildings are all from an earlier age. Past ring 3, any land tile the settlement owns counts too, such as land
+Cultural Diffusion claims for it; the game's build queue stops at ring 3, so a Canal out there is bought, and Canals
+places it and charges the game's price. Where the cut goes, and whether it ever meets the far shore, is the player's
+call.
 
 ![The neck of land at Roma before the cut](gallery/02-exploration-site-before.jpg)
 

@@ -3,6 +3,12 @@ Generated from CHANGELOG.md by scripts/steam-changelog.mjs; release.sh uploads t
 To fix an old Workshop entry, paste the text under its ==== line into that entry's Edit box on the change-notes page.
 A block edited by hand is kept as-is. Delete a block to regenerate it from CHANGELOG.md.
 
+==== 1.7.0 | 2026-11-12 | src 9d3b3af24622 | gen a9900bb33ed8 ====
+[b]Version 1.7.0 · 12 November 2026[/b]
+• Canals reach past ring 3. Any tile your settlement owns can be a canal site, however far out, so land Cultural Diffusion claims for you can be dug too. Past ring 3 a Canal is bought, not built: the game's build queue stops at ring 3, so Canals places the Canal itself and charges the game's price. Inside ring 3 nothing changes.
+• AI civilizations get canals past ring 3 as well, and only where one pays off. At the start of your turn Canals buys an AI a Canal on its own land past ring 3 when the cut saves its ships a long way round, it has the tech, it isn't at war and it keeps twice the price after paying. That's one purchase per civilization a turn and one such canal per settlement.
+• A Canal takes its whole tile, like a Rail Station: no second building goes up beside it, and the placement panel shows it filling the tile.
+
 ==== 1.6.4 | 2026-10-29 | src cd301cc09f1b | gen 62dbf6811fc3 ====
 [b]Version 1.6.4 · 29 October 2026[/b]
 • Fixed Repair on a damaged canal. When unrest or an enemy damaged a canal, the Repair button dug a new canal on another of the settlement's tiles instead, over whatever improvement stood there, and the damaged canal stayed damaged. Repair now goes to the damaged canal itself, and its fishing boat can be repaired too.

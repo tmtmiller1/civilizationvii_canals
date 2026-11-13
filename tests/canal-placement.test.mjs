@@ -9,7 +9,7 @@ const { eligiblePlots, unlockedByMod, replaceableCanal, state } = canals;
 const sorted = (a) => a.slice().sort((x, y) => x - y);
 
 // Exploration. The settlement is at C; every numbered tile touches the sea. 7 and 9 are past the build ring (4 and 6
-// tiles out), 8 is 5 out.
+// tiles out), 8 is 5 out. Past the build ring a tile counts for a purchase and the map's marks, never the build queue.
 const COAST = `
 ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
  . 1 2 3 4 5 6 7 8 9 . .
@@ -33,19 +33,12 @@ const named = (m, ns) => sorted(ns.map(m.plot));
 
 test("eligiblePlots: bare and rural tiles by the water, and urban tiles holding only an earlier age's buildings", () => {
   const m = town();
-  assert.deepEqual(sorted(eligiblePlots(1)), named(m, ["1", "4", "7", "9"]));
+  assert.deepEqual(sorted(eligiblePlots(1)), named(m, ["1", "4", "7", "8", "9"]));
 });
 
 test("eligiblePlots: a unit on a tile keeps it out unless units are allowed (the site marks)", () => {
   const m = town();
-  assert.deepEqual(sorted(eligiblePlots(1, true)), named(m, ["1", "3", "4", "7", "9"]));
-});
-
-test("eligiblePlots: past the build ring only a rural tile counts", () => {
-  const m = town();
-  const got = eligiblePlots(1);
-  assert.ok(got.includes(m.plot("7")) && got.includes(m.plot("9")), "rural tiles 4 and 6 out");
-  assert.ok(!got.includes(m.plot("8")), "a bare tile 5 out");
+  assert.deepEqual(sorted(eligiblePlots(1, true)), named(m, ["1", "3", "4", "7", "8", "9"]));
 });
 
 test("eligiblePlots: on the order's path an urban tile needs the engine's yes for a plain building", () => {
@@ -57,8 +50,22 @@ test("eligiblePlots: on the order's path an urban tile needs the engine's yes fo
   } };
   state.originals = { hosts: [host, host] };
   try {
-    assert.deepEqual(sorted(eligiblePlots(1, false, true)), named(m, ["1", "7", "9"]), "4 isn't in the engine's list");
+    assert.deepEqual(sorted(eligiblePlots(1, false, true)), named(m, ["1", "7", "8", "9"]), "4 isn't in the engine's list");
     assert.ok(ask.length > 0, "the engine was asked");
+  } finally { state.originals = null; }
+});
+
+test("eligiblePlots: past the build ring any owned tile counts for a purchase, none for the build queue", () => {
+  const m = town();
+  // the engine's list is cached per settlement for a second, so this answers as the test before it
+  const host = { host: {}, type: 9, canStart: () => ({ Plots: ["1", "7", "9"].map(m.plot) }) };
+  state.originals = { hosts: [host, host] };
+  try {
+    const buy = eligiblePlots(1, false, true);
+    assert.ok(["7", "8", "9"].every((n) => buy.includes(m.plot(n))), "rural 4 and 6 out, bare 5 out: all buyable");
+    const build = eligiblePlots(1, false, false);
+    assert.ok(["7", "8", "9"].every((n) => !build.includes(m.plot(n))), "none of them in the build queue");
+    assert.ok(build.includes(m.plot("1")), "inside the ring the queue still has its sites");
   } finally { state.originals = null; }
 });
 
@@ -176,10 +183,11 @@ test("repair: the damaged canal's tile is offered, not the settlement's canal si
     assert.equal(anywhere.RepairDamaged, true);
     const there = host.canStart(1, 7, { ConstructibleType: ANTIQUITY(), ...at(m, "4") }, false);
     assert.equal(there.Success, true, "the water tile isn't refused as no isthmus");
-    // the same engine with nothing damaged: the canal sites, as before
+    // the same engine with nothing damaged: the canal sites, as before; this host is the build queue, which never
+    // reaches past ring 3, so the rural tile 4 out isn't one of them (canals-reach.js)
     const fresh = damagedCanal(0, () => ({ Success: true, Plots: [] }));
     assert.deepEqual(sorted(fresh.host.canStart(1, 7, { ConstructibleType: ANTIQUITY() }, false).Plots),
-      named(fresh.m, ["1", "7"]));
+      named(fresh.m, ["1"]));
   } finally { state.enabled = false; }
 });
 

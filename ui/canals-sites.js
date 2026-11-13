@@ -5,6 +5,7 @@
 
 import { canalOn, clearableFeature, featureOf, idx, isWater, locOf } from "./canals-map.js";
 import { canalDef, eligiblePlots, isOfferedCanal } from "./canals-placement.js";
+import { pastNativeRing } from "./canals-reach.js";
 import { canalWorth } from "./canals-rule.js";
 import {
   CANAL_TYPES, ONE_TILE_CANAL, loadOpen, loadPending, log, oneTileMode, safe, sleep, state
@@ -182,10 +183,14 @@ async function unmarkSite(loc) {
   if (isMarked(loc)) await putFeature(loc, was != null ? was : FeatureTypes.NO_FEATURE);
 }
 
-/** Every tile where a canal is worth it to the AI player that owns it, with its worth. */
+/** Every tile where a canal is worth it to the AI player that owns it, with its worth. Inside ring 3 only: these are
+ * the sites the AI's own production builds on, and it can't build past ring 3 (canals-reach.js). */
 function aiSites() {
   const out = new Map();
-  for (const [pid, city] of aiSettlements()) for (const p of eligiblePlots(city.id, true)) addSite(out, pid, p);
+  for (const [pid, city] of aiSettlements()) {
+    const centre = safe(() => city.location, null);
+    for (const p of eligiblePlots(city.id, true)) if (!pastNativeRing(centre, locOf(p))) addSite(out, pid, p);
+  }
   return out;
 }
 
@@ -220,7 +225,8 @@ async function aiSitesSpread() {
   for (const [pid, city] of aiSettlements()) {
     await pause();
     const plots = eligiblePlots(city.id, true);
-    for (const p of plots) { await pause(); addSite(out, pid, p); }
+    const centre = safe(() => city.location, null);
+    for (const p of plots) { await pause(); if (!pastNativeRing(centre, locOf(p))) addSite(out, pid, p); }
   }
   return out;
 }

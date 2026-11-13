@@ -12,7 +12,11 @@ const COAST = `
 `;
 const EX = "BUILDING_CANAL_EXPLORATION";
 const at = (x, y) => ({ x, y });
-const own = (eng) => { for (let y = 1; y <= 3; y++) for (let x = 0; x < 7; x++) eng.tile(x, y, { own: true }); };
+// The settlement's tiles: the strip around C (3,2), all of it inside ring 3 but 6,1 and 6,3, which are 4 out. Those two
+// are left unowned unless `outer` asks for them: the old script never offered a bare tile past ring 3, and Canals 1.7
+// offers it for a purchase (canals-reach.js), so the old-against-new scenarios keep to the tiles both treat alike.
+const OUTER = new Set(["6,1", "6,3"]);
+const own = (eng, outer = false) => { for (let y = 1; y <= 3; y++) for (let x = 0; x < 7; x++) if (outer || !OUTER.has(`${x},${y}`)) eng.tile(x, y, { own: true }); };
 const openRecord = (eng, list) => eng.config.set("Canals_Open_v1", JSON.stringify(list.map(([x, y, land]) =>
   ({ plot: eng.plotOf(at(x, y)), age: "AGE_EXPLORATION", cliffs: [], land: land || "TERRAIN_FLAT" }))));
 const pending = (eng, list) => eng.config.set("Canals_Pending_v1", JSON.stringify(list.map(([x, y]) => eng.plotOf(at(x, y)))));
@@ -168,6 +172,29 @@ export const SCENARIOS = {
         C.canStartQuery(1, 2, 7), C.sendRequest(1, 2, { ConstructibleType: ct, X: 2, Y: 1 })];
       await new Promise((r) => setTimeout(r, 6000));
       return reads;
+    } },
+  // past ring 3 the game refuses both orders, so a bought Canal is placed by the mod: the rural district and the Canal
+  // with the city as Parent, charged the game's price, then opened (lab 2026-11-12, docs/verification-runs.md)
+  "install, a Canal bought past ring 3": { map: COAST, only: "new",
+    setup: (e) => own(e, true),
+    act: async (M, e) => {
+      globalThis.Game.CityCommands.canStart = verdicts(e); globalThis.Game.CityOperations.canStart = verdicts(e);
+      M.install();
+      const C = globalThis.Game.CityCommands, B = globalThis.Game.CityOperations; const ct = e.typeIndex(EX);
+      const buy = C.canStart(1, 2, { ConstructibleType: ct, X: 6, Y: 1 }, false);
+      const list = C.canStart(1, 2, { ConstructibleType: ct }, false);
+      const build = B.canStart(1, 1, { ConstructibleType: ct }, false);
+      const sent = C.sendRequest(1, 2, { ConstructibleType: ct, X: 6, Y: 1 });
+      await new Promise((r) => setTimeout(r, 6000));
+      return { buy: buy.Success, listed: (list.Plots || []).includes(e.plotOf(at(6, 1))), built: (build.Plots || []).includes(e.plotOf(at(6, 1))), sent };
+    },
+    check: (now) => {
+      const r = now.result;
+      return r.buy === true && r.listed && !r.built && r.sent === true
+        && now.trace.some((l) => /CREATE_ELEMENT \{"Kind":"DISTRICT","Type":"DISTRICT_RURAL","Location":\{"x":6,"y":1\},"Parent":/.test(l))
+        && now.trace.some((l) => /CREATE_ELEMENT \{"Kind":"CONSTRUCTIBLE","Type":"BUILDING_CANAL_EXPLORATION","Location":\{"x":6,"y":1\},"Parent":/.test(l))
+        && now.trace.some((l) => /Players\.grantYield 0 YIELD_GOLD -/.test(l))
+        && now.trace.some((l) => /log \[Canals\] Canal placed by the mod past ring 3 at 6,1/.test(l));
     } },
   "install in a network game": { map: COAST, options: { multiplayer: true }, setup: (e) => own(e),
     act: (M, e) => { globalThis.Game.CityCommands.canStart = verdicts(e); M.install();

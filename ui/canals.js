@@ -41,6 +41,7 @@ import { hasResource, idx, locOf, waterAreas } from "./canals-map.js";
 import { districtHolder, localTurnActive, openCanal } from "./canals-open.js";
 import { eligiblePlots, unlockNode, unlockedByMod, wrapHost } from "./canals-placement.js";
 import { repairCitylessDistricts, sweep } from "./canals-repair.js";
+import { aiOuterCanals } from "./canals-outer-ai.js";
 import { canalWorth, isIsthmus, waterSides } from "./canals-rule.js";
 import {
   autosaveName, autosaveParams, isLocal, keepLandLook, onAgeEnded, onSaveDone, onSaveStart, onTurnBegin, onTurnEnd,
@@ -101,6 +102,7 @@ function onTurnActivated(d) {
   if (!isLocal(d)) return;
   setTimeout(sweep, SETTLE_MS);
   setTimeout(syncSites, 3000); // after the autosave and the sweep
+  setTimeout(() => { aiOuterCanals().catch((e) => log("AI outer canals threw " + e)); }, 4500); // after the site pass
 }
 
 function onBuildCompleted(data) {
@@ -291,7 +293,7 @@ function unwrapHosts() {
 
 if (!G[KEY]) {
   G[KEY] = {
-    version: "1.6.4",
+    version: "1.7.0",
     set enabled(v) { state.enabled = !!v; },
     get enabled() { return state.enabled; },
     uninstall, isIsthmus, eligiblePlots, openCanal, sweep, loadPending, loadOpen, localTurnActive,

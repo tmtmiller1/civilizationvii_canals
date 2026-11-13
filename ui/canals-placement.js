@@ -10,10 +10,11 @@ import {
 } from "./canals-map.js";
 import { createRuralDistrict, destroyDistrict, openCanal } from "./canals-open.js";
 import { queuedHere } from "./canals-repair.js";
+import { inReach, pastNativeRing } from "./canals-reach.js";
 import { isIsthmus } from "./canals-rule.js";
 import { aiSites, loadSites, markSite, markerFor, unmarkSite } from "./canals-sites.js";
 import {
-  AGE_RANK, BUILD_RADIUS, CANAL_TYPES, J, ONE_TILE_CANAL, PLACE_MS, SETTLE_MS, ageRank, canalIndex, forget, loadOpen,
+  AGE_RANK, CANAL_TYPES, J, ONE_TILE_CANAL, PLACE_MS, SETTLE_MS, ageRank, canalIndex, forget, loadOpen,
   loadPending, log, oneTileMode, remember, safe, sleep, state
 } from "./canals-state.js";
 
@@ -124,7 +125,7 @@ function offeredPlots(r) {
 function eligiblePlots(cityID, anyUnits = false, purchase = null) {
   const city = safe(() => Cities.get(cityID), null);
   if (!city) return [];
-  const s = { centre: safe(() => city.location, null), anyUnits,
+  const s = { centre: safe(() => city.location, null), anyUnits, purchase,
     engine: purchase == null ? null : enginePlots(cityID, purchase) };
   // what stands on each tile is read once for both judgements
   return safe(() => city.getPurchasedPlots() || [], [])
@@ -163,14 +164,14 @@ function freshSite(p, s, occ) {
   return s.anyUnits || safe(() => (MapUnits.getUnits(loc.x, loc.y) || []).length, 0) <= 0;
 }
 
-/** Bare, rural or urban, and within reach: an urban tile where the engine would put a plain building, a rural tile
- * anywhere the settlement holds, a bare one inside its build ring. */
+/** Bare, rural or urban, and within reach (canals-reach.js): inside ring 3 any of them, an urban tile where the engine
+ * would put a plain building; past ring 3 any tile the settlement owns, for a purchase or a site mark but never the
+ * build queue. */
 function inBuildReach(p, loc, s) {
   const d = districtAt(loc);
   if (d !== "" && d !== "DISTRICT_RURAL" && d !== "DISTRICT_URBAN") return false;
   if (d === "DISTRICT_URBAN" && s.engine && !s.engine.has(p)) return false;
-  const away = () => safe(() => GameplayMap.getPlotDistance(s.centre.x, s.centre.y, loc.x, loc.y), 99);
-  return !(d !== "DISTRICT_RURAL" && s.centre && away() > BUILD_RADIUS);
+  return inReach(s.centre, loc, s.purchase == null ? null : !!s.purchase);
 }
 
 /**
@@ -574,7 +575,8 @@ function canalOfOrder(loc, ctype) {
 function landed(loc, c, path, local) {
   if (path.soldFor != null) {
     safe(() => Players.grantYield(local, YieldTypes.YIELD_GOLD, -path.soldFor));
-    log(`Canal sold by the mod at ${loc.x},${loc.y} for ${path.soldFor} gold (its tech was researched before the mod was added)`);
+    log(path.outer ? `Canal placed by the mod past ring 3 at ${loc.x},${loc.y} for ${path.soldFor} gold`
+      : `Canal sold by the mod at ${loc.x},${loc.y} for ${path.soldFor} gold (its tech was researched before the mod was added)`);
   }
   log(`Canal ${path.purchase ? "bought" : "queued"} at ${loc.x},${loc.y} on ${districtAt(loc) || "no district"}`);
   if (path.purchase && c.complete) setTimeout(() => openCanal(loc, local), SETTLE_MS);
@@ -625,6 +627,8 @@ function canalOrderAt(type, args, path) {
 /** A Canal order on a site: sold by the mod, refused for gold, or placed (placeCanal). */
 function orderCanal(cityID, loc, args, path, forward) {
   const def = canalDef(args.ConstructibleType);
+  const centre = safe(() => Cities.get(cityID).location, null);
+  if (pastNativeRing(centre, loc)) return outerCanal(cityID, loc, def, args, path);
   const general = safe(() => path.oCan.call(path.host, cityID, path.type,
     { ConstructibleType: args.ConstructibleType }, false), null);
   if (path.purchase && engineSaysNo(general) && unlockedByMod(cityOwner(cityID), def, general))
@@ -645,6 +649,26 @@ function sellCanal(cityID, loc, def, args, path) {
   const place = () => safe(() => Game.PlayerOperations.sendRequest(GameContext.localPlayerID, "CREATE_ELEMENT",
     { Kind: "CONSTRUCTIBLE", Type: def.ConstructibleType, Location: { x: loc.x, y: loc.y }, Owner: cityOwner(cityID) }));
   placeCanal(cityID, loc, args.ConstructibleType, place, { ...path, soldFor: price.cost });
+  return true;
+}
+
+/**
+ * A Canal past ring 3, where the game refuses both its orders: bought only, placed by the mod on a rural district held
+ * by the city and charged the game's own price (lab 2026-11-12: such a Canal opened and held). A build order, or a tile
+ * out of reach, is refused.
+ */
+function outerCanal(cityID, loc, def, args, path) {
+  const centre = safe(() => Cities.get(cityID).location, null);
+  if (!path.purchase || !inReach(centre, loc, true)) {
+    log(`no Canal at ${loc.x},${loc.y}: past ring 3 it can only be bought`);
+    return false;
+  }
+  const price = modPrice(cityID, def);
+  if (price.short) { log(`not enough gold for the Canal at ${loc.x},${loc.y} (${price.cost})`); return false; }
+  const place = () => safe(() => Game.PlayerOperations.sendRequest(GameContext.localPlayerID, "CREATE_ELEMENT",
+    { Kind: "CONSTRUCTIBLE", Type: def.ConstructibleType, Location: { x: loc.x, y: loc.y }, Parent: cityID,
+      Owner: cityOwner(cityID) }));
+  placeCanal(cityID, loc, args.ConstructibleType, place, { ...path, soldFor: price.cost, outer: true });
   return true;
 }
 

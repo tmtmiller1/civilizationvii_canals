@@ -16,6 +16,14 @@
         <Row Type="BUILDING_CANAL_MODERN" Kind="KIND_CONSTRUCTIBLE"/>
         <Row Type="BUILDING_CANAL_ONE_TILE" Kind="KIND_CONSTRUCTIBLE"/>
     </Types>
+    <!-- A Canal takes its whole tile, like the Rail Station: no second building beside it, and the placement panel
+         shows it filling the tile. -->
+    <TypeTags>
+        <Row Type="BUILDING_CANAL_ANTIQUITY" Tag="FULL_TILE"/>
+        <Row Type="BUILDING_CANAL_EXPLORATION" Tag="FULL_TILE"/>
+        <Row Type="BUILDING_CANAL_MODERN" Tag="FULL_TILE"/>
+        <Row Type="BUILDING_CANAL_ONE_TILE" Tag="FULL_TILE"/>
+    </TypeTags>
     <Constructibles>
         <Row ConstructibleType="BUILDING_CANAL_ANTIQUITY" Name="LOC_BUILDING_CANAL_ANTIQUITY_NAME" Description="LOC_BUILDING_CANAL_DESCRIPTION" Tooltip="LOC_BUILDING_CANAL_TOOLTIP" ConstructibleClass="BUILDING" Cost="300" Population="1" Age="AGE_ANTIQUITY"/>
         <Row ConstructibleType="BUILDING_CANAL_EXPLORATION" Name="LOC_BUILDING_CANAL_EXPLORATION_NAME" Description="LOC_BUILDING_CANAL_DESCRIPTION" Tooltip="LOC_BUILDING_CANAL_TOOLTIP" ConstructibleClass="BUILDING" Cost="500" Population="1" Age="AGE_EXPLORATION"/>
